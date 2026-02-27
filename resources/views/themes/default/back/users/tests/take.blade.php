@@ -950,7 +950,6 @@
         <aside id="calcPane" class="calc-pane" aria-label="Calculator">
           <div class="calc-header">
             <div class="calc-controls">
-              <button type="button" id="btnToggleKeypad" class="btn-sm">⌨️ Show Keypad</button>
               <button type="button" id="btnExpandCalc" class="btn-sm">↕️ Expand</button>
             </div>
             <button type="button" id="btnCloseCalc" class="btn" style="background:#111827">Close</button>
@@ -1604,25 +1603,17 @@
   desmosCalc: null,
   calculatorInitialized: false,
   DESMOS_FALLBACK_MS: 2000,
-  keypadVisible: false,
+  
 
   init() {
     const btnOpen = document.getElementById('btnCalc');
     const btnClose = document.getElementById('btnCloseCalc');
-    const btnToggleKeypad = document.getElementById('btnToggleKeypad');
     const btnExpandCalc = document.getElementById('btnExpandCalc');
 
     if (btnOpen) btnOpen.addEventListener('click', () => this.open());
     if (btnClose) btnClose.addEventListener('click', () => this.close());
 
-    if (btnToggleKeypad) {
-      btnToggleKeypad.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.toggleKeypad();
-      });
-    }
-
+    
     if (btnExpandCalc) btnExpandCalc.addEventListener('click', () => this.toggleExpand());
   },
 
@@ -1652,17 +1643,16 @@
         el.innerHTML = '';
 
         this.desmosCalc = Desmos.GraphingCalculator(el, {
-          keypad: false,
-          expressions: true,
-          settingsMenu: true,
-          expressionsCollapsed: true
-        });
+  keypad: true,
+  expressions: true,
+  settingsMenu: true,
+  expressionsCollapsed: true
+});
 
-        this.calculatorInitialized = true;
-        this.keypadVisible = false;
+this.calculatorInitialized = true;
+this.keypadVisible = true;
 
-        this.syncKeypadButton();
-
+setTimeout(() => this.desmosCalc?.resize?.(), 150);
         setTimeout(() => this.desmosCalc?.resize?.(), 150);
       } else {
         setTimeout(waitForDesmos, 200);
@@ -1728,12 +1718,7 @@
     setTimeout(() => this.desmosCalc?.resize?.(), 120);
   },
 
-  syncKeypadButton() {
-    const btn = document.getElementById('btnToggleKeypad');
-    if (!btn) return;
-
-    btn.textContent = this.keypadVisible ? '⌨️ Hide Keypad' : '⌨️ Show Keypad';
-  },
+  
 
   toggleExpand() {
     const calcBody = document.getElementById('calcBody');
