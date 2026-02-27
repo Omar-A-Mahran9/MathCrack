@@ -631,6 +631,30 @@
                 margin-top: 10px;
             }
         }
+
+        /* Force correct option to be green even if selected */
+.option-review.option-correct{
+  background: #d1fae5;
+  border: 1px solid #10b981;
+  color: #065f46;
+}
+
+.option-review.option-correct .option-letter{
+  background: #10b981;
+  color: #fff;
+}
+
+/* When correct AND selected, keep it green not blue */
+.option-review.option-correct.option-selected{
+  background: #d1fae5;
+  border: 1px solid #10b981;
+  color: #065f46;
+}
+
+.option-review.option-correct.option-selected .option-letter{
+  background: #10b981;
+  color: #fff;
+}
     </style>
 @endsection
 
