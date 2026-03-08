@@ -22,10 +22,12 @@ class TestQuestion extends Model
         'explanation_image',
         'question_image',
         'type',
-        'part',                    // النظام القديم: 'part1', 'part2', إلخ.
-        'module_number',           // النظام الجديد: 1, 2, 3, إلخ.
+        'part',
+        'module_number',
         'question_order',
         'score',
+        'difficulty',
+        'content',
         'correct_answer'
     ];
 
@@ -37,6 +39,8 @@ class TestQuestion extends Model
         'question_order' => 'integer',
         'score' => 'integer',
         'module_number' => 'integer',
+        'difficulty' => 'string',
+        'content' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
@@ -65,22 +69,20 @@ class TestQuestion extends Model
     {
         parent::boot();
 
-        // تعيين تلقائي لـ module_number من part إذا لم يكن معينًا
         static::creating(function ($model) {
             if (empty($model->module_number) && !empty($model->part)) {
                 $model->module_number = self::convertPartToModule($model->part);
             }
-            
-            // تأكيد أن order موجود
+
             if (empty($model->question_order)) {
                 $maxOrder = self::where('test_id', $model->test_id)
                     ->where('module_number', $model->module_number ?? self::convertPartToModule($model->part))
                     ->max('question_order');
+
                 $model->question_order = $maxOrder ? $maxOrder + 1 : 1;
             }
         });
 
-        // تعيين تلقائي لـ part من module_number للتخلفية الرجعية
         static::saving(function ($model) {
             if (!empty($model->module_number) && empty($model->part)) {
                 $model->part = self::convertModuleToPart($model->module_number);
@@ -97,7 +99,7 @@ class TestQuestion extends Model
             return 1;
         }
 
-        return match($part) {
+        return match ($part) {
             'part1' => 1,
             'part2' => 2,
             'part3' => 3,
@@ -112,19 +114,19 @@ class TestQuestion extends Model
      */
     public static function convertModuleToPart($moduleNumber): string
     {
-        $moduleNumber = max(1, min(5, (int)$moduleNumber));
+        $moduleNumber = max(1, min(5, (int) $moduleNumber));
         return "part{$moduleNumber}";
     }
 
     /**
-     * الحصول على رقم الموديول الفعال (دعم النظام الهجين)
+     * الحصول على رقم الموديول الفعال
      */
     public function getEffectiveModuleAttribute(): int
     {
         if (!empty($this->module_number)) {
             return $this->module_number;
         }
-        
+
         return self::convertPartToModule($this->part);
     }
 
@@ -152,15 +154,13 @@ class TestQuestion extends Model
         if (!$this->module_number && !$this->part) {
             return 'بدون موديول';
         }
-        
+
         $moduleNum = $this->effective_module;
-        
-        // محاولة الحصول من العلاقة أولاً
+
         if ($this->moduleRelation && $this->moduleRelation->name) {
             return $this->moduleRelation->name;
         }
-        
-        // محاولة من موديولات الاختبار
+
         if ($this->test && method_exists($this->test, 'getModule')) {
             $module = $this->test->getModule($moduleNum);
             if ($module) {
@@ -168,12 +168,11 @@ class TestQuestion extends Model
                 return $moduleData['name'] ?? "الموديول {$moduleNum}";
             }
         }
-        
-        // التراجع إلى العرض الرقمي أو عرض الجزء
+
         if ($this->is_new_system) {
             return "الموديول {$moduleNum}";
         }
-        
+
         return $this->part_display;
     }
 
@@ -185,13 +184,13 @@ class TestQuestion extends Model
         if (!$this->test) {
             return null;
         }
-        
+
         $moduleNum = $this->effective_module;
-        
+
         if (method_exists($this->test, 'getModule')) {
             return $this->test->getModule($moduleNum);
         }
-        
+
         return null;
     }
 
@@ -231,13 +230,13 @@ class TestQuestion extends Model
         } catch (\Exception $e) {
             return $this->belongsTo(TestModule::class)->whereNull('id');
         }
-        
+
         if (!$this->module_number) {
             return $this->belongsTo(TestModule::class)->whereNull('id');
         }
-        
+
         return $this->belongsTo(TestModule::class, 'module_number', 'order')
-                    ->where('test_id', $this->test_id);
+            ->where('test_id', $this->test_id);
     }
 
     /**
@@ -249,7 +248,7 @@ class TestQuestion extends Model
     }
 
     /**
-     * الحصول على جميع الخيارات لهذا السؤال (لأسئلة الاختيار المتعدد)
+     * الحصول على جميع الخيارات لهذا السؤال
      */
     public function options(): HasMany
     {
@@ -257,7 +256,7 @@ class TestQuestion extends Model
     }
 
     /**
-     * الحصول على الخيار الصحيح لأسئلة الاختيار المتعدد
+     * الحصول على الخيار الصحيح
      */
     public function correctOption()
     {
@@ -265,7 +264,7 @@ class TestQuestion extends Model
     }
 
     /**
-     * الحصول على جميع الخيارات الصحيحة (لإجابات متعددة صحيحة)
+     * الحصول على جميع الخيارات الصحيحة
      */
     public function correctOptions(): HasMany
     {
@@ -281,7 +280,7 @@ class TestQuestion extends Model
     }
 
     /**
-     * اسم بديل لـ studentAnswers (لوصول أسهل في العروض)
+     * اسم بديل لـ studentAnswers
      */
     public function answers(): HasMany
     {
@@ -331,11 +330,11 @@ class TestQuestion extends Model
             'numeric' => ['numeric', 'number'],
             'identification' => ['it', 'identification', 'text']
         ];
-        
+
         if (isset($typeMap[$type])) {
             return in_array($this->type, $typeMap[$type]);
         }
-        
+
         return $this->type === $type;
     }
 
@@ -344,7 +343,7 @@ class TestQuestion extends Model
      */
     public function getTypeDisplayAttribute(): string
     {
-        return match($this->type) {
+        return match ($this->type) {
             'mcq', 'mcd', 'multiple_choice' => 'اختيار متعدد',
             'tf', 'true_false' => 'صح/خطأ',
             'numeric', 'number' => 'رقمي',
@@ -355,11 +354,11 @@ class TestQuestion extends Model
     }
 
     /**
-     * الحصول على اسم عرض الجزء (النظام القديم)
+     * الحصول على اسم عرض الجزء
      */
     public function getPartDisplayAttribute(): string
     {
-        return match($this->part) {
+        return match ($this->part) {
             'part1' => 'الجزء 1',
             'part2' => 'الجزء 2',
             'part3' => 'الجزء 3',
@@ -381,7 +380,6 @@ class TestQuestion extends Model
         switch (true) {
             case $this->isMcq():
                 if (is_numeric($answer) || is_string($answer)) {
-                    // البحث عن الخيار المختار
                     $selectedOption = $this->options()->find($answer);
                     if ($selectedOption && $selectedOption->is_correct) {
                         $isCorrect = true;
@@ -389,15 +387,15 @@ class TestQuestion extends Model
                         $details['selected_option'] = $selectedOption->option_text;
                     }
                 } elseif (is_array($answer)) {
-                    // لإجابات متعددة صحيحة
                     $correctOptions = $this->correctOptions()->pluck('id')->toArray();
                     sort($answer);
                     sort($correctOptions);
-                    
+
                     if ($answer == $correctOptions) {
                         $isCorrect = true;
                         $scoreEarned = $this->score;
                     }
+
                     $details['selected_options'] = $answer;
                     $details['correct_options'] = $correctOptions;
                 }
@@ -406,14 +404,15 @@ class TestQuestion extends Model
             case $this->isTrueFalse():
                 $correctAnswer = strtolower(trim($this->correct_answer));
                 $studentAnswer = strtolower(trim($answer));
-                
+
                 $correctAnswer = in_array($correctAnswer, ['true', '1', 'yes', 'صح', 'نعم']) ? 'true' : 'false';
                 $studentAnswer = in_array($studentAnswer, ['true', '1', 'yes', 'صح', 'نعم']) ? 'true' : 'false';
-                
+
                 if ($correctAnswer === $studentAnswer) {
                     $isCorrect = true;
                     $scoreEarned = $this->score;
                 }
+
                 $details['correct'] = $correctAnswer;
                 $details['student'] = $studentAnswer;
                 break;
@@ -422,26 +421,26 @@ class TestQuestion extends Model
                 $correctAnswer = (float) $this->correct_answer;
                 $studentAnswer = (float) $answer;
 
-                // السماح بهامش خطأ صغير للإجابات الرقمية
                 $margin = 0.01;
                 if (abs($correctAnswer - $studentAnswer) <= $margin) {
                     $isCorrect = true;
                     $scoreEarned = $this->score;
                 }
+
                 $details['correct'] = $correctAnswer;
                 $details['student'] = $studentAnswer;
                 $details['difference'] = abs($correctAnswer - $studentAnswer);
                 break;
 
             default:
-                // للأسئلة النصية/التحديد
                 $correctAnswer = strtolower(trim($this->correct_answer));
                 $studentAnswer = strtolower(trim($answer));
-                
+
                 if ($correctAnswer === $studentAnswer) {
                     $isCorrect = true;
                     $scoreEarned = $this->score;
                 }
+
                 $details['correct'] = $correctAnswer;
                 $details['student'] = $studentAnswer;
                 break;
@@ -501,7 +500,9 @@ class TestQuestion extends Model
             ],
             'order' => $this->question_order,
             'score' => $this->score,
-            'difficulty' => $this->getDifficulty(),
+            'difficulty' => $this->difficulty,
+            'difficulty_label' => $this->getDifficultyLabel(),
+            'content' => $this->content,
             'correct_answer' => $this->correct_answer,
             'correct_answer_display' => $this->correct_answer_display,
             'images' => [
@@ -520,7 +521,7 @@ class TestQuestion extends Model
         ];
 
         if ($this->isMcq()) {
-            $info['options'] = $this->options->map(function($option) {
+            $info['options'] = $this->options->map(function ($option) {
                 return [
                     'id' => $option->id,
                     'text' => $option->option_text,
@@ -537,7 +538,6 @@ class TestQuestion extends Model
             ];
         }
 
-        // إضافة الإحصائيات إذا كانت العلاقة محملة
         if ($this->relationLoaded('studentAnswers')) {
             $info['statistics'] = $this->getStatistics();
         }
@@ -554,7 +554,7 @@ class TestQuestion extends Model
     }
 
     /**
-     * نطاق للأسئلة في جزء محدد (النظام القديم)
+     * نطاق للأسئلة في جزء محدد
      */
     public function scopeInPart($query, $part)
     {
@@ -566,9 +566,9 @@ class TestQuestion extends Model
      */
     public function scopeWithEffectiveModule($query, $moduleNumber)
     {
-        return $query->where(function($q) use ($moduleNumber) {
+        return $query->where(function ($q) use ($moduleNumber) {
             $q->where('module_number', $moduleNumber)
-              ->orWhere('part', self::convertModuleToPart($moduleNumber));
+                ->orWhere('part', self::convertModuleToPart($moduleNumber));
         });
     }
 
@@ -583,11 +583,11 @@ class TestQuestion extends Model
             'numeric' => ['numeric', 'number'],
             'identification' => ['it', 'identification', 'text']
         ];
-        
+
         if (isset($typeMap[$type])) {
             return $query->whereIn('type', $typeMap[$type]);
         }
-        
+
         return $query->where('type', $type);
     }
 
@@ -629,7 +629,7 @@ class TestQuestion extends Model
     public function scopeWithImage($query)
     {
         return $query->whereNotNull('question_image')
-                     ->where('question_image', '!=', '');
+            ->where('question_image', '!=', '');
     }
 
     /**
@@ -637,29 +637,26 @@ class TestQuestion extends Model
      */
     public function scopeWithExplanation($query)
     {
-        return $query->where(function($q) {
+        return $query->where(function ($q) {
             $q->whereNotNull('explanation')
-              ->orWhereNotNull('explanation_image');
+                ->orWhereNotNull('explanation_image');
         });
     }
 
     /**
-     * نطاق للأسئلة حسب الصعوبة
+     * نطاق للأسئلة حسب الصعوبة المخزنة
      */
     public function scopeByDifficulty($query, $difficulty)
     {
-        $scoreRanges = [
-            'easy' => [0, 1],
-            'medium' => [2, 3],
-            'hard' => [4, 100]
-        ];
-        
-        if (isset($scoreRanges[$difficulty])) {
-            [$min, $max] = $scoreRanges[$difficulty];
-            return $query->whereBetween('score', [$min, $max]);
-        }
-        
-        return $query;
+        return $query->where('difficulty', $difficulty);
+    }
+
+    /**
+     * نطاق للأسئلة حسب المحتوى
+     */
+    public function scopeByContent($query, $content)
+    {
+        return $query->where('content', $content);
     }
 
     /**
@@ -729,6 +726,7 @@ class TestQuestion extends Model
             $this->module_number = self::convertPartToModule($this->part);
             return $this->save();
         }
+
         return false;
     }
 
@@ -741,18 +739,9 @@ class TestQuestion extends Model
             $this->module_number = self::convertPartToModule($this->part);
             return $this->save();
         }
+
         return false;
     }
-
-    // حذفت الدالة المكررة التالية التي كانت في السطر 748:
-    // public function convertModuleToPart(): bool
-    // {
-    //     if ($this->module_number && !$this->part) {
-    //         $this->part = self::convertModuleToPart($this->module_number);
-    //         return $this->save();
-    //     }
-    //     return false;
-    // }
 
     /**
      * التحقق مما إذا كان للسؤال صورة
@@ -778,11 +767,11 @@ class TestQuestion extends Model
         if (!$this->question_image) {
             return null;
         }
-        
+
         if (filter_var($this->question_image, FILTER_VALIDATE_URL)) {
             return $this->question_image;
         }
-        
+
         return asset('storage/' . ltrim($this->question_image, '/'));
     }
 
@@ -794,16 +783,16 @@ class TestQuestion extends Model
         if (!$this->explanation_image) {
             return null;
         }
-        
+
         if (filter_var($this->explanation_image, FILTER_VALIDATE_URL)) {
             return $this->explanation_image;
         }
-        
+
         return asset('storage/' . ltrim($this->explanation_image, '/'));
     }
 
     /**
-     * الحصول على ملخص السؤال (نص مختصر)
+     * الحصول على ملخص السؤال
      */
     public function getSummary($length = 100): string
     {
@@ -811,22 +800,35 @@ class TestQuestion extends Model
         if (strlen($text) <= $length) {
             return $text;
         }
-        
+
         return substr($text, 0, $length) . '...';
     }
 
     /**
-     * الحصول على صعوبة السؤال بناءً على النقاط
+     * الحصول على Label الصعوبة بناء على القيمة المخزنة
      */
-    public function getDifficulty(): string
+    public function getDifficultyLabel(): string
     {
-        if ($this->score <= 1) {
-            return 'سهل';
-        } elseif ($this->score <= 3) {
-            return 'متوسط';
-        } else {
-            return 'صعب';
-        }
+        return match ($this->difficulty) {
+            'easy' => 'سهل',
+            'medium' => 'متوسط',
+            'hard' => 'صعب',
+            default => 'غير محدد'
+        };
+    }
+
+    /**
+     * الحصول على Label المحتوى
+     */
+    public function getContentLabel(): string
+    {
+        return match ($this->content) {
+            'algebra' => 'Algebra',
+            'advanced_math' => 'Advanced Math',
+            'problem_solving_and_data_analysis' => 'Problem Solving and Data Analysis',
+            'geometry_and_trigonometry' => 'Geometry and Trigonometry',
+            default => 'غير محدد'
+        };
     }
 
     /**
@@ -837,10 +839,10 @@ class TestQuestion extends Model
         if (!$this->relationLoaded('studentAnswers')) {
             $this->load('studentAnswers');
         }
-        
+
         $totalAnswers = $this->studentAnswers->count();
         $correctAnswers = $this->studentAnswers->where('is_correct', true)->count();
-        
+
         return [
             'total_attempts' => $totalAnswers,
             'correct_attempts' => $correctAnswers,
@@ -851,7 +853,7 @@ class TestQuestion extends Model
     }
 
     /**
-     * التحقق مما إذا كان السؤال نشطًا (يحتوي على نص السؤال)
+     * التحقق مما إذا كان السؤال نشطًا
      */
     public function isActive(): bool
     {
@@ -859,26 +861,25 @@ class TestQuestion extends Model
     }
 
     /**
-     * الحصول على الوقت المقدر للإجابة (بالثواني)
+     * الحصول على الوقت المقدر للإجابة
      */
     public function getEstimatedTime(): int
     {
-        // تقدير الوقت بناءً على نوع السؤال وصعوبته
-        $baseTime = match($this->type) {
+        $baseTime = match ($this->type) {
             'mcq', 'mcd', 'multiple_choice' => 60,
             'tf', 'true_false' => 30,
             'numeric', 'number' => 45,
             'it', 'identification', 'text' => 90,
             default => 60
         };
-        
-        $multiplier = match($this->getDifficulty()) {
-            'سهل' => 1,
-            'متوسط' => 1.5,
-            'صعب' => 2,
+
+        $multiplier = match ($this->difficulty) {
+            'easy' => 1,
+            'medium' => 1.5,
+            'hard' => 2,
             default => 1
         };
-        
+
         return (int) ($baseTime * $multiplier);
     }
 
@@ -891,13 +892,13 @@ class TestQuestion extends Model
             ->withEffectiveModule($moduleNumber)
             ->orderBy('question_order')
             ->get();
-            
+
         $order = 1;
         foreach ($questions as $question) {
             $question->question_order = $order++;
             $question->save();
         }
-        
+
         return true;
     }
 
@@ -909,11 +910,11 @@ class TestQuestion extends Model
         if (!$this->test) {
             return false;
         }
-        
+
         $maxOrder = $this->test->questions()
             ->withEffectiveModule($this->effective_module)
             ->max('question_order');
-            
+
         return $this->question_order == $maxOrder;
     }
 
@@ -925,11 +926,11 @@ class TestQuestion extends Model
         if (!$this->test) {
             return false;
         }
-        
+
         $minOrder = $this->test->questions()
             ->withEffectiveModule($this->effective_module)
             ->min('question_order');
-            
+
         return $this->question_order == $minOrder;
     }
 }

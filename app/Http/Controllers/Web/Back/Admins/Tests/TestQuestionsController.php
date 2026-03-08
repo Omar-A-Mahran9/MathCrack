@@ -27,11 +27,11 @@ class TestQuestionsController extends Controller
             return redirect()->route('dashboard.admins.tests')->with('error', __('l.test_not_found'));
         }
 
-$questions = TestQuestion::where('test_id', $test->id)
-    ->with('options')   // هات كل أعمدة options بما فيها is_correct و option_image
-    ->orderBy('part')
-    ->orderBy('question_order')
-    ->get();
+        $questions = TestQuestion::where('test_id', $test->id)
+            ->with('options')
+            ->orderBy('part')
+            ->orderBy('question_order')
+            ->get();
 
         $partLabels = [
             'part1' => __('l.first_part'),
@@ -52,7 +52,6 @@ $questions = TestQuestion::where('test_id', $test->id)
                 ->where('part', $partKey)
                 ->count();
 
-            // إذا كان maxQuestions = 0 نسمح بالإضافة (غير محدود)
             if ($maxQuestions <= 0) {
                 $remaining = 0;
                 $canAdd   = true;
@@ -174,17 +173,19 @@ $questions = TestQuestion::where('test_id', $test->id)
         }
 
         $validator = Validator::make($request->all(), [
-            'question_text'        => 'required|string',
-            'type'                 => 'required|in:mcq,tf,numeric',
-            'part'                 => 'nullable|in:part1,part2,part3,part4,part5',
-            'score'                => 'required|integer|min:1|max:100',
-            'explanation'          => 'nullable|string',
-            'question_image'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'explanation_image'    => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'correct_answer'       => 'required_if:type,tf,numeric|nullable',
-            'options'              => 'required_if:type,mcq|array|min:2|max:6',
-            'options.*.option_text'=> 'required_if:type,mcq|string',
-            'options.*.is_correct' => 'nullable|boolean',
+            'question_text'          => 'required|string',
+            'type'                   => 'required|in:mcq,tf,numeric',
+            'part'                   => 'nullable|in:part1,part2,part3,part4,part5',
+            'score'                  => 'required|integer|min:1|max:100',
+            'difficulty'             => 'required|in:easy,medium,hard',
+            'content'                => 'required|in:algebra,advanced_math,problem_solving_and_data_analysis,geometry_and_trigonometry',
+            'explanation'            => 'nullable|string',
+            'question_image'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'explanation_image'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'correct_answer'         => 'required_if:type,tf,numeric|nullable',
+            'options'                => 'required_if:type,mcq|array|min:2|max:6',
+            'options.*.option_text'  => 'required_if:type,mcq|string',
+            'options.*.is_correct'   => 'nullable|boolean',
             'options.*.option_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
@@ -196,7 +197,6 @@ $questions = TestQuestion::where('test_id', $test->id)
             ], 422);
         }
 
-        // تحقق من وجود إجابة صحيحة في الـ MCQ
         if ($request->type === 'mcq' && $request->has('options')) {
             $hasCorrectAnswer = false;
             foreach ($request->options as $option) {
@@ -215,7 +215,6 @@ $questions = TestQuestion::where('test_id', $test->id)
             }
         }
 
-        // فحص عدد الأسئلة في الجزء المحدد فقط
         $selectedPart = $request->part;
         $countField   = $selectedPart . '_questions_count';
 
@@ -233,25 +232,21 @@ $questions = TestQuestion::where('test_id', $test->id)
         try {
             DB::beginTransaction();
 
-            // ترتيب السؤال داخل الجزء
             $questionOrder = TestQuestion::where('test_id', $test->id)
                 ->where('part', $selectedPart)
                 ->max('question_order') ?? 0;
             $questionOrder = $questionOrder + 1;
 
-            // صورة السؤال
             $questionImagePath = null;
             if ($request->hasFile('question_image')) {
                 $questionImagePath = upload_to_public($request->file('question_image'), 'images/questions');
             }
 
-            // صورة الشرح
             $explanationImagePath = null;
             if ($request->hasFile('explanation_image')) {
                 $explanationImagePath = upload_to_public($request->file('explanation_image'), 'images/explanations');
             }
 
-            // إنشاء السؤال
             $question = TestQuestion::create([
                 'test_id'           => $test->id,
                 'question_text'     => $request->question_text,
@@ -262,14 +257,17 @@ $questions = TestQuestion::where('test_id', $test->id)
                 'part'              => $selectedPart,
                 'question_order'    => $questionOrder,
                 'score'             => $request->score,
+                'difficulty'        => $request->difficulty,
+                'content'           => $request->content,
                 'correct_answer'    => $request->type === 'mcq' ? '' : $request->correct_answer
             ]);
 
-            // خيارات MCQ
             if ($request->type === 'mcq' && $request->has('options')) {
                 Log::info('Creating MCQ options', ['options' => $request->options]);
+
                 foreach ($request->options as $index => $optionData) {
                     $optionImagePath = null;
+
                     if (isset($optionData['option_image']) && $optionData['option_image']) {
                         $optionImagePath = upload_to_public($optionData['option_image'], 'images/options');
                     }
@@ -310,14 +308,15 @@ $questions = TestQuestion::where('test_id', $test->id)
                 'remaining'     => $remaining,
                 'question_id'   => $question->id
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
+
             Log::error('Error creating test question: ' . $e->getMessage(), [
                 'test_id'      => $test->id,
                 'request_data' => $request->except(['question_image', 'explanation_image']),
                 'trace'        => $e->getTraceAsString()
             ]);
+
             return response()->json([
                 'success' => false,
                 'message' => __('l.error_occurred') . ': ' . $e->getMessage()
@@ -364,6 +363,8 @@ $questions = TestQuestion::where('test_id', $test->id)
             'type'                   => 'required|in:mcq,tf,numeric',
             'part'                   => 'required|in:part1,part2,part3,part4,part5',
             'score'                  => 'required|integer|min:1|max:100',
+            'difficulty'             => 'required|in:easy,medium,hard',
+            'content'                => 'required|in:algebra,advanced_math,problem_solving_and_data_analysis,geometry_and_trigonometry',
             'explanation'            => 'nullable|string',
             'question_image'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'explanation_image'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -382,7 +383,6 @@ $questions = TestQuestion::where('test_id', $test->id)
             ], 422);
         }
 
-        // التحقق من وجود إجابة صحيحة في أسئلة الاختيار من متعدد
         if ($request->type === 'mcq' && $request->has('options')) {
             $hasCorrectAnswer = false;
             foreach ($request->options as $option) {
@@ -401,7 +401,6 @@ $questions = TestQuestion::where('test_id', $test->id)
             }
         }
 
-        // فحص عدد الأسئلة في الجزء الجديد (لو تم تغيير الجزء)
         $selectedPart = $request->part;
         $oldPart      = $question->part;
 
@@ -410,12 +409,9 @@ $questions = TestQuestion::where('test_id', $test->id)
         if ($test) {
             $countField   = $selectedPart . '_questions_count';
             $maxQuestions = (int) ($test->$countField ?? 0);
-
-            // عدد الأسئلة الحالية في الجزء الجديد
             $currentCount = $test->questions()->where('part', $selectedPart)->count();
 
             if ($maxQuestions > 0) {
-                // لو بننقل السؤال من جزء لآخر، لا نسمح بتجاوز الحد
                 if ($selectedPart !== $oldPart && $currentCount >= $maxQuestions) {
                     return response()->json([
                         'success' => false,
@@ -429,22 +425,19 @@ $questions = TestQuestion::where('test_id', $test->id)
         try {
             DB::beginTransaction();
 
-            $questionImagePath     = $question->question_image;
-            $explanationImagePath  = $question->explanation_image;
+            $questionImagePath    = $question->question_image;
+            $explanationImagePath = $question->explanation_image;
 
-            // حذف صورة السؤال الحالية إذا طُلب
             if ($request->has('remove_question_image') && $question->question_image) {
                 delete_from_public($question->question_image);
                 $questionImagePath = null;
             }
 
-            // حذف صورة الشرح الحالية إذا طُلب
             if ($request->has('remove_explanation_image') && $question->explanation_image) {
                 delete_from_public($question->explanation_image);
                 $explanationImagePath = null;
             }
 
-            // رفع صورة جديدة للسؤال
             if ($request->hasFile('question_image')) {
                 if ($question->question_image) {
                     delete_from_public($question->question_image);
@@ -452,7 +445,6 @@ $questions = TestQuestion::where('test_id', $test->id)
                 $questionImagePath = upload_to_public($request->file('question_image'), 'images/questions');
             }
 
-            // رفع صورة جديدة للشرح
             if ($request->hasFile('explanation_image')) {
                 if ($question->explanation_image) {
                     delete_from_public($question->explanation_image);
@@ -460,7 +452,6 @@ $questions = TestQuestion::where('test_id', $test->id)
                 $explanationImagePath = upload_to_public($request->file('explanation_image'), 'images/explanations');
             }
 
-            // تحديث السؤال
             $question->update([
                 'question_text'     => $request->question_text,
                 'explanation'       => $request->explanation,
@@ -469,34 +460,31 @@ $questions = TestQuestion::where('test_id', $test->id)
                 'type'              => $request->type,
                 'part'              => $selectedPart,
                 'score'             => $request->score,
+                'difficulty'        => $request->difficulty,
+                'content'           => $request->content,
                 'correct_answer'    => $request->type === 'mcq' ? '' : $request->correct_answer
             ]);
 
-            // تحديث الخيارات لـ MCQ
             if ($request->type === 'mcq' && $request->has('options')) {
-                // حفظ صور الخيارات القديمة
                 $oldOptionsImages = [];
                 foreach ($question->options as $oldOption) {
                     $oldOptionsImages[$oldOption->option_order] = $oldOption->option_image;
                 }
 
-                // حذف الخيارات القديمة
                 $question->options()->delete();
 
                 Log::info('Updating MCQ options', ['options' => $request->options]);
+
                 foreach ($request->options as $index => $optionData) {
                     $optionImagePath = null;
 
                     if (isset($optionData['option_image']) && $optionData['option_image']) {
-                        // صورة جديدة
                         $optionImagePath = upload_to_public($optionData['option_image'], 'images/options');
 
-                        // حذف القديمة إن وجدت
                         if (isset($oldOptionsImages[$index + 1]) && $oldOptionsImages[$index + 1]) {
                             delete_from_public($oldOptionsImages[$index + 1]);
                         }
                     } else {
-                        // لا توجد صورة جديدة → احتفظ بالقديمة
                         $optionImagePath = $oldOptionsImages[$index + 1] ?? null;
                     }
 
@@ -509,7 +497,6 @@ $questions = TestQuestion::where('test_id', $test->id)
                     ]);
                 }
 
-                // حذف أي صور قديمة لخيارات لم تعد موجودة
                 foreach ($oldOptionsImages as $order => $imagePath) {
                     if ($imagePath && $order > count($request->options)) {
                         delete_from_public($imagePath);
@@ -523,9 +510,9 @@ $questions = TestQuestion::where('test_id', $test->id)
                 'success' => true,
                 'message' => __('l.question_updated_successfully')
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
+
             Log::error('Error updating test question: ' . $e->getMessage(), [
                 'question_id'  => $question->id,
                 'request_data' => $request->except(['question_image', 'explanation_image']),
@@ -555,7 +542,6 @@ $questions = TestQuestion::where('test_id', $test->id)
                 ->get();
         }
 
-        // متغيرات قديمة للـ view الحالي (لو مبني على part1 / part2)
         $part1Questions = $modulesQuestions[1];
         $part2Questions = $modulesQuestions[2];
 
@@ -588,28 +574,23 @@ $questions = TestQuestion::where('test_id', $test->id)
         try {
             DB::beginTransaction();
 
-            // حذف صور الخيارات
             foreach ($question->options as $option) {
                 if ($option->option_image) {
                     delete_from_public($option->option_image);
                 }
             }
 
-            // حذف صورة السؤال
             if ($question->question_image) {
                 delete_from_public($question->question_image);
             }
 
-            // حذف صورة الشرح
             if ($question->explanation_image) {
                 delete_from_public($question->explanation_image);
             }
 
-            // حذف السؤال والخيارات
             $question->options()->delete();
             $question->delete();
 
-            // إعادة ترتيب الأسئلة داخل نفس الجزء
             $remainingQuestions = TestQuestion::where('test_id', $question->test_id)
                 ->where('part', $question->part)
                 ->orderBy('question_order')
@@ -625,9 +606,9 @@ $questions = TestQuestion::where('test_id', $test->id)
                 'success' => true,
                 'message' => __('l.question_deleted_successfully')
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => __('l.error_occurred')

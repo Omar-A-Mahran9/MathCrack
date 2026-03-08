@@ -15,7 +15,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{
     DB,
     Validator,
-    Log
+    Log,
+    Schema
 };
 
 class TestsController extends Controller
@@ -83,6 +84,60 @@ class TestsController extends Controller
             'courseId'
         ));
     }
+
+    public function mockTest(Request $request)
+{
+    $user = auth()->user();
+
+    $courseId = (int) $request->query('course', 0);
+    $testKey  = trim((string) $request->query('test', 'mock'));
+    $levelId  = (int) ($user->level_id ?? 0);
+
+    $test = null;
+
+    $baseQuery = Test::query()->with('course');
+
+    if (Schema::hasColumn('tests', 'is_active')) {
+        $baseQuery->where('is_active', 1);
+    }
+
+    if ($courseId > 0) {
+        $query = (clone $baseQuery)->where('course_id', $courseId);
+
+        $test = $this->findMockCandidate($query, $testKey);
+
+        if (!$test) {
+            return redirect()
+                ->route('dashboard.users.tests.index')
+                ->with('error', 'No mock test available for this course.');
+        }
+    } elseif ($levelId > 0) {
+        $course = Course::where('level_id', $levelId)->orderBy('id')->first();
+
+        if (!$course) {
+            return redirect()
+                ->route('dashboard.users.tests.index')
+                ->with('error', 'No course found for your selected level.');
+        }
+
+        $query = (clone $baseQuery)->where('course_id', $course->id);
+
+        $test = $this->findMockCandidate($query, $testKey);
+
+        if (!$test) {
+            return redirect()
+                ->route('dashboard.users.tests.index')
+                ->with('error', 'No mock test available for your level.');
+        }
+    } else {
+        return redirect()
+            ->route('dashboard.users.tests.index')
+            ->with('error', 'Level is not assigned to this account.');
+    }
+
+    return redirect()->route('dashboard.users.tests.show', $test->id);
+}
+
 
     public function show($id)
     {
@@ -733,5 +788,47 @@ class TestsController extends Controller
         return $moduleNumber < $totalModules
             && !($test->should_hide_break_time ?? false)
             && ((int) $test->break_time_minutes > 0);
+    }
+
+    private function findMockCandidate($query, $testKey = 'mock')
+    {
+        $testKey = trim((string) $testKey);
+
+        if ($testKey === '') {
+            $testKey = 'mock';
+        }
+
+        if (Schema::hasColumn('tests', 'is_mock')) {
+            $candidate = (clone $query)->where('is_mock', 1)->orderBy('id')->first();
+            if ($candidate) {
+                return $candidate;
+            }
+        }
+
+        if (Schema::hasColumn('tests', 'slug')) {
+            $candidate = (clone $query)->where('slug', $testKey)->orderBy('id')->first();
+            if ($candidate) {
+                return $candidate;
+            }
+        }
+
+        if (Schema::hasColumn('tests', 'name')) {
+            $candidate = (clone $query)
+                ->where(function ($q) use ($testKey) {
+                    $q->where('name', 'like', '%' . $testKey . '%');
+
+                    if (strtolower($testKey) !== 'mock') {
+                        $q->orWhere('name', 'like', '%mock%');
+                    }
+                })
+                ->orderBy('id')
+                ->first();
+
+            if ($candidate) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 }

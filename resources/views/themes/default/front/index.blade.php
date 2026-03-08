@@ -9,10 +9,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
-<!-- <div style="position:fixed;top:90px;left:10px;z-index:999999;background:#ff0;color:#000;padding:6px 10px;font-weight:700">
-  FRONT INDEX LOADED
-</div> -->
-
 
   <style>
     :root {
@@ -23,11 +19,7 @@
       --dark-color: #2c3e50;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -38,10 +30,7 @@
       @if(app()->getLocale() == 'ar') text-align: right; @endif
     }
 
-    .no-break {
-      white-space: nowrap;
-      display: inline-block;
-    }
+    .no-break { white-space: nowrap; display: inline-block; }
 
     .main-header {
       background: white;
@@ -64,19 +53,17 @@
       justify-content: space-between;
       align-items: center;
       padding: 15px 0;
+      position: relative;
     }
 
-    .logo img {
-      height: 50px;
-      width: auto;
-    }
+    .logo img { height: 50px; width: auto; }
 
     .main-menu__list {
       display: flex;
       list-style: none;
       margin: 0;
       padding: 0;
-      gap: 25px;
+      gap: 30px;
       align-items: center;
       @if(app()->getLocale() == 'ar') direction: rtl; @endif
     }
@@ -90,9 +77,7 @@
       white-space: nowrap;
     }
 
-    .main-menu__list a:hover {
-      color: var(--secondary-color);
-    }
+    .main-menu__list a:hover { color: var(--secondary-color); }
 
     .main-menu__list a::after {
       content: '';
@@ -105,8 +90,42 @@
       transition: width 0.3s ease;
     }
 
-    .main-menu__list a:hover::after {
-      width: 100%;
+    .main-menu__list a:hover::after { width: 100%; }
+
+    .main-menu-wrapper {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .header-right{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .header-login-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 18px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid rgba(44,62,80,0.20);
+      color:var(--primary-color);
+      text-decoration:none;
+      font-weight:600;
+      transition:transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+      white-space:nowrap;
+    }
+
+    .header-login-btn:hover{
+      background:rgba(52,152,219,0.08);
+      border-color:rgba(52,152,219,0.35);
+      box-shadow:0 10px 20px rgba(0,0,0,0.08);
+      transform:translateY(-1px);
+      color:var(--primary-color);
     }
 
     .header-join-btn {
@@ -114,13 +133,14 @@
       color: white;
       border: none;
       padding: 10px 25px;
-      border-radius: 25px;
+      border-radius: 999px;
       font-weight: 600;
       text-decoration: none;
       transition: all 0.3s ease;
-      @if(app()->getLocale() == 'ar') margin-right: 20px; @else margin-left: 20px; @endif
       white-space: nowrap;
-      display: inline-block;
+      display: inline-flex;
+      align-items:center;
+      gap:10px;
     }
 
     .header-join-btn:hover {
@@ -144,9 +164,7 @@
       white-space: nowrap;
     }
 
-    .language-switch .btn:hover {
-      background: rgba(0,0,0,0.06);
-    }
+    .language-switch .btn:hover { background: rgba(0,0,0,0.06); }
 
     .hero-section {
       background: linear-gradient(rgba(44, 62, 80, 0.9), rgba(44, 62, 80, 0.8)),
@@ -167,10 +185,7 @@
     .cta-section::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
       opacity: 0.3;
       pointer-events: none;
@@ -232,6 +247,7 @@
       cursor: pointer;
       position: relative;
       z-index: 1;
+      white-space:nowrap;
     }
 
     .btn-hero:hover {
@@ -241,9 +257,7 @@
       box-shadow: 0 15px 25px rgba(0,0,0,0.3);
     }
 
-    .btn-hero i {
-      transition: transform 0.3s ease;
-    }
+    .btn-hero i { transition: transform 0.3s ease; }
 
     .btn-hero:hover i {
       @if(app()->getLocale() == 'ar') transform: translateX(-5px); @else transform: translateX(5px); @endif
@@ -262,18 +276,10 @@
       transform: translateY(0);
     }
 
-    .btn-hero.active {
-      background: var(--primary-color);
-      color: white;
-    }
+    .btn-hero.active { background: var(--primary-color); color: white; }
+    .btn-hero.active i { transform: rotate(180deg); }
 
-    .btn-hero.active i {
-      transform: rotate(180deg);
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     .section-title {
       text-align: center;
@@ -331,12 +337,7 @@
       line-height: 1;
     }
 
-    .stat-label {
-      font-size: 1.2rem;
-      opacity: 0.9;
-      font-weight: 500;
-      white-space: nowrap;
-    }
+    .stat-label { font-size: 1.2rem; opacity: 0.9; font-weight: 500; white-space: nowrap; }
 
     .professor-name-hero {
       font-size: 3rem;
@@ -348,16 +349,9 @@
       letter-spacing: 1px;
     }
 
-    .professor-name-italic {
-      font-style: italic;
-    }
+    .professor-name-italic { font-style: italic; }
 
-    .professor-section {
-      padding: 30px 0;
-      background: white;
-      position: relative;
-      overflow: visible;
-    }
+    .professor-section { padding: 30px 0; background: white; position: relative; overflow: visible; }
 
     .professor-card {
       background: white;
@@ -399,10 +393,7 @@
       z-index: 1;
     }
 
-    .professor-brief {
-      position: relative;
-      z-index: 1;
-    }
+    .professor-brief { position: relative; z-index: 1; }
 
     .professor-brief p {
       font-size: 1.1rem;
@@ -411,13 +402,7 @@
       margin: 0;
     }
 
-    .professor-image-container {
-      width: 170px;
-      height: 200px;
-      margin: 0 auto;
-      position: relative;
-    }
-
+    .professor-image-container { width: 170px; height: 200px; margin: 0 auto; position: relative; }
     .professor-image {
       width: 100%;
       height: 100%;
@@ -429,97 +414,9 @@
       object-position: center 20%;
     }
 
-    .experience-content {
-      padding: 0px 10px;
-      background: white;
-    }
+    .experience-content { padding: 0px 10px; background: white; }
 
-    .experience-item {
-      margin-bottom: 40px;
-      @if(app()->getLocale() == 'ar')
-        padding-right: 30px;
-        border-right: 4px solid var(--secondary-color);
-        border-left: none;
-      @else
-        padding-left: 30px;
-        border-left: 4px solid var(--secondary-color);
-        border-right: none;
-      @endif
-      position: relative;
-    }
-
-    .experience-item::before {
-      content: '';
-      position: absolute;
-      @if(app()->getLocale() == 'ar')
-        right: -8px;
-      @else
-        left: -8px;
-      @endif
-      top: 0;
-      width: 16px;
-      height: 16px;
-      background: var(--secondary-color);
-      border-radius: 50%;
-    }
-
-    .experience-years {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--primary-color);
-      margin-bottom: 10px;
-    }
-
-    .experience-desc {
-      font-size: 1.1rem;
-      color: #555;
-      line-height: 1.6;
-    }
-
-    .professor-contact-info {
-      background: linear-gradient(135deg, #34495e, var(--primary-color));
-      color: white;
-      padding: 50px 40px;
-      border-radius: 0 0 20px 20px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .contact-title {
-      font-size: 2.2rem;
-      font-weight: 700;
-      margin-bottom: 30px;
-      position: relative;
-      z-index: 1;
-      white-space: nowrap;
-    }
-
-    .contact-detail {
-      display: flex;
-      align-items: flex-start;
-      gap: 20px;
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 1;
-      @if(app()->getLocale() == 'ar') flex-direction: row-reverse; @endif
-    }
-
-    .contact-detail i {
-      color: #f1c40f;
-      font-size: 1.5rem;
-      margin-top: 5px;
-      width: 24px;
-      flex: 0 0 24px;
-    }
-
-    .phone-list div { margin-bottom: 6px; }
-    .phone-list div:last-child { margin-bottom: 0; }
-
-    .courses-section {
-      padding: 40px 0;
-      background: var(--light-color);
-      position: relative;
-    }
+    .courses-section { padding: 40px 0; background: var(--light-color); position: relative; }
 
     .course-card {
       background: white;
@@ -537,9 +434,7 @@
     .course-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       height: 5px;
       background: var(--secondary-color);
     }
@@ -549,23 +444,9 @@
       box-shadow: 0 20px 40px rgba(0,0,0,0.1);
     }
 
-    .course-icon {
-      font-size: 3rem;
-      color: var(--secondary-color);
-      margin-bottom: 25px;
-    }
-
-    .course-card h4 {
-      font-size: 1.5rem;
-      margin-bottom: 15px;
-      color: var(--primary-color);
-      white-space: nowrap;
-    }
-
-    .course-card p {
-      color: #666;
-      line-height: 1.6;
-    }
+    .course-icon { font-size: 3rem; color: var(--secondary-color); margin-bottom: 25px; }
+    .course-card h4 { font-size: 1.5rem; margin-bottom: 15px; color: var(--primary-color); white-space: nowrap; }
+    .course-card p { color: #666; line-height: 1.6; }
 
     .cta-section {
       background: linear-gradient(135deg, var(--secondary-color), #2980b9);
@@ -612,6 +493,7 @@
       z-index: 1;
       box-shadow: 0 10px 20px rgba(0,0,0,0.2);
       @if(app()->getLocale() == 'ar') flex-direction: row-reverse; @endif
+      white-space:nowrap;
     }
 
     .cta-button:hover {
@@ -621,14 +503,8 @@
       box-shadow: 0 15px 25px rgba(0,0,0,0.3);
     }
 
-    .contact-main-section {
-      padding: 30px 0;
-      background: white;
-    }
-
-    .contact-main-section .section-title {
-      margin-bottom: 25px;
-    }
+    .contact-main-section { padding: 30px 0; background: white; }
+    .contact-main-section .section-title { margin-bottom: 25px; }
 
     .contact-main-card {
       background: linear-gradient(135deg, #2980b9, #2980b9);
@@ -675,28 +551,11 @@
       border: 1px solid rgba(0,0,0,0.05);
     }
 
-    .contact-info-box:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-    }
+    .contact-info-box:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
 
-    .contact-box-icon {
-      font-size: 2.5rem;
-      color: var(--secondary-color);
-      margin-bottom: 20px;
-    }
-
-    .contact-box-title {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 15px;
-      color: var(--primary-color);
-    }
-
-    .contact-box-content {
-      color: #555;
-      line-height: 1.6;
-    }
+    .contact-box-icon { font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 20px; }
+    .contact-box-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; color: var(--primary-color); }
+    .contact-box-content { color: #555; line-height: 1.6; }
 
     .phone-numbers-text {
       font-family: monospace;
@@ -709,31 +568,12 @@
     .phone-numbers-text div { margin-bottom: 8px; }
     .phone-numbers-text div:last-child { margin-bottom: 0; }
 
-    .main-footer {
-      background: var(--primary-color);
-      color: white;
-      padding: 70px 0 30px;
-      position: relative;
-    }
+    .main-footer { background: var(--primary-color); color: white; padding: 70px 0 30px; position: relative; }
+    .footer-logo img { height: 60px; margin-bottom: 20px; }
 
-    .footer-logo img {
-      height: 60px;
-      margin-bottom: 20px;
-    }
+    .footer-links h5 { margin-bottom: 20px; font-size: 1.2rem; color: white; white-space: nowrap; }
 
-    .footer-links h5 {
-      margin-bottom: 20px;
-      font-size: 1.2rem;
-      color: white;
-      white-space: nowrap;
-    }
-
-    .footer-links ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
+    .footer-links ul { list-style: none; padding: 0; margin: 0; }
     .footer-links li { margin-bottom: 12px; }
 
     .footer-links a {
@@ -745,16 +585,9 @@
       gap: 8px;
     }
 
-    .footer-links a:hover {
-      color: white;
-      transform: translateX(5px);
-    }
+    .footer-links a:hover { color: white; transform: translateX(5px); }
 
-    .social-icons {
-      display: flex;
-      gap: 15px;
-      margin-top: 20px;
-    }
+    .social-icons { display: flex; gap: 15px; margin-top: 20px; }
 
     .social-icons a {
       color: white;
@@ -805,10 +638,7 @@
       border: 2px solid white;
     }
 
-    .back-to-top.show {
-      opacity: 1;
-      visibility: visible;
-    }
+    .back-to-top.show { opacity: 1; visibility: visible; }
 
     .back-to-top:hover {
       background: var(--primary-color);
@@ -817,16 +647,8 @@
       color: white;
     }
 
-    .fade-in {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-
-    .fade-in.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
 
     @media (max-width: 768px) {
       .hero-title { font-size: 2.5rem; }
@@ -840,6 +662,10 @@
       .contact-main-title { font-size: 2rem; }
       .contact-info-grid { grid-template-columns: 1fr; }
       .main-menu__list a { font-size: 0.9rem; }
+      .main-menu-wrapper { position: static; transform: none; }
+      .main-header__inner { flex-wrap: wrap; justify-content: center; text-align: center; }
+      .logo { width:100%; margin-bottom: 15px; }
+      .header-right { width:100%; justify-content:center; margin-bottom: 10px; }
     }
 
     @media (max-width: 576px) {
@@ -847,280 +673,130 @@
       .professor-name { font-size: 1.8rem; }
       .section-title h2 { font-size: 2rem; }
       .stat-number { font-size: 2rem; }
-      .main-menu__list {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px 15px;
-      }
+      .main-menu__list { flex-wrap: wrap; justify-content: center; gap: 10px 15px; }
+      .header-right { flex-direction: column; gap: 10px; }
     }
 
     .hero-subtitle span { display: block; }
 
-    /* RTL specific adjustments (FIXED: dir is on html, not body) */
     [dir="rtl"] .dropdown-menu { text-align: right; }
-
-    [dir="rtl"] .me-2 {
-      margin-left: 0.5rem;
-      margin-right: 0;
-    }
-
-    [dir="rtl"] .ms-2 {
-      margin-right: 0.5rem;
-      margin-left: 0;
-    }
-
+    [dir="rtl"] .me-2 { margin-left: 0.5rem; margin-right: 0; }
+    [dir="rtl"] .ms-2 { margin-right: 0.5rem; margin-left: 0; }
     [dir="rtl"] .text-end { text-align: left !important; }
     [dir="rtl"] .text-start { text-align: right !important; }
 
-    /* هيكل الهيدر مع القائمة في المنتصف */
-    .main-header__inner {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 0;
-      position: relative;
+    .cv-block{ padding:50px 40px; background:#fff; }
+    [dir="rtl"] .cv-block{ direction: rtl; }
+    [dir="ltr"] .cv-block{ direction: ltr; }
+
+    .cv-title{ color:var(--primary-color); font-size:1.8rem; font-weight:700; margin-bottom:18px; }
+    .cv-section{ margin-bottom:10px; }
+
+    .cv-subtitle{
+      font-size:1.25rem;
+      font-weight:700;
+      color:var(--primary-color);
+      margin-bottom:12px;
+      padding-bottom:10px;
+      border-bottom:2px solid rgba(0,0,0,0.06);
     }
 
-    .main-menu-wrapper {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
+    .cv-list{ list-style:none; margin:0; padding:0; }
+
+    .cv-list > li{
+      display:grid;
+      gap:12px;
+      align-items:center;
+      padding:12px 0;
+      border-bottom:1px solid rgba(0,0,0,0.06);
     }
 
-    .main-menu__list {
-      display: flex;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      gap: 30px;
-      align-items: center;
+    .cv-list > li:last-child{ border-bottom:0; }
+
+    .cv-item{ min-width:0; }
+    .cv-role{ font-weight:700; }
+    .cv-meta{ color:#555; margin:0 6px; }
+    .cv-place{ color:#111; font-weight:600; margin:0 6px; }
+
+    .cv-date{
+      display:inline-block;
+      padding:2px 10px;
+      border-radius:999px;
+      background:rgba(52,152,219,0.10);
+      border:1px solid rgba(52,152,219,0.20);
+      color:#1a2b3a;
+      font-weight:600;
+      white-space:nowrap;
+      direction:ltr;
+      unicode-bidi:isolate;
     }
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 20px;
+    [dir="ltr"] .cv-list{ counter-reset:cv; }
+
+    [dir="ltr"] .cv-list > li{
+      counter-increment:cv;
+      grid-template-columns:34px 1fr auto;
+      grid-template-areas:"no main date";
+      align-items:start;
     }
 
-    @media (max-width: 1200px) {
-      .main-menu__list { gap: 20px; }
+    [dir="ltr"] .cv-list > li::before{
+      content: counter(cv) ".";
+      grid-area:no;
+      font-weight:700;
+      color:var(--primary-color);
+      min-width:32px;
+      line-height:1.4;
+      text-align:right;
+      direction:ltr;
+      unicode-bidi:isolate;
     }
 
-    @media (max-width: 992px) {
-      .main-header__inner {
-        flex-wrap: wrap;
-        justify-content: center;
-        text-align: center;
+    [dir="ltr"] .cv-item{ grid-area:main; }
+    [dir="ltr"] .cv-date{ grid-area:date; justify-self:end; }
+
+    [dir="rtl"] .cv-list{ counter-reset:none; }
+
+    [dir="rtl"] .cv-list > li{
+      grid-template-columns:1fr auto;
+      grid-template-areas:"main date";
+      align-items:center;
+    }
+
+    [dir="rtl"] .cv-list > li::before{ content:none; display:none; }
+    [dir="rtl"] .cv-item{ grid-area:main; text-align:right; }
+    [dir="rtl"] .cv-date{ grid-area:date; justify-self:start; }
+
+    @media (max-width:768px){
+      .cv-block{ padding:10px 10px; }
+
+      [dir="ltr"] .cv-list > li{
+        grid-template-columns:34px 1fr;
+        grid-template-areas:"no main" "date date";
+        align-items:start;
       }
 
-      .main-menu-wrapper {
-        position: static;
-        order: 3;
-        width: 100%;
-        margin-top: 15px;
-        transform: none;
+      [dir="ltr"] .cv-date{ justify-self:start; }
+
+      [dir="rtl"] .cv-list > li{
+        grid-template-columns:1fr;
+        grid-template-areas:"main" "date";
       }
 
-      .logo {
-        order: 1;
-        width: 100%;
-        margin-bottom: 15px;
-      }
-
-      .header-right {
-        order: 2;
-        width: 100%;
-        justify-content: center;
-        margin-bottom: 10px;
-      }
-
-      .main-menu__list {
-        justify-content: center;
-        gap: 15px;
-        flex-wrap: wrap;
+      [dir="rtl"] .cv-date{
+        justify-self:start;
+        margin-top:6px;
       }
     }
-
-    @media (max-width: 576px) {
-      .main-menu__list { gap: 10px; }
-      .main-menu__list li { font-size: 0.9rem; }
-      .header-right { flex-direction: column; gap: 10px; }
-    }
-
-    /* =========================
-       CV BLOCK – FINAL FIX
-       LTR: number left, date right
-       RTL: date left, number right
-       (No grid-areas)
-    ========================= */
-/* =========================
-   CV BLOCK
-========================= */
-
-.cv-block{
-  padding:50px 40px;
-  background:#fff;
-}
-
-[dir="rtl"] .cv-block{ direction: rtl; }
-[dir="ltr"] .cv-block{ direction: ltr; }
-
-.cv-title{
-  color:var(--primary-color);
-  font-size:1.8rem;
-  font-weight:700;
-  margin-bottom:18px;
-}
-
-.cv-section{ margin-bottom:10px; }
-
-.cv-subtitle{
-  font-size:1.25rem;
-  font-weight:700;
-  color:var(--primary-color);
-  margin-bottom:12px;
-  padding-bottom:10px;
-  border-bottom:2px solid rgba(0,0,0,0.06);
-}
-
-.cv-list{
-  list-style:none;
-  margin:0;
-  padding:0;
-}
-
-/* BASE GRID */
-.cv-list > li{
-  display:grid;
-  gap:12px;
-  align-items:center;
-  padding:12px 0;
-  border-bottom:1px solid rgba(0,0,0,0.06);
-}
-
-.cv-list > li:last-child{ border-bottom:0; }
-
-.cv-item{ min-width:0; }
-.cv-role{ font-weight:700; }
-.cv-meta{ color:#555; margin:0 6px; }
-.cv-place{ color:#111; font-weight:600; margin:0 6px; }
-
-.cv-date{
-  display:inline-block;
-  padding:2px 10px;
-  border-radius:999px;
-  background:rgba(52,152,219,0.10);
-  border:1px solid rgba(52,152,219,0.20);
-  color:#1a2b3a;
-  font-weight:600;
-  white-space:nowrap;
-
-  direction:ltr;
-  unicode-bidi:isolate;
-}
-
-/* =========================
-   LTR
-   left number, middle text, right date
-========================= */
-
-[dir="ltr"] .cv-list{
-  counter-reset:cv;
-}
-
-[dir="ltr"] .cv-list > li{
-  counter-increment:cv;
-  grid-template-columns:34px 1fr auto;
-  grid-template-areas:"no main date";
-  align-items:start;
-}
-
-[dir="ltr"] .cv-list > li::before{
-  content: counter(cv) ".";
-  grid-area:no;
-  font-weight:700;
-  color:var(--primary-color);
-  min-width:32px;
-  line-height:1.4;
-  text-align:right;
-
-  direction:ltr;
-  unicode-bidi:isolate;
-}
-
-[dir="ltr"] .cv-item{ grid-area:main; }
-[dir="ltr"] .cv-date{ grid-area:date; justify-self:end; }
-
-/* =========================
-   RTL
-   right text, left date
-   no numbering
-========================= */
-
-[dir="rtl"] .cv-list{
-  counter-reset:none;
-}
-
-[dir="rtl"] .cv-list > li{
-  grid-template-columns:1fr auto;
-  grid-template-areas:"main date";
-  align-items:center;
-}
-
-[dir="rtl"] .cv-list > li::before{
-  content:none;
-  display:none;
-}
-
-[dir="rtl"] .cv-item{
-  grid-area:main;
-  text-align:right;
-}
-
-[dir="rtl"] .cv-date{
-  grid-area:date;
-  justify-self:start;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width:768px){
-  .cv-block{ padding:10px 10px; }
-
-  [dir="ltr"] .cv-list > li{
-    grid-template-columns:34px 1fr;
-    grid-template-areas:"no main" "date date";
-    align-items:start;
-  }
-
-  [dir="ltr"] .cv-date{
-    justify-self:start;
-  }
-
-  [dir="rtl"] .cv-list > li{
-    grid-template-columns:1fr;
-    grid-template-areas:"main" "date";
-  }
-
-  [dir="rtl"] .cv-date{
-    justify-self:start;
-    margin-top:6px;
-  }
-}
-
   </style>
 </head>
 
 <body>
-
 <header class="main-header" id="mainHeader">
   <div class="container">
     <div class="main-header__inner">
       <div class="logo">
-        <a href="{{ route('index') }}">
+        <a href="{{ route('login') }}">
           @if(isset($settings['logo']) && $settings['logo'])
             <img src="{{ asset($settings['logo']) }}" alt="{{ $settings['name'] ?? 'Math Expert' }}" height="50">
           @else
@@ -1159,9 +835,15 @@
           </div>
         </div>
 
-        <div>
-          <a href="{{ route('login') }}" class="header-join-btn">{{ __('front.join_now') }}</a>
-        </div>
+        <a href="{{ route('login') }}" class="header-login-btn">
+          <i class="fas fa-sign-in-alt me-1"></i>
+          Login
+        </a>
+
+        <a href="{{ route('register') }}?action=mock&redirect=mock-test" class="header-join-btn">
+  <i class="fas fa-play me-1"></i>
+  Start Free Mock
+</a>
       </div>
     </div>
   </div>
@@ -1170,28 +852,44 @@
 <section class="hero-section" id="home">
   <div class="container">
     <div class="fade-in">
-      <h1 class="hero-title">
-        {{ __('front.hero_title_before') }}
-      </h1>
-
-      <h1 class="professor-name-hero">
-        <span class="hero-highlight no-break professor-name-italic">{{ __('front.prof_name') }}</span>
-      </h1>
+      <h1 class="hero-title">{{ __('front.hero_dsat_title') }}</h1>
 
       <p class="hero-subtitle">
-        <span>{{ __('front.hero_line1') }}</span>
-        <span>{{ __('front.hero_line2') }}</span>
+        <span>{{ __('front.hero_dsat_line1') }}</span>
+        <span>{{ __('front.hero_dsat_line2') }}</span>
       </p>
 
-      <div class="mt-4">
-        <button class="btn-hero" id="learnMoreBtn">
+      <div class="mt-4 d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{{ route('login') }}" class="btn-hero">
           @if(app()->getLocale() == 'ar')
-          <i class="fas fa-arrow-left"></i>
+            <i class="fas fa-arrow-left"></i>
           @else
-          <i class="fas fa-arrow-right"></i>
+            <i class="fas fa-arrow-right"></i>
           @endif
-          {{ __('front.learn_more') }}
+          Join Now
+        </a>
+
+        <button class="btn-hero active" id="learnMoreBtn">
+          @if(app()->getLocale() == 'ar')
+            <i class="fas fa-arrow-left"></i>
+          @else
+            <i class="fas fa-arrow-right"></i>
+          @endif
+          {{ __('front.cta_meet_prof') }}
         </button>
+      </div>
+
+      <div class="mt-3" style="opacity:0.9; position:relative; z-index:1;">
+        {{ __('front.hero_trust_line') }}
+      </div>
+
+      <div class="mt-4" style="position:relative; z-index:1;">
+        <div class="professor-name-hero" style="font-size:2.1rem; margin-bottom:0.25rem;">
+          <span class="hero-highlight no-break professor-name-italic">{{ __('front.prof_name') }}</span>
+        </div>
+        <div style="opacity:0.9;">
+          {{ __('front.prof_short_cred') }}
+        </div>
       </div>
     </div>
   </div>
@@ -1221,7 +919,7 @@
               </div>
 
               <div class="col-md-8">
-                <h2 class="professor-name no-break">{{ __('front.prof_name') }}</h2>
+                <h1 class="professor-name no-break">{{ __('front.prof_name') }}</h1>
                 <p class="professor-title">{{ __('front.prof_title') }}</p>
 
                 <div class="professor-brief mt-4">
@@ -1362,6 +1060,49 @@
   </div>
 </section>
 
+<section class="courses-section" id="dsat-system" style="background:#fff;">
+  <div class="container">
+    <div class="section-title fade-in">
+      <h2 class="no-break">{{ __('front.system_title') }}</h2>
+      <p>{{ __('front.system_desc') }}</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="course-card fade-in">
+          <div class="course-icon"><i class="fas fa-clock"></i></div>
+          <h4 class="no-break">{{ __('front.system_item1_title') }}</h4>
+          <p>{{ __('front.system_item1_desc') }}</p>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="course-card fade-in">
+          <div class="course-icon"><i class="fas fa-layer-group"></i></div>
+          <h4 class="no-break">{{ __('front.system_item2_title') }}</h4>
+          <p>{{ __('front.system_item2_desc') }}</p>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="course-card fade-in">
+          <div class="course-icon"><i class="fas fa-chart-line"></i></div>
+          <h4 class="no-break">{{ __('front.system_item3_title') }}</h4>
+          <p>{{ __('front.system_item3_desc') }}</p>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="course-card fade-in">
+          <div class="course-icon"><i class="fas fa-clipboard-check"></i></div>
+          <h4 class="no-break">{{ __('front.system_item4_title') }}</h4>
+          <p>{{ __('front.system_item4_desc') }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="courses-section" id="courses">
   <div class="container">
     <div class="section-title fade-in">
@@ -1402,23 +1143,29 @@
     </div>
   </div>
 </section>
+
 <section class="cta-section" id="join">
   <div class="container">
     <div class="fade-in">
       <h2 class="cta-title no-break">{{ __('front.journey_title') }}</h2>
       <p class="lead" style="margin-bottom: 5px;">{{ __('front.journey_desc') }}</p>
       <p class="instructor-name-cta" style="font-weight: bold; font-style: italic; color: #f1c40f; font-size: 1.7rem; margin-top: 0; margin-bottom: 1.5rem;">{{ __('front.journey_instructor') }}</p>
-      <a href="{{ route('login') }}" class="cta-button">
-        {{ __('front.enroll_now') }}
-        @if(app()->getLocale() == 'ar')
-        <i class="fas fa-arrow-left"></i>
-        @else
-        <i class="fas fa-arrow-right"></i>
-        @endif
-      </a>
+
+      <a href="{{ route('register') }}?action=mock&redirect=mock-test" class="cta-button">
+  Start Free Mock
+  @if(app()->getLocale() == 'ar')
+    <i class="fas fa-arrow-left"></i>
+  @else
+    <i class="fas fa-arrow-right"></i>
+  @endif
+</a>
+      <div class="mt-3" style="opacity:0.9; position:relative; z-index:1;">
+        {{ __('front.hero_trust_line') }}
+      </div>
     </div>
   </div>
 </section>
+
 <section class="stats-section" id="stats">
   <div class="container">
     <div class="section-title fade-in">
@@ -1438,7 +1185,6 @@
       <div class="col-md-3 col-sm-6">
         <div class="stat-item fade-in">
           <div class="stat-number" id="testsStat" data-count="{{ (int)($stats['Practice_Tests'] ?? 0) }}">0</div>
-
           <div class="stat-label">{{ __('front.practice_tests') }}</div>
         </div>
       </div>
@@ -1446,7 +1192,6 @@
       <div class="col-md-3 col-sm-6">
         <div class="stat-item fade-in">
           <div class="stat-number" id="coursesStat" data-count="{{ (int)($stats['total_courses'] ?? 0) }}">0</div>
-
           <div class="stat-label">{{ __('front.courses') }}</div>
         </div>
       </div>
@@ -1471,9 +1216,7 @@
     <div class="contact-main-card">
       <div class="contact-info-grid">
         <div class="contact-info-box fade-in">
-          <div class="contact-box-icon">
-            <i class="fas fa-map-marker-alt"></i>
-          </div>
+          <div class="contact-box-icon"><i class="fas fa-map-marker-alt"></i></div>
           <h3 class="contact-box-title">{{ __('front.location_title') }}</h3>
           <div class="contact-box-content">
             <p><strong>{{ __('front.location_onsite') }}</strong></p>
@@ -1482,9 +1225,7 @@
         </div>
 
         <div class="contact-info-box fade-in">
-          <div class="contact-box-icon">
-            <i class="fas fa-phone"></i>
-          </div>
+          <div class="contact-box-icon"><i class="fas fa-phone"></i></div>
           <h3 class="contact-box-title">{{ __('front.phone_title') }}</h3>
           <div class="contact-box-content">
             <div class="phone-numbers-text">
@@ -1495,9 +1236,7 @@
         </div>
 
         <div class="contact-info-box fade-in">
-          <div class="contact-box-icon">
-            <i class="fas fa-clock"></i>
-          </div>
+          <div class="contact-box-icon"><i class="fas fa-clock"></i></div>
           <h3 class="contact-box-title">{{ __('front.availability_title') }}</h3>
           <div class="contact-box-content">
             <p><strong>{{ __('front.availability_desc') }}</strong></p>
@@ -1507,9 +1246,9 @@
       </div>
 
       <div class="text-center">
-        <a href="{{ route('login') }}" class="btn btn-primary btn-lg">
-          <i class="fas fa-user-graduate me-2"></i> {{ __('front.join_now_login') }}
-        </a>
+        <a href="{{ route('register') }}?action=mock&redirect=mock-test" class="btn btn-primary btn-lg">
+  <i class="fas fa-user-graduate me-2"></i> Start Free Mock
+</a>
       </div>
     </div>
   </div>
@@ -1554,9 +1293,14 @@
             <li><a href="#contactMain" style="color: rgba(255, 255, 255, 0.9);"><i class="fas fa-address-book"></i> {{ __('front.nav_contact') }}</a></li>
             <li>
               <a href="{{ route('login') }}" style="color: #3498db; font-weight: 600;">
-                <i class="fas fa-sign-in-alt"></i> {{ __('front.student_login') }}
+                <i class="fas fa-sign-in-alt"></i> Login
               </a>
             </li>
+            <li>
+ <a href="{{ route('register') }}?action=mock&redirect=mock-test"  style="color: rgba(255, 255, 255, 0.9);">
+    <i class="fas fa-play"></i> Start Free Mock
+  </a>
+</li>
           </ul>
         </div>
       </div>
@@ -1584,7 +1328,7 @@
       <p>&copy; {{ date('Y') }} Math Expert. {{ __('front.copyright') }}</p>
       <p class="mt-2">
         <a href="{{ route('login') }}" style="color: #3498db; text-decoration: none;">
-          <i class="fas fa-user me-1"></i> {{ __('front.access_portal') }}
+          <i class="fas fa-user me-1"></i> Login
         </a>
       </p>
     </div>
@@ -1624,7 +1368,6 @@
 
     function showProfessorSection(e) {
       if (e) e.preventDefault();
-
       if (!professorSection) return;
 
       professorSection.classList.add('show');
@@ -1635,20 +1378,12 @@
       const sectionTop = professorSection.offsetTop - headerHeight;
 
       setTimeout(() => {
-        window.scrollTo({
-          top: Math.max(0, sectionTop),
-          behavior: 'smooth'
-        });
+        window.scrollTo({ top: Math.max(0, sectionTop), behavior: 'smooth' });
       }, 300);
     }
 
-    if (learnMoreBtn) {
-      learnMoreBtn.addEventListener('click', showProfessorSection);
-    }
-
-    professorLinks.forEach(link => {
-      link.addEventListener('click', showProfessorSection);
-    });
+    if (learnMoreBtn) learnMoreBtn.addEventListener('click', showProfessorSection);
+    professorLinks.forEach(link => link.addEventListener('click', showProfessorSection));
 
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function(e) {
@@ -1673,7 +1408,6 @@
     });
 
     const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) entry.target.classList.add('visible');
@@ -1702,10 +1436,8 @@
     const statsObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
-
         const statNumbers = entry.target.querySelectorAll('.stat-number');
         statNumbers.forEach(statNumber => animateCounter(statNumber));
-
         statsObserver.unobserve(entry.target);
       });
     }, { threshold: 0.5 });
@@ -1714,9 +1446,7 @@
     if (statsContainer) statsObserver.observe(statsContainer);
 
     if (window.location.hash === '#professor') {
-      setTimeout(() => {
-        showProfessorSection();
-      }, 500);
+      setTimeout(() => { showProfessorSection(); }, 500);
     }
 
     function applyRTLFixes() {

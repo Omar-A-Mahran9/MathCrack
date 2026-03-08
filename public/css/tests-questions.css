@@ -356,3 +356,24 @@
         box-shadow: 0 0 20px rgba(23, 162, 184, 0.4);
     }
 }
+
+/* Question type select fix */
+.question-type-select.custom-question-type-select {
+    width: 190px !important;
+    min-width: 190px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+html[dir="ltr"] .question-type-select.custom-question-type-select {
+    padding-right: 42px !important;
+    background-position: right 12px center !important;
+    background-size: 16px 12px !important;
+}
+
+html[dir="rtl"] .question-type-select.custom-question-type-select {
+    padding-left: 42px !important;
+    background-position: left 12px center !important;
+    background-size: 16px 12px !important;
+}

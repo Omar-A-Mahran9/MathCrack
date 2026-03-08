@@ -1,50 +1,141 @@
 <?php
 
 return [
-    'page_title' => 'Prof. Ahmed Omar - Math Expert',
+    // Page Title
+    'page_title' => 'Prof. Ahmed Omar - Math Expert | Digital SAT & EST Preparation',
+    
+    // Navigation
     'nav_home' => 'Home',
     'nav_professor' => 'Professor',
     'nav_stats' => 'Stats',
     'nav_courses' => 'Courses',
     'nav_contact' => 'Contact',
+    
+    // Buttons & Actions
     'join_now' => 'Join Now',
+    'join_now_login' => 'Join Now / Login',
+    'learn_more' => 'Learn More',
+    'enroll_now' => 'Enroll Now / Login',
+    'start_free_mock' => 'Start Free Mock',
+    'login' => 'Login',
+    'register' => 'Register',
+    
+    // Professor Info
     'prof_name' => 'Prof. Ahmed Omar',
+    'prof_title' => 'Mathematics Expert & Educator',
+    'prof_short_cred' => 'Ph.D. in Pure Mathematics • 40+ Years Teaching Experience',
+    'instructor_name' => 'Prof. Ahmed Omar',
+    'instructor_contact' => 'Prof. Ahmed Omar',
+    
+    // Hero Section
     'hero_title_before' => 'Master Mathematics with ',
+    'hero_dsat_title' => 'Master Digital SAT & EST with',
+    'hero_dsat_line1' => 'Expert Mathematics Guidance',
+    'hero_dsat_line2' => 'Proven Results • 40+ Years Experience',
     'hero_line1' => '40+ Years University Teaching Experience',
     'hero_line2' => '15+ Years American Diploma Preparation',
-    'learn_more' => 'Learn More',
+    'hero_subtitle' => '40+ Years University Teaching Experience | 15+ Years American Diploma Preparation',
+    'hero_trust_line' => 'Trusted by thousands of students worldwide',
+    'cta_meet_prof' => 'Meet the Professor',
+    
+    // Professor Section
     'meet_expert' => 'Meet Our Expert',
     'math_specialist' => 'Mathematics Education Specialist',
-    'hero_subtitle' => '40+ Years University Teaching Experience | 15+ Years American Diploma Preparation',
+    
+    // CV Section
+    'cv_section_title' => 'Curriculum Vitae',
+    'cv_title' => 'Curriculum Vitae',
+    'cv_qualifications' => 'Academic Qualifications',
+    'cv_experience' => 'Practical Experience',
+    'cv_practical_experiences' => 'Practical Experiences',
+    
+    'cv_phd' => 'Doctor of Philosophy in Science',
+    'cv_msc' => 'Master of Science',
+    'cv_bsc' => 'Bachelor of Science',
+    'cv_pure_math' => '(Pure Mathematics)',
+    'cv_math' => '(Mathematics)',
+    
+    'cv_professor' => 'Professor',
+    'cv_head' => 'Head of Mathematics Department',
+    'cv_head_math_dept' => 'Head of Mathematics Department',
+    'cv_assistant_prof' => 'Assistant Professor',
+    'cv_lecturer' => 'Lecturer',
+    'cv_assistant_lecturer' => 'Assistant Lecturer',
+    'cv_demonstrator' => 'Demonstrator',
+    
+    'cv_assiut' => 'Assiut University',
+    'cv_assiut_university' => 'Assiut University',
+    'cv_azhar' => 'Al-Azhar University – Assiut',
+    'cv_azhar_assiut' => 'Al-Azhar University, Assiut',
+    'cv_taibah' => 'Taibah University – Madinah',
+    'cv_taibah_madinah' => 'Taibah University (Madinah)',
+    
+    'cv_dept_topology_faculty_science' => 'Department of Mathematics (Topology), Faculty of Science',
+    'cv_dept_math_faculty_science' => 'Department of Mathematics, Faculty of Science',
+    'cv_faculty_science' => 'Faculty of Science',
+    
+    // Experience Section
+    'teaching_experience' => 'Teaching Experience',
+    'experience_item1_years' => 'More than 15 years experience',
+    'experience_item1_title' => 'American Diploma Mathematics',
+    'experience_item1_desc' => 'SAT - ACT - EST Preparation',
+    'experience_item2_years' => 'More than 40 years experience',
+    'experience_item2_title' => 'University Mathematics Teaching',
+    'experience_item2_desc' => 'Advanced Mathematics Courses',
+    
+    // DSAT System Section
+    'system_title' => 'The DSAT System',
+    'system_desc' => 'Complete Digital SAT Preparation Ecosystem',
+    'system_item1_title' => 'Live Sessions',
+    'system_item1_desc' => 'Interactive online classes with real-time problem solving',
+    'system_item2_title' => 'Comprehensive Materials',
+    'system_item2_desc' => 'Structured curriculum with thousands of practice questions',
+    'system_item3_title' => 'Progress Tracking',
+    'system_item3_desc' => 'Detailed analytics and performance reports',
+    'system_item4_title' => 'Mock Tests',
+    'system_item4_desc' => 'Full-length simulated exams with accurate scoring',
+    
+    // Programs Section
+    'programs_title' => 'Our Mathematics Programs',
+    'programs_desc' => 'Comprehensive courses designed for academic excellence',
+    'american_diploma' => 'American Diploma',
+    'american_diploma_desc' => 'Complete preparation for SAT I, SAT II, EST, and ACT with proven strategies',
+    'university_math' => 'University Mathematics',
+    'university_math_desc' => 'Advanced university-level courses including Calculus, Linear Algebra, and Statistics',
+    'test_preparation' => 'Test Preparation',
+    'test_preparation_desc' => 'Specialized training for SAT, ACT, EST, AP, IG, and IB exams',
+    
+    // Stats Section
     'impact_title' => 'Our Impact in Numbers',
     'impact_desc' => 'Join hundreds of successful students who have excelled in mathematics with',
-    'instructor_name' => 'Prof. Ahmed Omar',
     'satisfied_students' => 'Satisfied Students',
     'practice_tests' => 'Practice Tests',
     'courses' => 'Courses',
     'expert_instructors' => 'Expert Instructors',
-    'programs_title' => 'Our Mathematics Programs',
-    'programs_desc' => 'Comprehensive courses designed for academic excellence',
-    'american_diploma' => 'American Diploma',
-    'american_diploma_desc' => 'Complete preparation for American Diploma mathematics with focus on SAT, ACT, and EST exams.',
-    'university_math' => 'University Mathematics',
-    'university_math_desc' => 'Advanced university-level mathematics courses for college and university students.',
-    'test_preparation' => 'Test Preparation',
-    'test_preparation_desc' => 'Specialized training for standardized tests including SAT, ACT, EST, and AP exams.',
+    
+    // CTA Section
     'journey_title' => 'Start Your Mathematics Journey Today',
     'journey_desc' => 'Join hundreds of successful students who have excelled in mathematics with',
     'journey_instructor' => 'Prof. Ahmed Omar',
-    'enroll_now' => 'Enroll Now / Login',
+    
+    // Contact Section
     'contact_title' => 'Contact Us',
     'contact_subtitle' => 'Get in touch with Prof. Ahmed Omar for inquiries and enrollment',
-    'instructor_contact' => 'Prof. Ahmed Omar',
+    'contact_information' => 'Contact Information',
+    
     'location_title' => 'Location',
-    'location_onsite' => 'On-site courses: Asyute city only',
-    'location_online' => 'Online courses: Available worldwide',
+    'location_onsite' => 'On-site: Asyut, Egypt',
+    'location_online' => 'Online: Worldwide',
+    'on_site_courses' => 'On site courses in Asyute city only',
+    'online_courses' => 'Online courses available worldwide',
+    
     'phone_title' => 'Phone Numbers',
+    
     'availability_title' => 'Availability',
-    'availability_desc' => 'All Days of the Week: 9:00AM-10:00PM',
+    'availability_desc' => 'All Days of the Week: 9:00 AM - 10:00 PM',
     'availability_note' => 'Also available by appointment',
+    
+    // Footer
     'footer_tagline' => 'Providing expert mathematics education for over 40 years. Helping students achieve academic excellence.',
     'quick_links' => 'Quick Links',
     'about_professor' => 'About Professor',
@@ -52,47 +143,5 @@ return [
     'contact_info' => 'Contact Info',
     'access_portal' => 'Access Student Portal',
     'copyright' => 'All rights reserved | Designed for Educational Excellence',
-    'experience_item1_years' => 'More than 15 years experience',
-    'experience_item1_title' => 'American Diploma Mathematics',
-    'experience_item1_desc' => 'SAT - ACT - EST Preparation',
-    'experience_item2_years' => 'More than 40 years experience',
-    'experience_item2_title' => 'University Mathematics Teaching',
-    'experience_item2_desc' => 'Advanced Mathematics Courses',
-    'teaching_experience' => 'Teaching Experience',
-    'join_now_login' => 'Join Now / Login',
-    'contact_information' => 'Contact Information',
-    'on_site_courses' => 'On site courses in Asyute city only',
-    'online_courses' => 'Online courses available worldwide',
     'all_rights_reserved' => 'All rights reserved',
-    'prof_title' => 'Mathematics Expert & Educator',
-    'cv_section_title' => 'Curriculum Vitae',
-    'cv_title' => 'Curriculum Vitae',
-    'cv_qualifications' => 'Qualifications',
-    'cv_experience' => 'Practical Experience',
-    'cv_phd' => 'Doctor of Philosophy in Science',
-    'cv_msc' => 'Master of Science',
-    'cv_bsc' => 'Bachelor of Science',
-    'cv_professor' => 'Professor',
-    'cv_head' => 'Head of Mathematics Department',
-    'cv_assistant_prof' => 'Assistant Professor',
-    'cv_lecturer' => 'Lecturer',
-    'cv_assistant_lecturer' => 'Assistant Lecturer',
-    'cv_demonstrator' => 'Demonstrator',
-    'cv_assiut' => 'Assiut University',
-    'cv_azhar' => 'Al-Azhar University – Assiut',
-    'cv_taibah' => 'Taibah University – Madinah',
-    'cv_pure_math' => '(Pure Mathematics)',
-    'cv_math' => '(Mathematics)',
-    'cv_assiut_university' => 'Assiut University',
-    'cv_head_math_dept' => 'Head of Mathematics Department',
-    'cv_dept_topology_faculty_science' => 'Department of Mathematics (Topology), Faculty of Science',
-    'cv_dept_math_faculty_science' => 'Department of Mathematics, Faculty of Science',
-    'cv_faculty_science' => 'Faculty of Science',
-    'cv_azhar_assiut' => 'Al-Azhar University, Assiut',
-    'cv_taibah_madinah' => 'Taibah University (Madinah)',
-    'cv_practical_experiences' => 'Practical experiences',
-
-    'journey_desc' => 'Join hundreds of successful students who have excelled in mathematics with',
-'journey_instructor' => 'Prof. Ahmed Omar',
-'enroll_now' => 'Enroll Now / Login',
 ];

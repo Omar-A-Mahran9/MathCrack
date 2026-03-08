@@ -504,7 +504,7 @@
         </div>
     </div>
 
-    @if(session('success'))
+    <!-- @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>
             {{ session('success') }}
@@ -530,7 +530,7 @@
             </ul>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    @endif
+    @endif -->
 
     <!-- Filters (no Filter button) -->
     <!-- في قسم الفلاتر -->
@@ -774,10 +774,97 @@
 @endsection
 
 @section('js')
-<script>
-    $(document).ready(function() {
+<style>
+    .swal2-container.swal2-backdrop-show,
+    .swal2-container.swal2-noanimation {
+        background: #ffffff !important;
+    }
 
-        // animations
+    .final-elegant-popup {
+        border-radius: 22px !important;
+        box-shadow: 0 25px 80px rgba(15, 23, 42, 0.18) !important;
+        padding: 2.2rem 2rem 1.8rem !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    }
+
+    .final-elegant-title {
+        font-size: 28px !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+        margin-bottom: 10px !important;
+    }
+
+    .final-elegant-html {
+        font-size: 16px !important;
+        line-height: 1.8 !important;
+        color: #475569 !important;
+        margin-top: 8px !important;
+    }
+
+    .final-elegant-confirm {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 12px 28px !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.28) !important;
+    }
+
+    .final-elegant-confirm:focus {
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18) !important;
+    }
+</style>
+
+<script>
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: @json(session('success')),
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#2563eb'
+        });
+    @endif
+
+   @if(session('error'))
+Swal.fire({
+    icon: 'warning',
+    title: 'Unable to continue',
+    text: @json(session('error')),
+    confirmButtonText: 'Back to Home',
+    confirmButtonColor: '#2563eb',
+    backdrop: 'rgba(255,255,255,1)',
+    background: '#ffffff',
+    allowOutsideClick: false
+}).then(function(){
+    window.location.href = "{{ url('/') }}";
+});
+@endif
+    @if($errors->any())
+        Swal.fire({
+            icon: 'warning',
+            title: 'Unable to continue',
+            html: `{!! implode('<br>', $errors->all()) !!}`,
+            confirmButtonText: 'Back to Home',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            backdrop: '#ffffff',
+            background: '#ffffff',
+            width: 560,
+            customClass: {
+                popup: 'final-elegant-popup',
+                title: 'final-elegant-title',
+                htmlContainer: 'final-elegant-html',
+                confirmButton: 'final-elegant-confirm'
+            }
+        }).then(() => {
+            window.location.href = "{{ url('/') }}";
+        });
+    @endif
+
+    $(document).ready(function() {
         $('.course-section').each(function(index) {
             $(this).css('opacity', '0').css('transform', 'translateY(30px)')
                 .delay(index * 200)
@@ -795,28 +882,20 @@
             setTimeout(() => { $(this).css('transform', ''); }, 150);
         });
 
-        // auto filtering (no Filter button)
-        const form        = document.getElementById('filtersForm');
+        const form = document.getElementById('filtersForm');
         const levelSelect = document.getElementById('levelSelect');
         const courseSelect = document.getElementById('courseSelect');
 
         if (form && levelSelect && courseSelect) {
-
-            // عند تغيير Level
             levelSelect.addEventListener('change', function () {
-                // امسح الكورس لأن الليفل اتغير
                 courseSelect.value = '';
-                // فلترة مباشرة حسب الليفل فقط
                 form.submit();
             });
 
-            // عند اختيار Course
             courseSelect.addEventListener('change', function () {
                 form.submit();
             });
         }
-
     });
 </script>
-
 @endsection

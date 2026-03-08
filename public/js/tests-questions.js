@@ -1,5 +1,8 @@
 /*************************************************
  * Test Questions JS (MathCrack) - Clean Version
+ * Updated: Added question type switching fix
+ * Updated: Added difficulty + content fields
+ * Updated: Improved switching between MCQ / TF / Numeric
  *************************************************/
 
 let questionCounter = 0;
@@ -11,7 +14,6 @@ let questionStatus = {};
    Document Ready
 ================================ */
 $(document).ready(function () {
-    // بيانات عامة من الـ Blade
     testId = window.testId || '';
     questionStatus = window.questionStatus || {};
     questionCounter = $('#questionsContainer .question-card').length;
@@ -24,7 +26,6 @@ $(document).ready(function () {
         $('#floatingAddBtn').removeClass('pulse');
     }
 
-    // تهيئة MathJax للمحتوى الحالي
     if (typeof MathJax !== 'undefined') {
         MathJax.typesetPromise().then(() => {
             console.log('MathJax initialized successfully');
@@ -40,10 +41,16 @@ $(document).ready(function () {
         console.warn('MathJax not loaded');
     }
 
-    // ربط الأحداث العامة
     bindEvents();
+setTimeout(function () {
+    $('.question-card.new-question .question-type-select').each(function () {
+        const questionCard = $(this).closest('.question-card');
+        const type = $(this).val();
+        const questionId = questionCard.data('question-id');
+        initializeQuestionType(questionCard, type, questionId);
+    });
+}, 500);
 
-    // إعادة تطبيق MathJax بعد التحميل بقليل
     setTimeout(function () {
         $('.question-text-editor, .option-text-editor, .question-explanation').each(function () {
             const content = $(this).val();
@@ -62,7 +69,6 @@ $(document).ready(function () {
    Events Binding
 ================================ */
 function bindEvents() {
-    // تحديث معاينة MathJax مع الكتابة
     $(document).on('input', '.question-text-editor, .option-text-editor, .question-explanation', function () {
         const element = this;
         clearTimeout(element.mathTimeout);
@@ -71,12 +77,10 @@ function bindEvents() {
         }, 500);
     });
 
-    // عند فقد التركيز
     $(document).on('blur', '.question-text-editor, .option-text-editor, .question-explanation', function () {
         renderMath(this);
     });
 
-    // عند اللصق
     $(document).on('paste', '.question-text-editor, .option-text-editor, .question-explanation', function () {
         const element = this;
         setTimeout(() => {
@@ -84,7 +88,6 @@ function bindEvents() {
         }, 100);
     });
 
-    // تحديث شكل الخيار الصحيح
     $(document).on('change', 'input[type="radio"]', function () {
         const questionCard = $(this).closest('.question-card');
         const radioName = $(this).attr('name');
@@ -98,7 +101,6 @@ function bindEvents() {
         $(this).closest('.option-item').addClass('correct-answer');
     });
 
-    // تغيير الموديول في الفورم (للسؤال الجديد فقط)
     $(document).on('change', '.question-part', function () {
         const selectedPart = $(this).val();
         const questionCard = $(this).closest('.question-card');
@@ -106,13 +108,80 @@ function bindEvents() {
             updateQuestionNumbering(questionCard, selectedPart);
         }
     });
+
+    $(document).on('change', '.question-type-select', function () {
+        const questionCard = $(this).closest('.question-card');
+        const type = $(this).val();
+        const questionId = questionCard.data('question-id');
+
+        console.log('Question type changed to:', type, 'Question ID:', questionId);
+
+        const badge = questionCard.find('.question-type-badge');
+        if (badge.length) {
+            badge.removeClass('mcq-badge tf-badge numeric-badge');
+
+            if (type === 'mcq') {
+                badge.addClass('mcq-badge').text(window.translations?.mcq || 'Multiple Choice');
+            } else if (type === 'tf') {
+                badge.addClass('tf-badge').text(window.translations?.tf || 'True/False');
+            } else if (type === 'numeric') {
+                badge.addClass('numeric-badge').text(window.translations?.numeric || 'Numeric');
+            }
+        }
+
+        initializeQuestionType(questionCard, type, questionId);
+    });
+}
+
+/* ================================
+   Initialize Question Type
+================================ */
+function initializeQuestionType(questionCard, type, questionId) {
+    let container = questionCard.find('.options-container').first();
+
+    if (!container.length) {
+        const explanationRow = questionCard.find('.question-explanation').closest('.row');
+        if (explanationRow.length) {
+            explanationRow.before(`<div class="options-container" id="options-${questionId}"></div>`);
+        } else {
+            questionCard.append(`<div class="options-container" id="options-${questionId}"></div>`);
+        }
+
+        container = questionCard.find('.options-container').first();
+    }
+
+    // إزالة أي محتوى قديم داخل الحاوية فقط
+    container.empty();
+
+    let actualQuestionId = questionId;
+    if (questionId && questionId.toString().startsWith('new-')) {
+        actualQuestionId = questionId.toString().replace('new-', '');
+    }
+
+    let html = '';
+
+    if (type === 'mcq') {
+        html = createMCQOptions(actualQuestionId, questionId);
+    } else if (type === 'tf') {
+        html = createTrueFalseOptions(actualQuestionId, questionId);
+    } else if (type === 'numeric') {
+        html = createNumericAnswer(actualQuestionId);
+    }
+
+    container.html(html);
+
+    if (type === 'mcq') {
+        updateDeleteButtonsVisibility(container.find('.mcq-options'));
+    }
+
+    if (typeof MathJax !== 'undefined') {
+        setTimeout(() => renderMathJax(container[0]), 100);
+    }
 }
 
 /* ================================
    Helpers: Modules
 ================================ */
-
-// تحويل window.modules إلى Array موحدة
 function getModulesArray() {
     const src = window.modules || {};
     if (Array.isArray(src)) {
@@ -130,7 +199,6 @@ function getModulesArray() {
     });
 }
 
-// أول موديول يسمح بإضافة سؤال جديد
 function getFirstAvailableModuleKey() {
     const modulesArr = getModulesArray();
     let chosen = null;
@@ -150,16 +218,14 @@ function getFirstAvailableModuleKey() {
         }
     });
 
-    return chosen; // part1 / part2 / ... أو null لو كله مليان
+    return chosen;
 }
 
-// بناء HTML لقائمة الموديولات
 function buildModuleOptionsHtml(selectedKey = '') {
     const modulesArr = getModulesArray();
     let html = `<option value="">${window.translations?.select_part || 'Select Module'}</option>`;
 
     if (!modulesArr.length) {
-        // في حالة عدم وجود بيانات من السيرفر
         for (let i = 1; i <= 5; i++) {
             html += `<option value="part${i}">Module ${i}</option>`;
         }
@@ -191,9 +257,7 @@ function buildModuleOptionsHtml(selectedKey = '') {
 /* ================================
    Add New Question
 ================================ */
-
 function addNewQuestion() {
-    // اختيار موديول تلقائي
     const autoPart = getFirstAvailableModuleKey();
 
     if (!autoPart) {
@@ -204,7 +268,6 @@ function addNewQuestion() {
         return;
     }
 
-    // حساب رقم السؤال الجديد
     const currentQuestionsCount = $('.question-card').length;
     const newQuestionNumber = currentQuestionsCount + 1;
 
@@ -216,7 +279,6 @@ function addNewQuestion() {
     $('#questionsContainer').append(questionHtml);
 
     const $newCard = $(`#question-${newQuestionNumber}`);
-    // مجرد تأكيد على اختيار الموديول
     $newCard.find('.question-part').val(autoPart);
 
     console.log('Question added. Auto-selected part:', autoPart);
@@ -224,6 +286,11 @@ function addNewQuestion() {
     if (typeof MathJax !== 'undefined') {
         renderMathJax($newCard[0]);
     }
+
+    setTimeout(() => {
+        const typeSelect = $newCard.find('.question-type-select');
+        initializeQuestionType($newCard, typeSelect.val(), `new-${newQuestionNumber}`);
+    }, 100);
 
     const newQuestionContainer = $newCard.find('.mcq-options');
     if (newQuestionContainer.length > 0) {
@@ -241,7 +308,6 @@ function addNewQuestion() {
 /* ================================
    Build Question HTML
 ================================ */
-
 function createNewQuestionHtml(questionId, defaultPartKey = '') {
     const modulesHtml = buildModuleOptionsHtml(defaultPartKey);
 
@@ -253,9 +319,8 @@ function createNewQuestionHtml(questionId, defaultPartKey = '') {
                     <small class="text-muted ms-2" id="question-numbering-${questionId}">
                         (${window.translations?.numbering_will_be_set || 'Numbering will be set'})
                     </small>
-                    <select class="form-select question-type-select" style="width: auto;"
-                            onchange="handleQuestionTypeChange('new-${questionId}', this.value)">
-                        <option value="mcq">${window.translations?.mcq || 'Multiple Choice'}</option>
+                    <select class="form-select question-type-select custom-question-type-select" style="margin-left: 10px;">
+                        <option value="mcq" selected>${window.translations?.mcq || 'Multiple Choice'}</option>
                         <option value="tf">${window.translations?.tf || 'True/False'}</option>
                         <option value="numeric">${window.translations?.numeric || 'Numeric'}</option>
                     </select>
@@ -308,12 +373,37 @@ function createNewQuestionHtml(questionId, defaultPartKey = '') {
                                    min="1"
                                    value="${window.translations?.default_score || '15'}">
                         </div>
+
+                        <div class="mt-2">
+                            <label class="form-label fw-bold">
+                                ${window.translations?.difficulty_label || 'Difficulty'}:
+                            </label>
+                            <select class="form-select question-difficulty">
+                                <option value="">${window.translations?.select_difficulty || 'Select Difficulty'}</option>
+                                <option value="easy">${window.translations?.easy || 'Easy'}</option>
+                                <option value="medium">${window.translations?.medium || 'Medium'}</option>
+                                <option value="hard">${window.translations?.hard || 'Hard'}</option>
+                            </select>
+                        </div>
+
+                        <div class="mt-2">
+                            <label class="form-label fw-bold">
+                                ${window.translations?.content_label || 'Content'}:
+                            </label>
+                            <select class="form-select question-content-select">
+                                <option value="">${window.translations?.select_content || 'Select Content'}</option>
+                                <option value="algebra">Algebra</option>
+                                <option value="advanced_math">Advanced Math</option>
+                                <option value="problem_solving_and_data_analysis">Problem Solving and Data Analysis</option>
+                                <option value="geometry_and_trigonometry">Geometry and Trigonometry</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="options-container" id="options-${questionId}">
-                ${createMCQOptions(questionId)}
+                ${createMCQOptions(questionId, `new-${questionId}`)}
             </div>
 
             <div class="row mt-3">
@@ -350,37 +440,40 @@ function createNewQuestionHtml(questionId, defaultPartKey = '') {
 }
 
 /* ================================
-   Options (MCQ / TF / Numeric)
+   Options
 ================================ */
+function createMCQOptions(questionId, originalQuestionId = null) {
+    const radioGroupName = originalQuestionId ? `correct-${originalQuestionId}` : `correct-new-${questionId}`;
 
-function createMCQOptions(questionId) {
     return `
         <label class="form-label fw-bold">
             ${window.translations?.options || 'Options'}:
         </label>
         <div class="mcq-options">
-            ${createOptionHtml(questionId, 0, 'A')}
-            ${createOptionHtml(questionId, 1, 'B')}
-            ${createOptionHtml(questionId, 2, 'C')}
-            ${createOptionHtml(questionId, 3, 'D')}
+            ${createOptionHtml(questionId, 0, 'A', radioGroupName)}
+            ${createOptionHtml(questionId, 1, 'B', radioGroupName)}
+            ${createOptionHtml(questionId, 2, 'C', radioGroupName)}
+            ${createOptionHtml(questionId, 3, 'D', radioGroupName)}
         </div>
         <button type="button" class="btn btn-outline-primary btn-sm mt-2"
-                onclick="addMCQOption(${questionId})">
+                onclick="addMCQOption('${questionId}')">
             <i class="fas fa-plus me-1"></i>
             ${window.translations?.add_option || 'إضافة خيار'}
         </button>
     `;
 }
 
-function createOptionHtml(questionId, optionIndex, letter) {
+function createOptionHtml(questionId, optionIndex, letter, radioGroupName = null) {
+    const groupName = radioGroupName || `correct-new-${questionId}`;
+
     return `
         <div class="option-item" data-option-index="${optionIndex}">
             <div class="option-header">
                 <span class="option-letter">${letter}</span>
                 <input type="radio"
-                       name="correct-new-${questionId}"
+                       name="${groupName}"
                        value="${optionIndex}"
-                       class="form-check-input ms-2"
+                       class="form-check-input ms-2 correct-radio"
                        id="option-${questionId}-${optionIndex}">
                 <label for="option-${questionId}-${optionIndex}"
                        class="ms-2 small text-muted">
@@ -394,41 +487,52 @@ function createOptionHtml(questionId, optionIndex, letter) {
                     </button>
                 </div>
             </div>
+
             <div class="option-content">
                 <textarea class="form-control option-text-editor"
                           placeholder="${window.translations?.option_text_placeholder || 'option text...'}"
                           onblur="renderMath(this)"></textarea>
+
                 <div class="mt-2">
                     <label class="form-label small">
-                        ${window.translations?.option_image_optional || 'صورة الخيار (اختياري)'}:
+                        ${window.translations?.option_image_optional || 'Option Image (Optional)'}:
                     </label>
-                    <input type="file" class="form-control option-image" accept="image/*">
+
+                    <input type="file"
+                           class="form-control option-image option-image-input"
+                           accept="image/*"
+                           data-question-id="${questionId}"
+                           data-option-index="${optionIndex}"
+                           onchange="previewImage(this, 'option', '${questionId}', '${optionIndex}')">
+
                     <small class="form-text text-muted">
-                        ${window.translations?.image_size_limit || 'الحد الأقصى: 2 ميجا، الأنواع المدعومة: JPG, PNG, GIF'}
+                        ${window.translations?.image_size_limit || 'Max: 2MB, Supported: JPG, PNG, GIF'}
                     </small>
+
+                    <div class="mt-2" id="option-image-preview-${questionId}-${optionIndex}"></div>
                 </div>
             </div>
         </div>
     `;
 }
-
 function createNumericAnswer(questionId) {
     return `
         <div class="numeric-options">
             <label class="form-label fw-bold">
                 ${window.translations?.correct_numeric_answer || 'the correct numeric answer'}:
             </label>
-            <input type="number" class="form-control numeric-answer"
-                   placeholder="${window.translations?.enter_correct_number || 'enter the correct number'}"
-                   step="any">
-            <small class="text-muted mt-1">
+            <input type="number" class="form-control numeric-answer" step="any"
+                   placeholder="${window.translations?.enter_correct_number || 'enter the correct number'}">
+            <small class="text-muted mt-1 d-block">
                 ${window.translations?.decimal_numbers_allowed || 'يُسمح بالأرقام العشرية'}
             </small>
         </div>
     `;
 }
 
-function createTrueFalseOptions(questionId) {
+function createTrueFalseOptions(questionId, originalQuestionId = null) {
+    const radioGroupName = originalQuestionId ? `correct-${originalQuestionId}` : `correct-new-${questionId}`;
+
     return `
         <div class="tf-options">
             <label class="form-label fw-bold">
@@ -438,20 +542,20 @@ function createTrueFalseOptions(questionId) {
                 <div class="form-check form-check-inline">
                     <input class="form-check-input"
                            type="radio"
-                           name="correct-new-${questionId}"
+                           name="${radioGroupName}"
                            value="1"
-                           id="tf-true-new-${questionId}">
-                    <label class="form-check-label" for="tf-true-new-${questionId}">
+                           id="tf-true-${questionId}">
+                    <label class="form-check-label" for="tf-true-${questionId}">
                         ${window.translations?.true || 'صحيح'}
                     </label>
                 </div>
                 <div class="form-check form-check-inline">
                     <input class="form-check-input"
                            type="radio"
-                           name="correct-new-${questionId}"
+                           name="${radioGroupName}"
                            value="0"
-                           id="tf-false-new-${questionId}">
-                    <label class="form-check-label" for="tf-false-new-${questionId}">
+                           id="tf-false-${questionId}">
+                    <label class="form-check-label" for="tf-false-${questionId}">
                         ${window.translations?.false || 'خطأ'}
                     </label>
                 </div>
@@ -460,51 +564,7 @@ function createTrueFalseOptions(questionId) {
     `;
 }
 
-/* تغيير نوع السؤال */
-function handleQuestionTypeChange(questionId, type) {
-    let actualQuestionId = questionId;
-    if (questionId.startsWith('new-')) {
-        actualQuestionId = questionId.replace('new-', '');
-    }
-
-    const questionCard = $(`[data-question-id="${questionId}"]`);
-    if (!questionCard.length) {
-        console.error('Question card not found for ID:', questionId);
-        return;
-    }
-
-    const badge = questionCard.find('.question-type-badge');
-    badge.removeClass('mcq-badge tf-badge numeric-badge');
-
-    questionCard.find('.mcq-options, .tf-options, .numeric-options').remove();
-
-    const container = questionCard.find('.options-container');
-
-    switch (type) {
-        case 'mcq':
-            badge.addClass('mcq-badge').text(window.translations?.mcq || 'Multiple Choice');
-            container.html(createMCQOptions(actualQuestionId));
-            updateDeleteButtonsVisibility(container.find('.mcq-options'));
-            break;
-
-        case 'tf':
-            badge.addClass('tf-badge').text(window.translations?.tf || 'True/False');
-            container.html(createTrueFalseOptions(actualQuestionId));
-            break;
-
-        case 'numeric':
-            badge.addClass('numeric-badge').text(window.translations?.numeric || 'Numeric');
-            container.html(createNumericAnswer(actualQuestionId));
-            break;
-    }
-
-    if (typeof MathJax !== 'undefined') {
-        setTimeout(() => renderMathJax(container[0]), 100);
-    }
-}
-
 /* إضافة / حذف خيارات MCQ */
-
 function addMCQOption(questionId) {
     let container = $(`#options-${questionId} .mcq-options`);
 
@@ -525,48 +585,11 @@ function addMCQOption(questionId) {
     const letter = String.fromCharCode(65 + optionCount);
     let optionHtml;
 
-    if ($(`#options-${questionId}`).length > 0) {
-        optionHtml = createOptionHtml(questionId, optionCount, letter);
-    } else {
-        // للسؤال القديم (من الداتا بيز)
-        optionHtml = `
-            <div class="option-item" data-option-index="${optionCount}">
-                <div class="option-header">
-                    <span class="option-letter">${letter}</span>
-                    <input type="radio"
-                           name="correct-${questionId}"
-                           value="${optionCount}"
-                           class="form-check-input ms-2"
-                           id="option-${questionId}-${optionCount}">
-                    <label for="option-${questionId}-${optionCount}"
-                           class="ms-2 small text-muted">
-                        ${window.translations?.correct_answer || 'correct answer'}
-                    </label>
-                    <div class="ms-auto">
-                        <button type="button"
-                                class="btn btn-outline-danger btn-sm"
-                                onclick="removeMCQOption(this)">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="option-content">
-                    <textarea class="form-control option-text-editor"
-                              placeholder="${window.translations?.option_text_placeholder || 'option text...'}"
-                              onblur="renderMath(this)"></textarea>
-                    <div class="mt-2">
-                        <label class="form-label small">
-                            ${window.translations?.option_image_optional || 'صورة الخيار (اختياري)'}:
-                        </label>
-                        <input type="file" class="form-control option-image" accept="image/*">
-                        <small class="form-text text-muted">
-                            ${window.translations?.image_size_limit || 'الحد الأقصى: 2 ميجا، الأنواع المدعومة: JPG, PNG, GIF'}
-                        </small>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
+    const parentCard = container.closest('.question-card');
+    const originalQuestionId = parentCard.data('question-id');
+    const radioGroupName = `correct-${originalQuestionId}`;
+
+    optionHtml = createOptionHtml(questionId, optionCount, letter, radioGroupName);
 
     container.append(optionHtml);
     updateDeleteButtonsVisibility(container);
@@ -603,9 +626,7 @@ function removeMCQOption(button) {
 /* ================================
    Edit / Save / Delete
 ================================ */
-
 function editQuestion(questionId) {
-    // يمكن لاحقاً عمل edit بدون reload
     location.reload();
 }
 
@@ -677,29 +698,26 @@ function saveQuestion(questionId) {
                 'تم حفظ السؤال بنجاح'
             );
 
-            // ✅ AUTO-ADD: إضافة سؤال جديد تلقائيًا
             setTimeout(() => {
-                // التحقق من وجود أسئلة متبقية
                 const modulesArr = getModulesArray();
                 let canAddMore = false;
-                
+
                 modulesArr.forEach(m => {
                     if (m && m.can_add && m.remaining > 0) {
                         canAddMore = true;
                     }
                 });
-                
+
                 if (canAddMore) {
-                    addNewQuestion(); // إضافة سؤال جديد
+                    addNewQuestion();
                 } else {
                     showErrorMessage(
-                        window.translations?.all_questions_added_already || 
+                        window.translations?.all_questions_added_already ||
                         'تم إضافة جميع الأسئلة المطلوبة'
                     );
                 }
-            }, 800); // تأخير 800ms لرؤية رسالة النجاح
-            
-            // إعادة تحميل الصفحة بعد ثانية (اختياري)
+            }, 800);
+
             setTimeout(() => {
                 location.reload();
             }, 1000);
@@ -722,6 +740,7 @@ function saveQuestion(questionId) {
         }
     });
 }
+
 /* استخراج بيانات السؤال من الـ DOM */
 function extractQuestionData(questionCard) {
     const questionType = questionCard.find('.question-type-select').val();
@@ -729,6 +748,8 @@ function extractQuestionData(questionCard) {
     const questionImage = questionCard.find('.question-image')[0]?.files[0];
     const questionPart = questionCard.find('.question-part').val();
     const score = questionCard.find('.question-score').val();
+    const difficulty = questionCard.find('.question-difficulty').val();
+    const content = questionCard.find('.question-content-select').val();
     const explanation = questionCard.find('.question-explanation').val();
     const explanationImage = questionCard.find('.explanation-image')[0]?.files[0];
 
@@ -737,6 +758,8 @@ function extractQuestionData(questionCard) {
         type: questionType || 'mcq',
         part: questionPart || '',
         score: parseInt(score || 15, 10),
+        difficulty: difficulty || '',
+        content: content || '',
         explanation: explanation || ''
     };
 
@@ -751,8 +774,7 @@ function extractQuestionData(questionCard) {
             data.correct_answer = extractTFAnswer(questionCard);
             break;
         case 'numeric':
-            const numericValue = questionCard.find('.numeric-answer, .numeric-answer-input').val() || '';
-            data.correct_answer = numericValue;
+            data.correct_answer = questionCard.find('.numeric-answer, .numeric-answer-input').val() || '';
             break;
     }
 
@@ -761,22 +783,11 @@ function extractQuestionData(questionCard) {
 
 function extractMCQOptions(questionCard) {
     const options = [];
-    const originalQuestionId = questionCard.attr('data-question-id');
-    const isNewQuestion = originalQuestionId && originalQuestionId.toString().startsWith('new-');
-
-    let optionItems;
-
-    if (isNewQuestion) {
-        const questionNumber = originalQuestionId.replace('new-', '');
-        optionItems = $(`#options-${questionNumber} .mcq-options .option-item`);
-    } else {
-        optionItems = questionCard.find('.mcq-options .option-item');
-    }
+    const optionItems = questionCard.find('.mcq-options .option-item');
 
     optionItems.each(function () {
         const optionText = $(this).find('.option-text-editor').val() || '';
         const optionImage = $(this).find('.option-image')[0]?.files[0];
-
         const radioButton = $(this).find('input[type="radio"]');
         const isCorrect = radioButton.length ? radioButton.is(':checked') : false;
 
@@ -794,17 +805,7 @@ function extractMCQOptions(questionCard) {
 }
 
 function extractTFAnswer(questionCard) {
-    const originalQuestionId = questionCard.attr('data-question-id');
-    const isNewQuestion = originalQuestionId && originalQuestionId.toString().startsWith('new-');
-    let selectedOption;
-
-    if (isNewQuestion) {
-        const questionNumber = originalQuestionId.replace('new-', '');
-        selectedOption = $(`input[name="correct-new-${questionNumber}"]:checked`).val();
-    } else {
-        selectedOption = questionCard.find('.tf-options input[type="radio"]:checked, .tf-container input[type="radio"]:checked').val();
-    }
-
+    const selectedOption = questionCard.find('.tf-options input[type="radio"]:checked, .tf-container input[type="radio"]:checked').val();
     return selectedOption || '';
 }
 
@@ -820,7 +821,16 @@ function validateQuestionData(data) {
         return false;
     }
 
-    // التحقق من أن الموديول مازال فيه مكان
+    if (!data.difficulty) {
+        showErrorMessage(window.translations?.difficulty_required || 'Please select difficulty');
+        return false;
+    }
+
+    if (!data.content) {
+        showErrorMessage(window.translations?.content_required || 'Please select content');
+        return false;
+    }
+
     const modulesArr = getModulesArray();
     const m = modulesArr.find(x => x && x.key === data.part);
     if (m) {
@@ -915,7 +925,6 @@ function deleteQuestion(questionId) {
 }
 
 /* Misc UI Helpers */
-
 function checkEmptyState() {
     const questionCount = $('#questionsContainer .question-card').length;
     if (questionCount === 0) {
@@ -970,7 +979,6 @@ function showLoading(show) {
     }
 }
 
-/* تحديث النص الصغير الخاص بالترقيم */
 function updateQuestionNumbering(questionCard, selectedPart) {
     const questionId = questionCard.attr('data-question-id');
     if (!questionId) return;
@@ -989,7 +997,6 @@ function updateQuestionNumbering(questionCard, selectedPart) {
 /* ================================
    MathJax Helpers
 ================================ */
-
 function renderMathJax(element = null) {
     if (typeof MathJax === 'undefined') return;
 
@@ -1025,7 +1032,6 @@ function renderMath(element) {
     ];
 
     const hasLatex = mathPatterns.some(pattern => text.includes(pattern));
-
     let previewDiv = $element.siblings('.math-preview');
 
     if (!hasLatex && !text.includes('\n')) {

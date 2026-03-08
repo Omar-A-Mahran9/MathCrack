@@ -1961,4 +1961,11 @@ return [
  
 
 
+    'easy' => 'Easy',
+    'medium' => 'Medium',
+    'hard' => 'Hard',
+    'select_difficulty' => 'Select difficulty',
+
 ];
+
+

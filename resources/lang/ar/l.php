@@ -1964,4 +1964,12 @@ return [
 'part_third' => 'الجزء الثالث',
 'part_fourth' => 'الجزء الرابع',
 'part_fifth' => 'الجزء الخامس',
+
+
+
+    'easy' => 'سهل',
+    'medium' => 'متوسط',
+    'hard' => 'صعب',
+    'select_difficulty' => 'اختر المستوى',
+
 ];
