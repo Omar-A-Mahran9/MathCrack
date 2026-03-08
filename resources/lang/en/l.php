@@ -1966,6 +1966,13 @@ return [
     'hard' => 'Hard',
     'select_difficulty' => 'Select difficulty',
 
+'validation_error' => 'Validation error',
+'difficulty_label' => 'Difficulty',
+'content_label' => 'Content',
+'select_content' => 'Select content',
+'difficulty_required' => 'Please select difficulty',
+'content_required' => 'Please select content',
+
 ];
 
 
