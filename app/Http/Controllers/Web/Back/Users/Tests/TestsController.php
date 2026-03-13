@@ -880,21 +880,18 @@ public function report(Request $request, $id)
             ->get();
 
         $previousAnswersMap = $previousQuestions->mapWithKeys(function ($q) {
-            $answer = $q->answers->first();
+    $answer = $q->answers->first();
 
-            $isAnswered = $answer && (
-                !is_null($answer->answer_text) ||
-                !is_null($answer->selected_option_id)
-            );
+    $isAnswered = (bool) $answer;
 
-            return [
-                $q->id => [
-                    'topic' => $q->content ?: 'Uncategorized',
-                    'is_correct' => $isAnswered ? (bool) $answer->is_correct : false,
-                    'is_answered' => $isAnswered,
-                ]
-            ];
-        });
+    return [
+        $q->id => [
+            'topic' => $q->content ?: 'Uncategorized',
+            'is_correct' => $isAnswered ? (bool) $answer->is_correct : false,
+            'is_answered' => $isAnswered,
+        ]
+    ];
+});
     }
 
     $topicReport = $questions->groupBy(function ($q) {
@@ -911,32 +908,28 @@ public function report(Request $request, $id)
         $previousAnswered = 0;
 
         foreach ($topicQuestions as $q) {
-            $answer = $q->answers->first();
+    $answer = $q->answers->first();
 
-            $isAnswered = $answer && (
-                !is_null($answer->answer_text) ||
-                !is_null($answer->selected_option_id)
-            );
+    $isAnswered = (bool) $answer;
 
-            if ($isAnswered) {
-                $answered++;
-                if ($answer->is_correct) {
-                    $correct++;
-                } else {
-                    $wrong++;
-                }
-            } else {
-                $unanswered++;
-            }
-
-            if ($previousAnswersMap->has($q->id) && $previousAnswersMap[$q->id]['is_answered']) {
-                $previousAnswered++;
-                if ($previousAnswersMap[$q->id]['is_correct']) {
-                    $previousCorrect++;
-                }
-            }
+    if ($isAnswered) {
+        $answered++;
+        if ($answer->is_correct) {
+            $correct++;
+        } else {
+            $wrong++;
         }
+    } else {
+        $unanswered++;
+    }
 
+    if ($previousAnswersMap->has($q->id) && $previousAnswersMap[$q->id]['is_answered']) {
+        $previousAnswered++;
+        if ($previousAnswersMap[$q->id]['is_correct']) {
+            $previousCorrect++;
+        }
+    }
+}
         $percentage = $total > 0 ? round(($correct / $total) * 100, 1) : 0;
         $accuracy = $answered > 0 ? round(($correct / $answered) * 100, 1) : 0;
         $previousPercentage = $previousAnswered > 0 ? round(($previousCorrect / $previousAnswered) * 100, 1) : null;
@@ -961,25 +954,21 @@ public function report(Request $request, $id)
             $dUnanswered = 0;
 
             foreach ($difficultyQuestions as $q) {
-                $answer = $q->answers->first();
+    $answer = $q->answers->first();
 
-                $isAnswered = $answer && (
-                    !is_null($answer->answer_text) ||
-                    !is_null($answer->selected_option_id)
-                );
+    $isAnswered = (bool) $answer;
 
-                if ($isAnswered) {
-                    $dAnswered++;
-                    if ($answer->is_correct) {
-                        $dCorrect++;
-                    } else {
-                        $dWrong++;
-                    }
-                } else {
-                    $dUnanswered++;
-                }
-            }
-
+    if ($isAnswered) {
+        $dAnswered++;
+        if ($answer->is_correct) {
+            $dCorrect++;
+        } else {
+            $dWrong++;
+        }
+    } else {
+        $dUnanswered++;
+    }
+}
             $dAccuracy = $dAnswered > 0 ? round(($dCorrect / $dAnswered) * 100, 1) : 0;
             $dCoverage = $dTotal > 0 ? round(($dAnswered / $dTotal) * 100, 1) : 0;
 
