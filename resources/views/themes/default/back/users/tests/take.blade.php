@@ -1907,6 +1907,7 @@ setTimeout(() => this.desmosCalc?.resize?.(), 150);
     if (window.MathJax) {
       MathJax.typesetPromise().then(fixDisplayMathSpacing);
     }
+    focusNumericInput();
   }
 
   function updateAnswerPreview(qid, value) {
@@ -1994,6 +1995,23 @@ setTimeout(() => this.desmosCalc?.resize?.(), 150);
   function saveNumericAnswer(el, qid) { AnswerSystem.saveNumericAnswer(el, qid); }
   function submitPart() { SubmissionSystem.submitPart(); }
   function closeWarningModal() { SubmissionSystem.closeWarningModal(); }
+
+// +++++++++++++++++++++++++++++++
+  function focusNumericInput() {
+  const currentQuestion = document.querySelector(
+    `.question-item[data-question-index="${TestState.currentQuestionIndex}"]`
+  );
+
+  if (!currentQuestion) return;
+
+  const input = currentQuestion.querySelector('.numeric-answer-input');
+
+  if (input) {
+    setTimeout(() => input.focus(), 50);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', focusNumericInput);
 </script>
 </body>
 </html>
