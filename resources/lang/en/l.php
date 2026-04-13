@@ -1972,6 +1972,9 @@ return [
 'select_content' => 'Select content',
 'difficulty_required' => 'Please select difficulty',
 'content_required' => 'Please select content',
+'purchase_required' => 'Purchase required',
+'status' => 'Status',
+'price_type' => 'Price Type',
 
 ];
 

@@ -1971,5 +1971,5 @@ return [
     'medium' => 'متوسط',
     'hard' => 'صعب',
     'select_difficulty' => 'اختر المستوى',
-
+'purchase_required' => 'يتطلب شراء',
 ];
