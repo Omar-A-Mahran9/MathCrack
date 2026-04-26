@@ -367,6 +367,12 @@
             padding: 4px;
         }
 
+        .question-image img {
+            max-width: 400px;
+            max-height: 300px;
+            cursor: zoom-in;
+        }
+
         .option-image-wrapper img {
             display: inline-block;
             max-width: 220px;
@@ -1292,3 +1298,4 @@ if ($answer && $answer->is_correct) {
         <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     @endif
 @endsection
+php artisan optimize:clear
