@@ -3,53 +3,109 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Test Results</title>
+    <title>Students Test Results</title>
 
     <link rel="stylesheet" href="{{ asset('back-assets/css/bootstrap.min.css') }}">
 
     <style>
-        @page { size: A4 landscape; margin: 10mm; }
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
 
-        @media print {
-            .no-print { display: none !important; }
-            body { padding: 0 !important; }
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            padding: 20px;
+            padding: 18px;
             font-family: Arial, sans-serif;
             color: #000;
+            background: #fff;
+        }
+
+        .no-print {
+            margin-bottom: 14px;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-start;
+        }
+
+        .btn {
+            border-radius: 8px;
+            font-weight: 700;
+            padding: 8px 16px;
+        }
+
+        .print-header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .print-logo {
+            width: 210px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .divider {
+            width: 100%;
+            height: 4px;
+            background-color: #d90404;
+            margin: 8px auto 18px;
         }
 
         h2 {
             text-align: center;
-            margin: 0 0 8px 0;
-            font-weight: 700;
+            margin: 0 0 12px;
+            font-size: 24px;
+            font-weight: 800;
         }
 
         .info-box {
-            text-align: center;
-            margin-bottom: 14px;
-            font-size: 14px;
-            line-height: 1.4;
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            font-size: 15px;
+            line-height: 1.5;
         }
 
         .info-box .line {
-            display: block;
-            margin: 2px 0;
+            display: inline-flex;
+            gap: 6px;
             font-weight: 600;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .summary-item {
+            border: 1px solid #000;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            min-width: 120px;
+            text-align: center;
         }
 
         table {
             width: 100%;
             border-collapse: collapse !important;
-            font-size: 13px;
+            font-size: 12.5px;
             table-layout: fixed;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #000 !important;
-            padding: 8px !important;
+            padding: 7px 6px !important;
             text-align: center !important;
             vertical-align: middle !important;
             word-wrap: break-word;
@@ -58,86 +114,120 @@
 
         thead th {
             background-color: #f2f2f2 !important;
+            font-weight: 800;
+        }
+
+        tbody tr {
+            page-break-inside: avoid;
+        }
+
+        .student-name {
+            text-align: left !important;
             font-weight: 700;
         }
 
-        tbody tr { page-break-inside: avoid; }
+        .status {
+            font-weight: 700;
+        }
 
-        .btn { border: 1px solid #000; }
+        .score {
+            font-weight: 800;
+        }
 
+        .print-footer {
+            margin-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #333;
+        }
 
-/* ===== HEADER ===== */
-.print-header {
-    text-align: center;
-    margin-bottom: 25px;
-}
+        @media print {
+            .no-print {
+                display: none !important;
+            }
 
-/* Logo */
-.print-logo {
-    width: 220px;
-    height: auto;
-    margin-bottom: 10px;
-}
+            body {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
 
-/* Divider line */
-.divider {
-    width: 100%;
-    height: 5px;
-    background-color: #f00606ff;
-    margin: 10px auto 20px auto;
-}
+            .print-header {
+                margin-bottom: 12px;
+            }
 
-/* Title */
-h2 {
-    font-weight: 700;
-    margin-bottom: 10px;
-}
+            .print-logo {
+                width: 190px;
+            }
 
-/* Info text */
-.info-box {
-    font-size: 15px;
-    margin-bottom: 25px;
-}
+            h2 {
+                font-size: 22px;
+            }
 
-.info-box span {
-    margin: 0 20px;
-    font-weight: 600;
-}
+            table {
+                font-size: 11.5px;
+            }
 
-/* Print rules */
-@media print {
-    .no-print {
-        display: none !important;
-    }
+            th,
+            td {
+                padding: 6px 5px !important;
+            }
 
-    body {
-        margin: 0;
-    }
-}
-
-
+            .summary-item {
+                font-size: 12px;
+                padding: 5px 10px;
+            }
+        }
     </style>
 </head>
 
 <body>
-<div class="print-header">
+@php
+    $firstRow = $rows->first();
 
-    <img src="{{ asset('assets/themes/default/front/images/logo.png') }}" class="print-logo">
+    $totalStudents = $rows->count();
+    $completedCount = $rows->filter(function ($row) {
+        return strtolower((string) $row->status) === 'completed';
+    })->count();
 
-    <div class="divider"></div> 
-</div>
+    $totalCorrect = $rows->sum(function ($row) {
+        return (int) ($row->correct_answers ?? 0);
+    });
 
-<div class="no-print mb-3 d-flex gap-2">
+    $totalWrong = $rows->sum(function ($row) {
+        return (int) ($row->wrong_answers ?? 0);
+    });
+@endphp
+
+<div class="no-print">
     <button class="btn btn-primary" onclick="window.print()">Print</button>
     <button class="btn btn-secondary" onclick="window.close()">Close</button>
 </div>
 
+<div class="print-header">
+    <img src="{{ asset('assets/themes/default/front/images/logo.png') }}" class="print-logo" alt="Logo">
+    <div class="divider"></div>
+</div>
 
 <h2>Students Test Results</h2>
 
 <div class="info-box">
-    <span class="line"><strong>Course:</strong> {{ $rows->first()->course_name ?? '-' }}</span>
-    <span class="line"><strong>Test:</strong> {{ $rows->first()->test_name ?? '-' }}</span>
+    <span class="line">
+        <strong>Course:</strong>
+        <span>{{ $firstRow->course_name ?? '-' }}</span>
+    </span>
+
+    <span class="line">
+        <strong>Test:</strong>
+        <span>{{ $firstRow->test_name ?? '-' }}</span>
+    </span>
+</div>
+
+<div class="summary-row">
+    <div class="summary-item">Students: {{ $totalStudents }}</div>
+    <div class="summary-item">Completed: {{ $completedCount }}</div>
+    <div class="summary-item">Correct: {{ $totalCorrect }}</div>
+    <div class="summary-item">Wrong: {{ $totalWrong }}</div>
 </div>
 
 <table>
@@ -146,31 +236,40 @@ h2 {
             <th style="width: 5%;">No</th>
             <th style="width: 18%;">Student</th>
             <th style="width: 10%;">Last Attempt</th>
-            <th style="width: 12%;">Status</th>
-            <th style="width: 10%;">Score</th>
+            <th style="width: 11%;">Status</th>
+            <th style="width: 9%;">Score</th>
             <th style="width: 10%;">Total Score</th>
-            <th style="width: 25%;">Start Time</th>
-            <th style="width: 5%;">Correct</th>
-            <th style="width: 5%;">Wrong</th>
+            <th style="width: 24%;">Start Time</th>
+            <th style="width: 6%;">Correct</th>
+            <th style="width: 7%;">Wrong</th>
         </tr>
     </thead>
 
     <tbody>
-        @foreach($rows as $r)
+        @forelse($rows as $r)
             <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $r->student_name }}</td>
+                <td class="student-name">{{ $r->student_name }}</td>
                 <td>{{ $r->last_attempt }}</td>
-                <td>{{ ucfirst($r->status) }}</td>
-                <td>{{ $r->final_score }}</td>
+                <td class="status">{{ ucfirst($r->status) }}</td>
+                <td class="score">{{ $r->final_score }}</td>
                 <td>{{ $r->test_total_score }}</td>
                 <td>{{ $r->started_at }}</td>
                 <td>{{ $r->correct_answers ?? 0 }}</td>
                 <td>{{ $r->wrong_answers ?? 0 }}</td>
             </tr>
-        @endforeach
+        @empty
+            <tr>
+                <td colspan="9">No results available.</td>
+            </tr>
+        @endforelse
     </tbody>
 </table>
+
+<div class="print-footer">
+    <span>Generated at: {{ now()->format('Y-m-d H:i') }}</span>
+    <span>MathCrack</span>
+</div>
 
 </body>
 </html>

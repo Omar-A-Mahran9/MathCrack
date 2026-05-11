@@ -1,261 +1,455 @@
 @extends('themes.default.layouts.back.student-master')
 
 @section('title')
-    {{ $lecture->name }}
+    {{ $lecture->name }} - Lesson
 @endsection
 
 @section('css')
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+
     <style>
-        .lecture-hero {
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .lesson-hero {
             background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
             position: relative;
             overflow: hidden;
+            color: #fff;
         }
 
-        .lecture-hero::before {
-            content: '';
+        .lesson-hero::before {
+            content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-            opacity: 0.3;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.16), transparent 26%),
+                radial-gradient(circle at 85% 15%, rgba(255,255,255,0.12), transparent 22%);
+            pointer-events: none;
         }
 
-        .lecture-content {
+        .lesson-hero-content {
             position: relative;
             z-index: 2;
+        }
+
+        .lesson-hero h1 {
+            color: #fff !important;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            line-height: 1.35;
+        }
+
+        .lesson-hero p {
+            color: rgba(255,255,255,0.92) !important;
+            margin-bottom: 0;
+        }
+
+        .hero-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.24);
+            border-radius: 999px;
+            padding: 8px 14px;
+            color: #fff;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .hero-badge:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.26);
+            transform: translateY(-2px);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.28);
+            border-radius: 10px;
+            padding: 9px 15px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.25s ease;
+            margin-bottom: 18px;
+        }
+
+        .back-btn:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.26);
+            transform: translateY(-2px);
+        }
+
+        .lesson-cover {
+            max-height: 190px;
+            border-radius: 14px;
+            object-fit: cover;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.24);
+        }
+
+        .lesson-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+        }
+
+        .stat-number {
+            display: block;
+            color: #1e40af;
+            font-size: 1.7rem;
+            font-weight: 900;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .lesson-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+            margin-bottom: 22px;
+        }
+
+        .lesson-card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 16px;
+        }
+
+        .lesson-card-title i {
+            color: #2563eb;
         }
 
         .video-container {
             position: relative;
             width: 100%;
+            height: 600px;
             background: #000;
-            border-radius: 10px;
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.22);
         }
 
+        .video-container .plyr,
+        .video-container .plyr__video-wrapper,
+        .video-container video,
         .video-container iframe,
-        .video-container video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        #plyr-video-player {
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 480px !important;
+            max-height: none !important;
+            background: #000;
         }
 
-        .lecture-info-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 20px rgba(30, 64, 175, 0.08);
-            margin-bottom: 1.5rem;
-            border: 1px solid #e3f2fd;
+        .video-container .plyr__video-embed {
+            height: 100% !important;
+            padding-bottom: 0 !important;
         }
 
-        .info-item {
+        .video-container .plyr__video-embed iframe {
+            height: 100% !important;
+        }
+
+        @media (max-width: 768px) {
+            .video-container {
+                height: 260px;
+            }
+
+            .video-container .plyr,
+            .video-container .plyr__video-wrapper,
+            .video-container video,
+            .video-container iframe,
+            #plyr-video-player {
+                min-height: 260px !important;
+            }
+        }
+
+        .material-card {
             display: flex;
             align-items: center;
-            margin-bottom: 1rem;
-            padding: 0.5rem 0;
+            gap: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 16px;
+            text-decoration: none;
+            color: #0f172a;
+            transition: all 0.25s ease;
         }
 
-        .info-item:last-child {
-            margin-bottom: 0;
+        .material-card:hover {
+            color: #1e40af;
+            border-color: #bfdbfe;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(30, 64, 175, 0.08);
         }
 
-        .info-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
+        .material-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-left: 1rem;
-            font-size: 1.1rem;
+            background: #dbeafe;
+            color: #1e40af;
+            font-size: 1.5rem;
+            flex: 0 0 auto;
         }
 
-        .files-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
+        .material-title {
+            font-weight: 800;
+            margin-bottom: 3px;
         }
 
-        .file-card {
-            background: white;
-            border: 2px solid #e3f2fd;
-            border-radius: 10px;
-            padding: 1rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .file-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border-color: #1e40af;
-        }
-
-        .file-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
+        .material-meta {
+            color: #64748b;
+            font-size: 0.9rem;
         }
 
         .assignment-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border-left: 4px solid #4caf50;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-left: 5px solid #2563eb;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+            transition: all 0.25s ease;
         }
 
         .assignment-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 26px rgba(15, 23, 42, 0.10);
+        }
+
+        .assignment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .assignment-title {
+            color: #0f172a;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .assignment-description {
+            color: #64748b;
+            margin-bottom: 0;
         }
 
         .assignment-status {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+            padding: 7px 12px;
+            border-radius: 999px;
             font-size: 0.8rem;
-            font-weight: bold;
+            font-weight: 800;
         }
 
         .status-not-started {
-            background: #ffebee;
-            color: #c62828;
+            background: #fee2e2;
+            color: #991b1b;
         }
 
         .status-in-progress {
-            background: #fff3e0;
-            color: #ef6c00;
+            background: #fef3c7;
+            color: #92400e;
         }
 
         .status-completed {
-            background: #e8f5e8;
-            color: #2e7d32;
+            background: #dcfce7;
+            color: #166534;
         }
 
-        .progress-bar {
+        .assignment-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin: 14px 0;
+        }
+
+        .assignment-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 12px;
+            color: #334155;
+            font-weight: 700;
+        }
+
+        .assignment-meta-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #e0f2fe;
+            color: #0369a1;
+            flex: 0 0 auto;
+        }
+
+        .progress-line {
             height: 8px;
-            background: #f0f0f0;
-            border-radius: 4px;
+            background: #e5e7eb;
+            border-radius: 999px;
             overflow: hidden;
-            margin: 1rem 0;
+            margin: 12px 0 16px;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            background: linear-gradient(90deg, #22c55e, #16a34a);
             transition: width 0.3s ease;
         }
 
+        .score-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 14px;
+        }
+
         .btn-custom {
-            border-radius: 25px;
-            padding: 0.6rem 1.5rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            padding: 11px 18px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-primary-custom {
             background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
             border: none;
-            color: white
+            color: white;
         }
 
         .btn-primary-custom:hover {
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(30, 64, 175, 0.4);
-
+            box-shadow: 0 8px 20px rgba(30, 64, 175, 0.24);
         }
 
         .btn-success-custom {
-            background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
             border: none;
-
+            color: white;
         }
 
         .btn-success-custom:hover {
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
-
+            box-shadow: 0 8px 20px rgba(22, 163, 74, 0.24);
         }
 
-        .breadcrumb-custom {
-            background: transparent;
-            padding: 0;
-            margin-bottom: 1rem;
+        .sidebar-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+            margin-bottom: 22px;
         }
 
-        .breadcrumb-custom .breadcrumb-item+.breadcrumb-item::before {
-            content: "›";
+        .sidebar-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: #0f172a;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #dbeafe;
             color: #1e40af;
-            font-weight: bold;
+            flex: 0 0 auto;
         }
 
-        .lecture-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1rem;
-            border-radius: 10px;
+        .empty-card {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 24px;
             text-align: center;
-            border: 1px solid #e3f2fd;
-            transition: all 0.3s ease;
+            color: #64748b;
         }
 
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(30, 64, 175, 0.1);
+        .quick-action {
+            width: 100%;
+            margin-bottom: 10px;
         }
 
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #1e40af;
-            display: block;
-        }
-
-        .stat-label {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            .lecture-hero {
-                padding: 1rem;
-            }
-
-            .files-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .lecture-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-    </style>
-        <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-
-        <style>
-        /* منع النقر بزر الماوس الأيمن */
         .plyr {
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -271,176 +465,201 @@
             pointer-events: auto;
         }
 
-        /* إخفاء شعار YouTube وعناصر التحكم العلوية */
-        .plyr--youtube .plyr__video-wrapper iframe {
-            top: -50px;
-            height: calc(100% + 50px);
+        @media (max-width: 768px) {
+            html {
+            scroll-behavior: smooth;
         }
 
-        /* إخفاء واجهة يوتيوب الافتراضية */
-        .plyr--youtube .plyr__video-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #000;
-            z-index: 1;
-        }
+        .lesson-hero {
+                padding: 20px;
+            }
 
-        .plyr--playing .plyr__video-wrapper::before {
-            display: none;
-        }
+            .lesson-hero h1 {
+                font-size: 1.55rem;
+            }
 
-        /* تعديل موضع الفيديو */
-        .plyr--youtube .plyr__video-wrapper iframe {
-            top: -50px;
-            height: calc(100% + 100px);
+            .assignment-header {
+                flex-direction: column;
+            }
         }
     </style>
-    <script>
-        // منع استخدام زر الماوس الأيمن
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
-        // منع استخدام مفاتيح الاختصار للـ Inspect Element
-        document.addEventListener('keydown', function(e) {
-            // منع F12
-            if (e.key === 'F12' || e.keyCode === 123) {
-                e.preventDefault();
-                return false;
-            }
-
-            // منع Ctrl+Shift+I / Cmd+Shift+I
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.keyCode === 73)) {
-                e.preventDefault();
-                return false;
-            }
-
-            // منع Ctrl+Shift+C / Cmd+Shift+C
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'C' || e.key === 'c' || e.keyCode === 67)) {
-                e.preventDefault();
-                return false;
-            }
-
-            // منع Ctrl+U / Cmd+U (View Source)
-            if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u' || e.keyCode === 85)) {
-                e.preventDefault();
-                return false;
-            }
-        });
-
-        // منع السحب والإفلات للصور والنصوص
-        document.addEventListener('dragstart', function(e) {
-            e.preventDefault();
-        });
-    </script>
 @endsection
 
 @section('content')
+    @php
+        $courseBackUrl = route('dashboard.users.courses-lectures', ['id' => encrypt($lecture->course->id)]);
+
+        $displayCourseName = $lecture->course->name;
+
+        if (($lecture->course->track_slug ?? null) === 'digital-sat') {
+            $displayCourseName = __('l.digital_sat_course');
+        }
+
+        $youtubeId = null;
+
+        if (!empty($lecture->video_url)) {
+            $videoUrl = $lecture->video_url;
+
+            if (str_contains($videoUrl, 'youtu.be/')) {
+                $youtubeId = \Illuminate\Support\Str::after($videoUrl, 'youtu.be/');
+                $youtubeId = \Illuminate\Support\Str::before($youtubeId, '?');
+            } elseif (str_contains($videoUrl, 'v=')) {
+                $youtubeId = \Illuminate\Support\Str::after($videoUrl, 'v=');
+                $youtubeId = \Illuminate\Support\Str::before($youtubeId, '&');
+            } elseif (str_contains($videoUrl, '/embed/')) {
+                $youtubeId = \Illuminate\Support\Str::after($videoUrl, '/embed/');
+                $youtubeId = \Illuminate\Support\Str::before($youtubeId, '?');
+            }
+        }
+    @endphp
+
     <div class="main-content">
         <div class="container-fluid">
-            <!-- Lecture Hero Section -->
-            <div class="lecture-hero">
-                <div class="lecture-content">
+            <div class="lesson-hero">
+                <div class="lesson-hero-content">
                     <div class="row align-items-center">
                         <div class="col-lg-8">
-                            <h1 class="mb-3">{{ $lecture->name }}</h1>
-                            <p class="mb-3 opacity-90">{{ $lecture->description ?? __('l.no_description_available') }}</p>
-                            <div class="d-flex flex-wrap gap-2">
-                                <span class="badge bg-light text-dark px-3 py-2">
-                                    <i class="fas fa-book me-1"></i>{{ $lecture->course->name }}
-                                </span>
+                            <a href="{{ $courseBackUrl }}" class="back-btn">
+                                <i class="fas fa-arrow-left"></i>
+                                @lang('l.back_to_course')
+                            </a>
+
+                            <h1>{{ $lecture->name }}</h1>
+
+                            @if($lecture->description)
+                                <p>{{ \Illuminate\Support\Str::limit(strip_tags($lecture->description), 180) }}</p>
+                            @else
+                                <p>@lang('l.video'), materials, and assignments for this lesson.</p>
+                            @endif
+
+                            <div class="hero-badges">
+                                <a href="{{ $courseBackUrl }}" class="hero-badge">
+                                    <i class="fas fa-book-open"></i>
+                                    {{ $displayCourseName }}
+                                </a>
+
+                                @if($lecture->assignments->count() > 0)
+                                    <a href="#Assignments" class="hero-badge">
+                                        <i class="fas fa-tasks"></i>
+                                        {{ $lecture->assignments->count() }} @lang('l.assignments')
+                                    </a>
+                                @endif
+
+                                @if($lecture->files)
+                                    <a href="#PDFMaterial" class="hero-badge">
+                                        <i class="fas fa-file-alt"></i>
+                                        @lang('l.pdf_material')
+                                    </a>
+                                @endif
+
+                                @if($lecture->video_url)
+                                    <a href="#@lang('l.video')Lesson" class="hero-badge">
+                                        <i class="fas fa-play-circle"></i>
+                                        @lang('l.video_lesson')
+                                    </a>
+                                @endif
                             </div>
                         </div>
-                        <div class="col-lg-4 text-end">
+
+                        <div class="col-lg-4 text-end mt-4 mt-lg-0">
                             @if ($lecture->image)
-                                <img src="{{ asset($lecture->image) }}" alt="{{ $lecture->name }}"
-                                    class="img-fluid rounded shadow" style="max-height: 200px;">
+                                <img src="{{ asset($lecture->image) }}" alt="{{ $lecture->name }}" class="img-fluid lesson-cover">
                             @endif
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Lecture Statistics -->
-            <div class="lecture-stats">
+
+            <div class="lesson-stats">
                 <div class="stat-card">
                     <span class="stat-number">{{ $lecture->assignments->count() }}</span>
                     <span class="stat-label">@lang('l.assignments')</span>
                 </div>
+
                 <div class="stat-card">
-                    <span
-                        class="stat-number">{{ $lecture->files ? 1 : 0 }}</span>
-                    <span class="stat-label">@lang('l.files')</span>
+                    <span class="stat-number">{{ $lecture->files ? 1 : 0 }}</span>
+                    <span class="stat-label">@lang('l.materials')</span>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-number">{{ $lecture->video_url ? 1 : 0 }}</span>
+                    <span class="stat-label">@lang('l.video')</span>
                 </div>
             </div>
 
             <div class="row">
-                <!-- Main Content -->
                 <div class="col-lg-8">
-                    <!-- Video Section -->
                     @if ($lecture->video_url)
-                        <div class="lecture-info-card">
-                            <h3 class="mb-3">
-                                <i class="fas fa-play-circle text-primary me-2"></i>@lang('l.lecture_video')
+                        <div class="lesson-card" id="@lang('l.video')Lesson">
+                            <h3 class="lesson-card-title">
+                                <i class="fas fa-play-circle"></i>
+                                @lang('l.video_lesson')
                             </h3>
+
                             <div class="video-container">
-                                <div id="plyr-video-player" data-plyr-provider="youtube"
-                                    data-plyr-embed-id="{{ \Illuminate\Support\Str::after($lecture->video_url, 'v=') }}"
-                                    data-plyr-config='{
-                                        "controls": ["play-large", "play", "progress", "current-time", "mute", "volume", "fullscreen", "settings"],
-                                        "settings": ["speed"],
-                                        "youtube": {"noCookie": true, "rel": 0, "showinfo": 0, "modestbranding": 1}
-                                    }'>
-                                </div>
+                                @if($youtubeId)
+                                    <div id="plyr-video-player"
+                                        data-plyr-provider="youtube"
+                                        data-plyr-embed-id="{{ $youtubeId }}"
+                                        data-plyr-config='{
+                                            "controls": ["play-large", "play", "progress", "current-time", "mute", "volume", "fullscreen", "settings"],
+                                            "settings": ["speed"],
+                                            "youtube": {"noCookie": true, "rel": 0, "showinfo": 0, "modestbranding": 1}
+                                        }'>
+                                    </div>
+                                @else
+                                    <video id="plyr-video-player" controls>
+                                        <source src="{{ asset($lecture->video_url) }}" type="video/mp4">
+                                    </video>
+                                @endif
                             </div>
                         </div>
                     @endif
 
-                    <!-- Lecture Description -->
                     @if ($lecture->description)
-                        <div class="lecture-info-card">
-                            <h3 class="mb-3">
-                                <i class="fas fa-info-circle text-info me-2"></i>@lang('l.lecture_description')
+                        <div class="lesson-card">
+                            <h3 class="lesson-card-title">
+                                <i class="fas fa-align-left"></i>
+                                @lang('l.lesson_description')
                             </h3>
+
                             <div class="text-muted">
                                 {!! nl2br(e($lecture->description)) !!}
                             </div>
                         </div>
                     @endif
 
-                    <!-- Files Section -->
                     @if ($lecture->files)
-                        <div class="lecture-info-card">
-                            <h3 class="mb-3">
-                                <i class="fas fa-file-download text-success me-2"></i>@lang('l.lecture_files')
+                        <div class="lesson-card" id="PDFMaterial">
+                            <h3 class="lesson-card-title">
+                                <i class="fas fa-file-download"></i>
+                                @lang('l.pdf_material')
                             </h3>
-                            <div class="files-grid">
-                                <a href="{{ asset($lecture->files) }}" target="_blank"
-                                    class="file-card">
-                                    <div class="file-icon">
-                                        <i class="fas fa-file-alt text-primary"></i>
-                                    </div>
-                                    <div class="file-name">{{ $lecture->files }}</div>
-                                    <div class="file-size text-muted">
+
+                            <a href="{{ asset($lecture->files) }}" target="_blank" class="material-card">
+                                <div class="material-icon">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+
+                                <div>
+                                    <div class="material-title">@lang('l.open_lesson_material')</div>
+                                    <div class="material-meta">
                                         @if (file_exists(public_path($lecture->files)))
                                             {{ round(filesize(public_path($lecture->files)) / 1024, 2) }} KB
                                         @else
-                                            @lang('l.file_not_found')
+                                            File attached
                                         @endif
                                     </div>
-                                </a>
-                            </div>
+                                </div>
+                            </a>
                         </div>
                     @endif
 
-                    <!-- Assignments Section -->
                     @if ($lecture->assignments && $lecture->assignments->count() > 0)
-                        <div class="lecture-info-card" id="Assignments">
-                            <h3 class="mb-3">
-                                <i class="fas fa-tasks text-warning me-2"></i>@lang('l.assignments')
+                        <div class="lesson-card" id="Assignments">
+                            <h3 class="lesson-card-title">
+                                <i class="fas fa-tasks"></i>
+                                @lang('l.assignments')
                                 <span class="badge bg-secondary ms-2">{{ $lecture->assignments->count() }}</span>
                             </h3>
 
@@ -449,6 +668,7 @@
                                     $userAssignment = $assignment->studentAssignments
                                         ->where('student_id', auth()->id())
                                         ->first();
+
                                     $status = 'not-started';
                                     $statusText = __('l.not_started');
                                     $progress = 0;
@@ -467,60 +687,56 @@
                                 @endphp
 
                                 <div class="assignment-card">
-                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="assignment-header">
                                         <div>
-                                            <h5 class="mb-1">{{ $assignment->title }}</h5>
-                                            <p class="text-muted mb-2">{{ $assignment->description }}</p>
+                                            <h5 class="assignment-title">{{ $assignment->title }}</h5>
+                                            @if($assignment->description)
+                                                <p class="assignment-description">{{ $assignment->description }}</p>
+                                            @endif
                                         </div>
-                                        <span
-                                            class="assignment-status status-{{ $status }}">{{ $statusText }}</span>
+
+                                        <span class="assignment-status status-{{ $status }}">{{ $statusText }}</span>
                                     </div>
 
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
-                                            <div class="info-item">
-                                                <div class="info-icon bg-light text-primary">
-                                                    <i class="fas fa-question-circle"></i>
-                                                </div>
-                                                <div>
-                                                    <strong>@lang('l.questions_count'): </strong>
-                                                    {{ $assignment->questions->count() }}
-                                                </div>
-                                            </div>
+                                    <div class="assignment-meta">
+                                        <div class="assignment-meta-item">
+                                            <span class="assignment-meta-icon">
+                                                <i class="fas fa-question-circle"></i>
+                                            </span>
+                                            <span>
+                                                {{ $assignment->questions->count() }} @lang('l.questions')
+                                            </span>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="info-item">
-                                                <div class="info-icon bg-light text-warning">
-                                                    <i class="fas fa-clock"></i>
-                                                </div>
-                                                <div>
-                                                    <strong>@lang('l.time_limit'): </strong>
-                                                    {{ $assignment->time_limit ? $assignment->time_limit . ' ' . __('l.minutes') : __('l.unlimited') }}
-                                                </div>
-                                            </div>
+
+                                        <div class="assignment-meta-item">
+                                            <span class="assignment-meta-icon">
+                                                <i class="fas fa-clock"></i>
+                                            </span>
+                                            <span>
+                                                {{ $assignment->time_limit ? $assignment->time_limit . ' ' . __('l.minutes') : __('l.unlimited') }}
+                                            </span>
                                         </div>
                                     </div>
 
-                                    <div class="progress-bar">
+                                    <div class="progress-line">
                                         <div class="progress-fill" style="width: {{ $progress }}%"></div>
                                     </div>
 
                                     @if ($userAssignment && $userAssignment->submitted_at)
-                                        <div class="mt-3 p-3 bg-light rounded">
+                                        <div class="score-box">
                                             <div class="row text-center">
                                                 <div class="col-4">
-                                                    <strong
-                                                        class="text-primary">{{ $userAssignment->score ?? 0 }}</strong>
+                                                    <strong class="text-primary">{{ $userAssignment->score ?? 0 }}</strong>
                                                     <br><small>@lang('l.score')</small>
                                                 </div>
+
                                                 <div class="col-4">
-                                                    <strong
-                                                        class="text-info">{{ $userAssignment->total_points ?? 0 }}</strong>
+                                                    <strong class="text-info">{{ $userAssignment->total_points ?? 0 }}</strong>
                                                     <br><small>@lang('l.total_points')</small>
                                                 </div>
+
                                                 <div class="col-4">
-                                                    <strong
-                                                        class="text-success">{{ $userAssignment->percentage ?? 0 }}%</strong>
+                                                    <strong class="text-success">{{ $userAssignment->percentage ?? 0 }}%</strong>
                                                     <br><small>@lang('l.percentage')</small>
                                                 </div>
                                             </div>
@@ -529,96 +745,109 @@
 
                                     <div class="mt-3 text-end">
                                         @if (!$userAssignment || !$userAssignment->submitted_at)
-                                            <a href="{{ route('dashboard.users.assignments-start', ['id' => encrypt($assignment->id)]) }}" class="btn btn-primary-custom btn-custom">
-                                                <i class="fas fa-play me-2"></i>
+                                            <a href="{{ route('dashboard.users.assignments-start', ['id' => encrypt($assignment->id)]) }}" class="btn-custom btn-primary-custom">
+                                                <i class="fas fa-play"></i>
                                                 {{ $userAssignment && $userAssignment->started_at ? __('l.continue_assignment') : __('l.start_assignment') }}
                                             </a>
                                         @else
-                                            <a href="{{ route('dashboard.users.assignments-results', ['id' => encrypt($userAssignment->id)]) }}" class="btn btn-success-custom btn-custom">
-                                                <i class="fas fa-chart-bar me-2"></i>@lang('l.view_results')
+                                            <a href="{{ route('dashboard.users.assignments-results', ['id' => encrypt($userAssignment->id)]) }}" class="btn-custom btn-success-custom">
+                                                <i class="fas fa-chart-bar"></i>
+                                                @lang('l.view_results')
                                             </a>
                                         @endif
                                     </div>
                                 </div>
                             @endforeach
                         </div>
+                    @else
+                        <div class="lesson-card">
+                            <div class="empty-card">
+                                <i class="fas fa-tasks fa-2x mb-3"></i>
+                                <h5>@lang('l.no_assignments_for_this_lesson')</h5>
+                                <p class="mb-0">@lang('l.assignments_will_appear_here_when_available')</p>
+                            </div>
+                        </div>
                     @endif
                 </div>
 
-                <!-- Sidebar -->
                 <div class="col-lg-4">
-                    <!-- Course Info -->
-                    <div class="lecture-info-card">
-                        <h5 class="mb-3">
-                            <i class="fas fa-book text-primary me-2"></i>@lang('l.course_info')
+                    <div class="sidebar-card">
+                        <h5 class="sidebar-title">
+                            <i class="fas fa-book"></i>
+                            @lang('l.course_info')
                         </h5>
+
                         <div class="info-item">
-                            <div class="info-icon bg-primary text-white">
+                            <span class="info-icon">
                                 <i class="fas fa-graduation-cap"></i>
-                            </div>
+                            </span>
+
                             <div>
-                                <strong>@lang('l.course_name'): </strong>
-                                <a href="{{ route('dashboard.users.courses-lectures', ['id' => encrypt($lecture->course->id)]) }}"
-                                    class="text-decoration-none">
-                                    {{ $lecture->course->name }}
+                                <strong>@lang('l.course')</strong>
+                                <br>
+                                <a href="{{ $courseBackUrl }}" class="text-decoration-none">
+                                    {{ $displayCourseName }}
                                 </a>
                             </div>
                         </div>
 
                         @if ($lecture->course->level)
                             <div class="info-item">
-                                <div class="info-icon bg-info text-white">
+                                <span class="info-icon">
                                     <i class="fas fa-layer-group"></i>
-                                </div>
+                                </span>
+
                                 <div>
-                                    <strong>@lang('l.Level'): </strong>
+                                    <strong>@lang('l.Level')</strong>
+                                    <br>
                                     {{ $lecture->course->level->name }}
                                 </div>
                             </div>
                         @endif
 
                         <div class="info-item">
-                            <div class="info-icon bg-success text-white">
-                                <i class="fas fa-video"></i>
-                            </div>
+                            <span class="info-icon">
+                                <i class="fas fa-book-open"></i>
+                            </span>
+
                             <div>
-                                <strong>@lang('l.lectures_count'): </strong>
+                                <strong>@lang('l.lessons')</strong>
+                                <br>
                                 {{ $lecture->course->lectures->count() }}
                             </div>
                         </div>
 
                         <div class="mt-3">
-                            <a href="{{ route('dashboard.users.courses-lectures', ['id' => encrypt($lecture->course->id)]) }}"
-                                class="btn btn-outline-primary btn-custom w-100">
-                                <i class="fas fa-arrow-left me-2"></i>@lang('l.back_to_course')
+                            <a href="{{ $courseBackUrl }}" class="btn btn-outline-primary btn-custom w-100">
+                                <i class="fas fa-arrow-left"></i>
+                                @lang('l.back_to_course')
                             </a>
                         </div>
                     </div>
 
-                    <!-- Quick Actions -->
-                    <div class="lecture-info-card">
-                        <h5 class="mb-3">
-                            <i class="fas fa-bolt text-warning me-2"></i>@lang('l.quick_actions')
+                    <div class="sidebar-card">
+                        <h5 class="sidebar-title">
+                            <i class="fas fa-bolt"></i>
+                            @lang('l.quick_actions')
                         </h5>
 
                         @if ($lecture->assignments->count() > 0)
-                            <a class="btn btn-warning btn-custom w-100 mb-2" href="#Assignments">
-                                <i class="fas fa-play-circle me-2"></i>@lang('l.start_all_assignments')
+                            <a class="btn btn-warning btn-custom quick-action" href="#Assignments">
+                                <i class="fas fa-tasks"></i>
+                                @lang('l.go_to_assignments')
                             </a>
                         @endif
 
                         @if ($lecture->files)
-                            <a class="btn btn-info btn-custom w-100 mb-2" href="{{ asset($lecture->files) }}" target="_blank">
-                                <i class="fas fa-download me-2"></i>@lang('l.download_all_files')
+                            <a class="btn btn-info btn-custom quick-action" href="{{ asset($lecture->files) }}" target="_blank">
+                                <i class="fas fa-download"></i>
+                                @lang('l.download_material')
                             </a>
                         @endif
 
-                        {{-- <button class="btn btn-secondary btn-custom w-100 mb-2" onclick="markAsCompleted()">
-                            <i class="fas fa-check-circle me-2"></i>@lang('l.mark_completed')
-                        </button> --}}
-
-                        <button class="btn btn-outline-primary btn-custom w-100" onclick="shareLecture()">
-                            <i class="fas fa-share-alt me-2"></i>@lang('l.share')
+                        <button class="btn btn-outline-primary btn-custom quick-action" onclick="shareLesson()">
+                            <i class="fas fa-share-alt"></i>
+                            @lang('l.share_lesson')
                         </button>
                     </div>
                 </div>
@@ -626,81 +855,45 @@
         </div>
     </div>
 @endsection
+
 @section('js')
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const player = new Plyr('#plyr-video-player');
-        });
-    </script>
 
     <script>
-        // مشاركة المحاضرة
-        function shareLecture() {
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoElement = document.getElementById('plyr-video-player');
+
+            if (videoElement) {
+                new Plyr(videoElement);
+            }
+        });
+
+        document.addEventListener('contextmenu', function(e) {
+            if (e.target.closest('.video-container')) {
+                e.preventDefault();
+            }
+        });
+
+        function shareLesson() {
             const url = window.location.href;
-            const title = '{{ $lecture->name }}';
+            const title = @json($lecture->name);
 
             if (navigator.share) {
                 navigator.share({
                     title: title,
                     url: url
                 });
-            } else {
-                // نسخ الرابط للحافظة
+            } else if (navigator.clipboard) {
                 navigator.clipboard.writeText(url).then(() => {
                     Swal.fire({
-                        title: '@lang('l.course_name')',
-                        text: '@lang('l.level')',
+                        title: @json(__('l.copied')),
+                        text: '@lang('l.lesson_link_copied_to_clipboard')',
                         icon: 'success',
-                        timer: 2000,
+                        timer: 1800,
                         showConfirmButton: false
                     });
                 });
             }
         }
-
-        // تأثيرات الحركة عند التحميل
-        $(document).ready(function() {
-            // تأثير ظهور البطاقات
-            $('.lecture-info-card, .assignment-card, .stat-card').each(function(index) {
-                $(this).css('opacity', '0').css('transform', 'translateY(20px)');
-                $(this).delay(index * 100).animate({
-                    opacity: 1
-                }, 500).animate({
-                    transform: 'translateY(0)'
-                }, 500);
-            });
-
-            // تأثير hover على الملفات
-            $('.file-card').hover(
-                function() {
-                    $(this).addClass('shadow-lg');
-                },
-                function() {
-                    $(this).removeClass('shadow-lg');
-                }
-            );
-
-            // تحديث دائرة التقدم
-            const progressRing = document.querySelector('.progress-ring circle:last-child');
-            if (progressRing) {
-                const circumference = 2 * Math.PI * 50;
-                const progress = {{ $overallProgress ?? 0 }};
-                const strokeDashoffset = circumference - (progress / 100) * circumference;
-
-                setTimeout(() => {
-                    progressRing.style.strokeDashoffset = strokeDashoffset;
-                    progressRing.style.transition = 'stroke-dashoffset 2s ease-in-out';
-                }, 500);
-            }
-        });
-
-        // إضافة تأثيرات عند النقر على الأزرار
-        $('.btn-custom').click(function() {
-            $(this).addClass('animate__animated animate__pulse');
-            setTimeout(() => {
-                $(this).removeClass('animate__animated animate__pulse');
-            }, 600);
-        });
     </script>
 @endsection

@@ -32,58 +32,77 @@ class TestsController extends Controller
     const MAX_MODULES = 5;
 
     public function index(Request $request)
-    {
-        $user = auth()->user();
+{
+    $user = auth()->user();
 
-        $levelId  = $request->get('level_id');
-        $courseId = $request->get('course_id');
+    $levelId  = $request->get('level_id');
+    $courseId = $request->get('course_id');
+    $track    = $request->get('track');
 
-        $levels = Level::orderBy('name')->get();
+    $levels = Level::orderBy('name')->get();
 
-        $courses = collect();
-        if ($levelId) {
-            $courses = Course::where('level_id', $levelId)->orderBy('name')->get();
-        }
+    $courses = collect();
 
-        $coursesQuery = Course::with(['activeTests' => function ($q) {
-                $q->orderBy('id');
-            }])
-            ->whereHas('activeTests')
-            ->orderBy('id');
+    if ($levelId) {
+        $courses = Course::where('level_id', $levelId)
+            ->when($track, function ($query) use ($track) {
+                $query->where('track_slug', $track);
+            })
+            ->orderBy('name')
+            ->get();
+    }
 
-        if ($levelId) {
-            $coursesQuery->where('level_id', $levelId);
-        }
+    $coursesQuery = Course::with(['activeTests' => function ($q) {
+            $q->orderBy('id');
+        }])
+        ->whereHas('activeTests')
+        ->orderBy('id');
 
-        if ($courseId) {
-            $coursesQuery->where('id', $courseId);
-        }
+    // لو المستخدم اختار مستوى معين
+    if ($levelId) {
+        $coursesQuery->where('level_id', $levelId);
+    } else {
+        // الافتراضي مستوى الطالب الحالي
+        $coursesQuery->where('level_id', $user->level_id);
+    }
 
-        $coursesData = $coursesQuery->get();
+    // لو المستخدم اختار كورس معين
+    if ($courseId) {
+        $coursesQuery->where('id', $courseId);
+    }
 
-        $coursesWithTests = $coursesData->map(function ($course) use ($user) {
-            $tests = $course->activeTests->map(function ($test) use ($user) {
-                return $this->formatTestData($test, $user);
-            });
+    // فلترة حسب المسار
+    if ($track) {
+        $coursesQuery->where('track_slug', $track);
+    }
 
-            return [
-                'id'                => $course->id,
-                'name'              => $course->name,
-                'tests_price'       => $course->tests_price,
-                'has_purchased_all' => $user->hasPurchasedCourseQuizzes($course->id),
-                'tests'             => $tests,
-                'level_id'          => $course->level_id,
-            ];
+    $coursesData = $coursesQuery->get();
+
+    $coursesWithTests = $coursesData->map(function ($course) use ($user) {
+        $tests = $course->activeTests->map(function ($test) use ($user) {
+            return $this->formatTestData($test, $user);
         });
 
-        return view('themes.default.back.users.tests.index', compact(
-            'coursesWithTests',
-            'levels',
-            'courses',
-            'levelId',
-            'courseId'
-        ));
-    }
+        return [
+            'id'                => $course->id,
+            'name'              => $course->name,
+            'tests_price'       => $course->tests_price,
+            'has_purchased_all' => $user->hasPurchasedCourseQuizzes($course->id),
+            'tests'             => $tests,
+            'level_id'          => $course->level_id,
+        ];
+    });
+
+    return view('themes.default.back.users.tests.index', compact(
+        'coursesWithTests',
+        'levels',
+        'courses',
+        'levelId',
+        'courseId',
+        'track'
+    ));
+}
+
 
     public function mockTest(Request $request)
 {
@@ -755,12 +774,32 @@ $studentTest->updateCurrentScore();
 
     private function getTestStatus($user, $test)
     {
-        $studentTest = StudentTest::where('student_id', $user->id)
+        $activeAttempt = StudentTest::where('student_id', $user->id)
             ->where('test_id', $test->id)
+            ->whereIn('status', [
+                self::STATUS_PART1,
+                self::STATUS_BREAK,
+                self::STATUS_PART2,
+            ])
             ->orderBy('attempt_number', 'desc')
             ->first();
 
-        return $studentTest ? $studentTest->status : 'not_started';
+        if ($activeAttempt) {
+            return $activeAttempt->status;
+        }
+
+        $completedAttempts = StudentTest::where('student_id', $user->id)
+            ->where('test_id', $test->id)
+            ->where('status', self::STATUS_COMPLETED)
+            ->count();
+
+        $maxAttempts = (int) ($test->max_attempts ?? 1);
+
+        if ($completedAttempts >= $maxAttempts) {
+            return self::STATUS_COMPLETED;
+        }
+
+        return 'not_started';
     }
 
     private function startNextModule($studentTest, $nextModule)

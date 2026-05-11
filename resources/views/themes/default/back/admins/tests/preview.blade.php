@@ -36,7 +36,6 @@ window.MathJax = {
     startup: {
         ready: function () {
             MathJax.startup.defaultReady();
-            console.log('✅ MathJax loaded for test preview');
         }
     }
 };
@@ -474,6 +473,106 @@ window.MathJax = {
 /* تقليل المسافة بين الكروت */
 .question-card .options-grid {
     gap: 6px !important;
+}
+
+
+/* ===== Preview Readability Font Increase ===== */
+.test-preview-container {
+    font-size: 17px;
+}
+
+.part-title {
+    font-size: 1.65rem !important;
+    font-weight: 800 !important;
+}
+
+.part-info {
+    font-size: 16px !important;
+    font-weight: 600;
+}
+
+.preview-mode .question-card {
+    padding: 24px !important;
+}
+
+.question-number {
+    width: 42px !important;
+    height: 42px !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+}
+
+.question-type-badge {
+    font-size: 13px !important;
+    padding: 6px 14px !important;
+}
+
+.question-card .question-text,
+.question-card .question-text p,
+.question-card .question-body,
+.question-card .tex2jax_process {
+    font-size: 19px !important;
+    line-height: 1.75 !important;
+}
+
+.question-card small.text-muted {
+    font-size: 14px !important;
+    font-weight: 700;
+}
+
+.options-container label.form-label {
+    font-size: 17px !important;
+}
+
+.question-card .options-grid .option-item {
+    min-height: 44px !important;
+    padding: 8px 14px !important;
+}
+
+.question-card .options-grid .option-item .option-letter {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 15px !important;
+    line-height: 28px !important;
+}
+
+.question-card .options-grid .option-item .option-content,
+.question-card .options-grid .option-item .option-text,
+.option-content,
+.option-text {
+    font-size: 17px !important;
+    line-height: 1.45 !important;
+}
+
+.correct-badge {
+    font-size: 13px !important;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #d9f4df;
+    color: #166534;
+    white-space: nowrap;
+    font-weight: 800;
+}
+
+.explanation-section h6 {
+    font-size: 18px !important;
+}
+
+.explanation-text,
+.explanation-text p {
+    font-size: 18px !important;
+    line-height: 1.75 !important;
+}
+
+.test-info li,
+.test-description p,
+.card-body p {
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+mjx-container {
+    font-size: 110% !important;
 }
 
 </style>

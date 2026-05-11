@@ -19,15 +19,21 @@ use Illuminate\Support\Str;
 class CoursesController extends Controller
 {
     public function index(Request $request)
-    {
-        $courses = Course::where('level_id', auth()->user()->level_id)
-            ->with(['level', 'lectures'])
-            ->withCount('lectures')
-            ->get();
+{
+    $track = $request->query('track');
 
-        return view('themes/default/back.users.courses.courses-list', compact('courses'));
+    $coursesQuery = Course::where('level_id', auth()->user()->level_id)
+        ->with(['level', 'lectures'])
+        ->withCount('lectures');
+
+    if ($track) {
+        $coursesQuery->where('track_slug', $track);
     }
 
+    $courses = $coursesQuery->get();
+
+    return view('themes/default/back.users.courses.courses-list', compact('courses', 'track'));
+}
     public function show(Request $request)
     {
         $course = Course::with(['level', 'lectures.assignments'])

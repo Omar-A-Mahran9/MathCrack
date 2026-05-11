@@ -13,8 +13,12 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    public function create(): View
+    public function create(Request $request): View
     {
+        if ($request->has('track')) {
+            session(['selected_track' => $request->query('track')]);
+        }
+
         return view('auth.login');
     }
 
@@ -78,6 +82,13 @@ class AuthenticatedSessionController extends Controller
             }
 
             $request->session()->regenerate();
+
+            if (session()->has('selected_track')) {
+                $track = session('selected_track');
+                session()->forget('selected_track');
+
+                return redirect()->route('dashboard.users.courses', ['track' => $track]);
+            }
 
             return redirect()->intended(route('home', absolute: false));
         } catch (\Exception $e) {

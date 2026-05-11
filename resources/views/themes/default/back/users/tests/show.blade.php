@@ -22,7 +22,14 @@
             --mc-text:#1f2937;
         }
 
-        .mc-wrap{ padding-bottom: 30px; }
+        .mc-wrap{
+            padding-bottom: 30px;
+        }
+
+        .main-content{
+            max-width: 1900px;
+            margin: 0 auto 40px;
+        }
 
         .test-hero{
             background: linear-gradient(135deg, var(--mc-primary) 0%, var(--mc-primary-2) 100%);
@@ -54,6 +61,90 @@
             opacity:.95;
             margin:0;
             color:#fff !important;
+        }
+
+        .hero-badges{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            margin-top:16px;
+            position:relative;
+            z-index:2;
+        }
+
+        .hero-badge{
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:8px 14px;
+            border-radius:999px;
+            color:#fff;
+            background:rgba(255,255,255,.16);
+            border:1px solid rgba(255,255,255,.26);
+            font-weight:800;
+            backdrop-filter:blur(10px);
+        }
+
+        .hero-score-box{
+            position:relative;
+            z-index:2;
+            display:inline-flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            min-width:170px;
+            padding:18px 22px;
+            border-radius:18px;
+            background:rgba(255,255,255,.16);
+            border:1px solid rgba(255,255,255,.26);
+            backdrop-filter:blur(10px);
+        }
+
+        .hero-score-number{
+            font-size:2.1rem;
+            font-weight:900;
+            line-height:1;
+            color:#fff;
+        }
+
+        .hero-score-label{
+            margin-top:7px;
+            font-size:.9rem;
+            font-weight:800;
+            color:rgba(255,255,255,.92);
+        }
+
+        .section-title{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin:0 0 16px 0;
+            font-size:1.05rem;
+            color:var(--mc-text);
+            font-weight:900;
+        }
+
+        .instruction-list{
+            display:grid;
+            gap:10px;
+            margin:0;
+            padding:0;
+            list-style:none;
+        }
+
+        .instruction-list li{
+            display:flex;
+            align-items:flex-start;
+            gap:10px;
+            color:#475569;
+            font-weight:700;
+            line-height:1.6;
+        }
+
+        .instruction-list i{
+            color:var(--mc-primary-2);
+            margin-top:4px;
+            flex-shrink:0;
         }
 
         .test-info-card,
@@ -380,6 +471,8 @@
             .part-stats{ grid-template-columns:repeat(2,1fr); }
             .action-buttons{ flex-direction:column; }
             .btn-action{ justify-content:center; }
+            .hero-score-box{ width:100%; }
+            .test-hero h1{ line-height:1.25; }
         }
     </style>
 @endsection
@@ -391,6 +484,12 @@
 
     $allowedLevels = ['Digital SAT','EST I','EST II','ACT I','ACT II'];
     $levelName = $test->course->level->name ?? '';
+
+    $displayCourseName = $test->course->name ?? '';
+    if ($levelName === 'Digital SAT') {
+        $displayCourseName = __('l.digital_sat_course');
+    }
+
     $useRoundUpTo10 = in_array($levelName, $allowedLevels, true);
 
     $allQuestions = $test->questions()->get();
@@ -503,12 +602,38 @@
     <div class="test-hero">
         <div class="container-fluid">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-lg-8">
                     <h1>{{ $test->name }}</h1>
-                    <p>{{ $test->course->name ?? '' }}</p>
+                    <p>{{ $test->description ?: __('l.test_information') }}</p>
+
+                    <div class="hero-badges">
+                        <span class="hero-badge">
+                            <i class="fas fa-book"></i>
+                            {{ $displayCourseName }}
+                        </span>
+
+                        <span class="hero-badge">
+                            <i class="fas fa-layer-group"></i>
+                            {{ count($modules) }} @lang('l.modules')
+                        </span>
+
+                        <span class="hero-badge">
+                            <i class="fas fa-question-circle"></i>
+                            {{ $test->total_questions_count }} @lang('l.questions')
+                        </span>
+
+                        <span class="hero-badge">
+                            <i class="fas fa-clock"></i>
+                            {{ $test->total_time_minutes }} @lang('l.minutes')
+                        </span>
+                    </div>
                 </div>
-                <div class="col-md-4 text-end">
-                    <i class="fas fa-clipboard-list fa-3x opacity-75"></i>
+
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                    <div class="hero-score-box ms-lg-auto">
+                        <div class="hero-score-number">{{ $maxScore }}</div>
+                        <div class="hero-score-label">@lang('l.total_score')</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -524,7 +649,7 @@
                 <div class="card-body-custom">
                     <div class="course-info">
                         <h6>@lang('l.course')</h6>
-                        <p>{{ $test->course->name ?? '' }}</p>
+                        <p>{{ $displayCourseName }}</p>
                     </div>
 
                     @if($test->description)
@@ -559,6 +684,32 @@
                             <div class="info-label">@lang('l.max_attempts')</div>
                             <div class="info-value">{{ $test->max_attempts ?? 1 }} @lang('l.attempts')</div>
                         </div>
+                    </div>
+
+                    <div class="test-description">
+                        <h5 class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            @lang('l.important_notice')
+                        </h5>
+
+                        <ul class="instruction-list">
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Read each question carefully before choosing your answer.</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>The timer starts once you press Start Test.</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>You can continue an unfinished attempt from where you stopped.</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Your final result appears after completing all modules.</span>
+                            </li>
+                        </ul>
                     </div>
 
                     <h5 class="mb-3" style="font-weight:900; color:var(--mc-text);">
@@ -692,7 +843,7 @@
                         @endif
                     @endif
 
-                    <a href="{{ route('dashboard.users.tests.index') }}" class="btn-action btn-secondary-action">
+                    <a href="{{ route('dashboard.users.tests.index', request()->only('track')) }}" class="btn-action btn-secondary-action">
                         @if(app()->getLocale() == 'ar')
                             <i class="fas fa-arrow-right"></i>
                         @else

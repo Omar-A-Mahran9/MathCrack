@@ -28,15 +28,24 @@ return [
     'instructor_contact' => 'Prof. Ahmed Omar',
     
     // Hero Section
-    'hero_title_before' => 'Master Mathematics with ',
-    'hero_dsat_title' => 'Master Digital SAT & EST with',
-    'hero_dsat_line1' => 'Expert Mathematics Guidance',
-    'hero_dsat_line2' => 'Proven Results • 40+ Years Experience',
-    'hero_line1' => '40+ Years University Teaching Experience',
-    'hero_line2' => '15+ Years American Diploma Preparation',
-    'hero_subtitle' => '40+ Years University Teaching Experience | 15+ Years American Diploma Preparation',
-    'hero_trust_line' => 'Trusted by thousands of students worldwide',
-    'cta_meet_prof' => 'Meet the Professor',
+ 'hero_title_before' => 'Master Mathematics with ',
+
+'hero_dsat_title' => 'Master Digital SAT & EST Math',
+
+'hero_dsat_line1' => 'Focused math preparation for Digital SAT, EST, ACT, and AP students.',
+
+'hero_dsat_line2' => 'Clear explanations • Exam-style practice • 40+ years of experience',
+
+'hero_line1' => '40+ Years University Teaching Experience',
+
+'hero_line2' => '15+ Years American Diploma Preparation',
+
+'hero_subtitle' => '40+ Years University Teaching Experience | 15+ Years American Diploma Preparation',
+
+'hero_trust_line' => 'Built for students who want focused practice and measurable progress.',
+
+'cta_courses' => 'Explore Courses',
+'cta_meet_prof' => 'Meet the Professor',
     
     // Professor Section
     'meet_expert' => 'Meet Our Expert',
@@ -95,16 +104,18 @@ return [
     'system_item4_title' => 'Mock Tests',
     'system_item4_desc' => 'Full-length simulated exams with accurate scoring',
     
-    // Programs Section
-    'programs_title' => 'Our Mathematics Programs',
-    'programs_desc' => 'Comprehensive courses designed for academic excellence',
-    'american_diploma' => 'American Diploma',
-    'american_diploma_desc' => 'Complete preparation for SAT I, SAT II, EST, and ACT with proven strategies',
-    'university_math' => 'University Mathematics',
-    'university_math_desc' => 'Advanced university-level courses including Calculus, Linear Algebra, and Statistics',
-    'test_preparation' => 'Test Preparation',
-    'test_preparation_desc' => 'Specialized training for SAT, ACT, EST, AP, IG, and IB exams',
-    
+  // Programs Section
+'programs_title' => 'Our Mathematics Programs',
+'programs_desc' => 'Mathematics programs for school, university, and exam preparation',
+
+'american_diploma' => 'American Diploma Courses',
+'american_diploma_desc' => '',
+
+'university_math' => 'University Mathematics',
+'university_math_desc' => '',
+
+'test_preparation' => 'Exam Preparation',
+'test_preparation_desc' => '',
     // Stats Section
     'impact_title' => 'Our Impact in Numbers',
     'impact_desc' => 'Join hundreds of successful students who have excelled in mathematics with',

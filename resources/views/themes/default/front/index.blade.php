@@ -448,6 +448,138 @@
     .course-card h4 { font-size: 1.5rem; margin-bottom: 15px; color: var(--primary-color); white-space: nowrap; }
     .course-card p { color: #666; line-height: 1.6; }
 
+
+    /* =========================
+       Flip course cards
+    ========================= */
+    .flip-card {
+      height: 340px;
+      perspective: 1100px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.7s ease;
+      transform-style: preserve-3d;
+    }
+
+    .flip-card.is-flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    [dir="rtl"] .flip-card.is-flipped .flip-card-inner {
+      transform: rotateY(-180deg);
+    }
+
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 15px;
+      background: #fff;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      border: 1px solid rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    .flip-card-front::before,
+    .flip-card-back::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: var(--secondary-color);
+    }
+
+    .flip-card-front {
+      padding: 40px 30px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .flip-card-back {
+      padding: 28px 26px;
+      transform: rotateY(180deg);
+      text-align: start;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    [dir="rtl"] .flip-card-back {
+      transform: rotateY(-180deg);
+    }
+
+    .flip-card-back h4 {
+      color: var(--primary-color);
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .flip-course-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0;
+    }
+
+    .flip-course-link {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 8px;
+      border-radius: 12px;
+      background: rgba(52, 152, 219, 0.08);
+      border: 1px solid rgba(52, 152, 219, 0.18);
+      color: var(--primary-color);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.25;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .flip-course-link:hover {
+      background: var(--secondary-color);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(52, 152, 219, 0.22);
+    }
+
+    .flip-course-link i {
+      font-size: 0.8rem;
+      flex: 0 0 auto;
+    }
+
+    .flip-hint {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    @media (max-width: 768px) {
+      .flip-card {
+        height: 390px;
+      }
+    }
+
     .cta-section {
       background: linear-gradient(135deg, var(--secondary-color), #2980b9);
       color: white;
@@ -788,6 +920,244 @@
         margin-top:6px;
       }
     }
+
+    /* ===== Home page final polish ===== */
+    .main-header {
+      border-bottom: 1px solid rgba(44, 62, 80, 0.08);
+    }
+
+    .main-menu__list a {
+      font-size: 1.02rem;
+      font-weight: 700;
+      letter-spacing: .01em;
+    }
+
+    .header-login-btn {
+      background: linear-gradient(135deg, #ffffff 0%, #eef7ff 100%);
+      border: 1px solid rgba(52, 152, 219, 0.30);
+      color: #1f3a56;
+      padding: 11px 22px;
+      font-size: 1rem;
+      font-weight: 800;
+      box-shadow: 0 8px 18px rgba(44, 62, 80, 0.07);
+    }
+
+    .header-login-btn i {
+      font-size: 1.18rem;
+      color: var(--secondary-color);
+    }
+
+    .header-login-btn:hover {
+      background: linear-gradient(135deg, var(--secondary-color), #2279b9);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 14px 28px rgba(52, 152, 219, 0.25);
+    }
+
+    .header-login-btn:hover i {
+      color: #fff;
+    }
+
+    .header-join-btn {
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 800;
+      box-shadow: 0 10px 22px rgba(52, 152, 219, 0.22);
+    }
+
+    #courses {
+      background:
+        radial-gradient(circle at top left, rgba(52, 152, 219, 0.10), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(241, 196, 15, 0.10), transparent 34%),
+        #f7fbff;
+    }
+
+    #courses .section-title h2 {
+      font-size: 2.75rem;
+      font-weight: 900;
+      letter-spacing: -.03em;
+      color: #1f2d3d;
+    }
+
+    #courses .section-title p {
+      font-size: 1.2rem;
+      color: #4b5563;
+      font-weight: 500;
+    }
+
+    #courses .flip-card {
+      height: 370px;
+    }
+
+    #courses .flip-card-front,
+    #courses .flip-card-back {
+      border-radius: 22px;
+      border: 1px solid rgba(52, 152, 219, 0.14);
+      box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
+      background:
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    #courses .flip-card-front::before,
+    #courses .flip-card-back::before {
+      height: 6px;
+      background: linear-gradient(90deg, #2d9cdb, #4c43f5, #f1c40f);
+    }
+
+    #courses .flip-card-front::after {
+      content: '';
+      position: absolute;
+      inset: 18px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at center, rgba(52, 152, 219, 0.12), transparent 42%);
+      opacity: .9;
+      pointer-events: none;
+    }
+
+    #courses .flip-card-front > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    #courses .course-icon {
+      width: 74px;
+      height: 74px;
+      border-radius: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 22px;
+      background: linear-gradient(135deg, rgba(52,152,219,.13), rgba(76,67,245,.10));
+      color: var(--secondary-color);
+      font-size: 2.45rem;
+      box-shadow: inset 0 0 0 1px rgba(52,152,219,.14);
+    }
+
+    #courses .flip-card-front h4 {
+      font-size: 1.65rem;
+      font-weight: 900;
+      color: #1f2d3d;
+      letter-spacing: -.02em;
+      white-space: normal;
+      line-height: 1.3;
+      max-width: 320px;
+    }
+
+    #courses .flip-card-back {
+      padding: 32px 28px;
+    }
+
+    #courses .flip-course-grid {
+      gap: 13px;
+    }
+
+    #courses .flip-course-link {
+      min-height: 58px;
+      border-radius: 15px;
+      background: #eef7ff;
+      border: 1px solid rgba(52, 152, 219, 0.22);
+      color: #1f2d3d;
+      font-size: 1.03rem;
+      font-weight: 900;
+      letter-spacing: -.01em;
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.04);
+    }
+
+    #courses .flip-course-link i {
+      font-size: 1rem;
+      color: var(--secondary-color);
+    }
+
+    #courses .flip-course-link:hover {
+      background: linear-gradient(135deg, var(--secondary-color), #2279b9);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 12px 24px rgba(52, 152, 219, 0.25);
+    }
+
+    #courses .flip-course-link:hover i {
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      #courses .section-title h2 {
+        font-size: 2.1rem;
+        white-space: normal;
+      }
+
+      #courses .flip-card {
+        height: 410px;
+      }
+
+      #courses .flip-course-link {
+        font-size: .98rem;
+      }
+    }
+
+
+    .coming-soon-link {
+      background: linear-gradient(135deg, #f8fafc, #eef2f7) !important;
+      border-color: rgba(44, 62, 80, 0.12) !important;
+      color: #4b5563 !important;
+      cursor: pointer;
+    }
+
+    .coming-soon-link i {
+      color: #f39c12 !important;
+    }
+
+    .coming-soon-link:hover {
+      background: linear-gradient(135deg, #fff7e6, #fff2cc) !important;
+      color: #1f2d3d !important;
+      box-shadow: 0 12px 24px rgba(243, 156, 18, 0.16) !important;
+    }
+
+    .coming-soon-link:hover i {
+      color: #f39c12 !important;
+    }
+
+    .coming-soon-modal .modal-content {
+      border: 0;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+    }
+
+    .coming-soon-modal .modal-header {
+      background: linear-gradient(135deg, var(--secondary-color), #2279b9);
+      color: #fff;
+      border-bottom: 0;
+      padding: 22px 24px;
+    }
+
+    .coming-soon-modal .modal-title {
+      font-weight: 900;
+    }
+
+    .coming-soon-modal .btn-close {
+      filter: invert(1);
+      opacity: .9;
+    }
+
+    .coming-soon-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #eef7ff;
+      color: var(--secondary-color);
+      font-size: 2rem;
+      margin-bottom: 16px;
+    }
+
+    .coming-soon-course-name {
+      font-weight: 900;
+      color: var(--primary-color);
+    }
+
   </style>
 </head>
 
@@ -836,7 +1206,7 @@
         </div>
 
         <a href="{{ route('login') }}" class="header-login-btn">
-          <i class="fas fa-sign-in-alt me-1"></i>
+          <i class="fas fa-user-circle me-1"></i>
           Login
         </a>
 
@@ -861,22 +1231,12 @@
 
       <div class="mt-4 d-flex justify-content-center gap-3 flex-wrap">
         <a href="{{ route('login') }}" class="btn-hero">
-          @if(app()->getLocale() == 'ar')
-            <i class="fas fa-arrow-left"></i>
-          @else
-            <i class="fas fa-arrow-right"></i>
-          @endif
-          Join Now
+           Join Now
         </a>
 
-        <button class="btn-hero active" id="learnMoreBtn">
-          @if(app()->getLocale() == 'ar')
-            <i class="fas fa-arrow-left"></i>
-          @else
-            <i class="fas fa-arrow-right"></i>
-          @endif
-          {{ __('front.cta_meet_prof') }}
-        </button>
+        <a href="#courses" class="btn-hero active">
+  {{ __('front.cta_courses') }}
+</a>
       </div>
 
       <div class="mt-3" style="opacity:0.9; position:relative; z-index:1;">
@@ -1063,8 +1423,8 @@
 <section class="courses-section" id="dsat-system" style="background:#fff;">
   <div class="container">
     <div class="section-title fade-in">
-      <h2 class="no-break">{{ __('front.system_title') }}</h2>
-      <p>{{ __('front.system_desc') }}</p>
+      <h2 class="no-break">Our Learning System</h2>
+<p>Lessons, materials, progress tracking, and mock tests in one place.</p>
     </div>
 
     <div class="row g-4">
@@ -1108,38 +1468,89 @@
     <div class="section-title fade-in">
       <h2 class="no-break">{{ __('front.programs_title') }}</h2>
       <p>{{ __('front.programs_desc') }}</p>
-    </div>
+    </div>@php
+  $isArabic = app()->getLocale() == 'ar';
+  $loginUrl = route('login');
+
+  $programCards = [
+    [
+      'icon' => 'fas fa-graduation-cap',
+      'title' => $isArabic ? 'كورسات الدبلومة الأمريكية' : 'American Diploma',
+      'courses' => [
+        ['label' => 'Digital SAT', 'slug' => 'digital-sat', 'available' => true],
+        ['label' => 'EST I', 'slug' => 'est-i', 'available' => false],
+        ['label' => 'EST II', 'slug' => 'est-ii', 'available' => false],
+        ['label' => 'ACT I', 'slug' => 'act-i', 'available' => false],
+        ['label' => 'ACT II', 'slug' => 'act-ii', 'available' => false],
+        ['label' => 'AP Math', 'slug' => 'ap-math', 'available' => false],
+      ],
+    ],
+    [
+      'icon' => 'fas fa-university',
+      'title' => $isArabic ? 'الرياضيات الجامعية' : 'University Mathematics',
+      'courses' => [
+        ['label' => 'Calculus', 'slug' => 'calculus', 'available' => false],
+        ['label' => 'Linear Algebra', 'slug' => 'linear-algebra', 'available' => false],
+        ['label' => 'Statistics', 'slug' => 'statistics', 'available' => false],
+        ['label' => 'University Math Support', 'slug' => 'university-math-support', 'available' => false],
+      ],
+    ],
+    [
+      'icon' => 'fas fa-chalkboard-teacher',
+      'title' => $isArabic ? 'التحضير للاختبارات' : 'Exam Preparation',
+      'courses' => [
+        ['label' => $isArabic ? 'اختبارات محاكاة كاملة' : 'Full Mock Tests', 'slug' => 'full-mock-tests', 'available' => false],
+        ['label' => $isArabic ? 'تدريب بزمن محدد' : 'Timed Practice', 'slug' => 'timed-practice', 'available' => false],
+        ['label' => $isArabic ? 'مراجعة نهائية' : 'Final Revision', 'slug' => 'final-revision', 'available' => false],
+        ['label' => $isArabic ? 'تقارير مستوى الطالب' : 'Student Progress Reports', 'slug' => 'student-progress-reports', 'available' => false],
+      ],
+    ],
+  ];
+@endphp
 
     <div class="row g-4">
-      <div class="col-md-4">
-        <div class="course-card fade-in">
-          <div class="course-icon">
-            <i class="fas fa-graduation-cap"></i>
-          </div>
-          <h4 class="no-break">{{ __('front.american_diploma') }}</h4>
-          <p>{{ __('front.american_diploma_desc') }}</p>
-        </div>
-      </div>
+      @foreach($programCards as $program)
+        <div class="col-md-4">
+          <div class="flip-card fade-in" tabindex="0" role="button" aria-label="{{ $program['title'] }}">
+            <div class="flip-card-inner">
 
-      <div class="col-md-4">
-        <div class="course-card fade-in">
-          <div class="course-icon">
-            <i class="fas fa-university"></i>
-          </div>
-          <h4 class="no-break">{{ __('front.university_math') }}</h4>
-          <p>{{ __('front.university_math_desc') }}</p>
-        </div>
-      </div>
+              <div class="flip-card-front">
+                <div class="course-icon">
+                  <i class="{{ $program['icon'] }}"></i>
+                </div>
+                <h4 class="no-break">{{ $program['title'] }}</h4>
+              
+              </div>
 
-      <div class="col-md-4">
-        <div class="course-card fade-in">
-          <div class="course-icon">
-            <i class="fas fa-chalkboard-teacher"></i>
+              <div class="flip-card-back">
+                 <div class="flip-course-grid">
+                  @foreach($program['courses'] as $course)
+                    @php
+                      $isAvailable = $course['available'] ?? false;
+                      $courseUrl = auth()->check()
+                          ? route('dashboard.users.courses', ['track' => $course['slug']])
+                          : $loginUrl . '?track=' . urlencode($course['slug']);
+                    @endphp
+
+                    <a
+                      href="{{ $isAvailable ? $courseUrl : 'javascript:void(0)' }}"
+                      class="flip-course-link {{ $isAvailable ? '' : 'coming-soon-link' }}"
+                      data-course="{{ $course['label'] }}"
+                      aria-disabled="{{ $isAvailable ? 'false' : 'true' }}"
+                    >
+                      <i class="{{ $isAvailable ? 'fas fa-book-open' : 'fas fa-clock' }}"></i>
+                      <span>{{ $course['label'] }}</span>
+                    </a>
+                  @endforeach
+                </div>
+
+                
+              </div>
+
+            </div>
           </div>
-          <h4 class="no-break">{{ __('front.test_preparation') }}</h4>
-          <p>{{ __('front.test_preparation_desc') }}</p>
         </div>
-      </div>
+      @endforeach
     </div>
   </div>
 </section>
@@ -1335,6 +1746,35 @@
   </div>
 </footer>
 
+
+<div class="modal fade coming-soon-modal" id="comingSoonModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-clock me-2"></i>
+          Coming Soon
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center p-4">
+        <div class="coming-soon-icon">
+          <i class="fas fa-hourglass-half"></i>
+        </div>
+        <h4 class="coming-soon-course-name" id="comingSoonCourseName">Course</h4>
+        <p class="mb-0 text-muted">
+          This course is not available yet. It will be added soon.
+        </p>
+      </div>
+      <div class="modal-footer justify-content-center border-0 pb-4">
+        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <a href="#" class="back-to-top" id="backToTop">
   <i class="fas fa-arrow-up"></i>
 </a>
@@ -1384,6 +1824,42 @@
 
     if (learnMoreBtn) learnMoreBtn.addEventListener('click', showProfessorSection);
     professorLinks.forEach(link => link.addEventListener('click', showProfessorSection));
+
+
+
+    document.querySelectorAll('.coming-soon-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const courseName = this.getAttribute('data-course') || 'This course';
+        const nameEl = document.getElementById('comingSoonCourseName');
+        if (nameEl) nameEl.textContent = courseName;
+
+        const modalEl = document.getElementById('comingSoonModal');
+        if (modalEl && window.bootstrap) {
+          const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+          modal.show();
+        } else {
+          alert(courseName + ' is coming soon.');
+        }
+      });
+    });
+
+    document.querySelectorAll('.flip-card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('.flip-course-link')) return;
+        this.classList.toggle('is-flipped');
+      });
+
+      card.addEventListener('keydown', function(e) {
+        if (e.target.closest('.flip-course-link')) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.classList.toggle('is-flipped');
+        }
+      });
+    });
 
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function(e) {

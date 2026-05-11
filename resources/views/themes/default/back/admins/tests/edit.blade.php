@@ -31,6 +31,182 @@
             font-weight: 700;
             color: #2563eb;
         }
+
+        /* ===== Admin Edit Test Safe Polish ===== */
+        .edit-test-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: #fff;
+            border-radius: 18px;
+            padding: 24px 26px;
+            margin-bottom: 22px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 14px 34px rgba(30, 64, 175, 0.16);
+        }
+
+        .edit-test-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -90px;
+            width: 180px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.12);
+            transform: skewX(-15deg);
+        }
+
+        .edit-test-header h4,
+        .edit-test-header p {
+            color: #fff !important;
+            position: relative;
+            z-index: 2;
+        }
+
+        .edit-test-header h4 {
+            font-weight: 900;
+            font-size: 1.45rem;
+            line-height: 1.35;
+        }
+
+        .edit-test-header p {
+            opacity: 0.92;
+            font-weight: 700;
+        }
+
+        .edit-test-actions {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .edit-test-actions .btn {
+            border-radius: 10px;
+            font-weight: 800;
+        }
+
+        .edit-test-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .edit-test-card .card-body {
+            padding: 24px;
+            background: #ffffff;
+        }
+
+        .section-divider-title {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 12px 14px;
+            color: #1e40af !important;
+            font-size: 1.05rem !important;
+            font-weight: 900 !important;
+            margin-top: 8px;
+        }
+
+        .main-content .form-control,
+        .main-content .form-select {
+            border-radius: 12px;
+            min-height: 44px;
+            border-color: #dbe3ef;
+            font-weight: 600;
+        }
+
+        .main-content textarea.form-control {
+            min-height: 90px;
+        }
+
+        .main-content .form-check {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 14px 14px 14px 42px;
+        }
+
+        [dir="rtl"] .main-content .form-check {
+            padding: 14px 42px 14px 14px;
+        }
+
+        .module-score-card {
+            background: #ffffff;
+            border: 1px solid #dbeafe;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+        }
+
+        .module-score-card h6 {
+            color: #1e40af;
+            font-weight: 900;
+        }
+
+        .module-block .mb-3 {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            padding: 14px;
+            border-radius: 14px;
+        }
+
+        .edit-help-note {
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+            color: #1e3a8a;
+            border-radius: 14px;
+            padding: 14px 16px;
+            font-weight: 700;
+        }
+
+        .locked-warning {
+            border-radius: 14px;
+            border: 1px solid #f59e0b;
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: 700;
+        }
+
+        .form-actions-sticky {
+            position: sticky;
+            bottom: 0;
+            background: #fff;
+            border-top: 1px solid #e5e7eb;
+            padding: 16px 0 0;
+            z-index: 5;
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 800;
+        }
+
+        @media (max-width: 768px) {
+            .edit-test-header {
+                padding: 22px;
+            }
+
+            .edit-test-header h4 {
+                font-size: 1.25rem;
+            }
+
+            .edit-test-actions {
+                width: 100%;
+                justify-content: stretch;
+                margin-top: 14px;
+            }
+
+            .edit-test-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .edit-test-card .card-body {
+                padding: 18px;
+            }
+        }
+
     </style>
 @endsection
 
@@ -51,19 +227,24 @@
         @endif
 
         @can('edit lectures')
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div class="edit-test-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div>
-                    <h4 class="mb-0">@lang('l.edit') - <span class="text-primary">{{ $test->name }}</span></h4>
-                    <p class="text-muted mb-0">{{ $test->course->name ?? '' }}</p>
+                    <h4 class="mb-1">
+                        <i class="fa fa-edit me-2"></i>
+                        @lang('l.edit') - <span>{{ $test->name }}</span>
+                    </h4>
+                    <p class="mb-0">{{ $test->course->name ?? '' }}</p>
                 </div>
-                <div>
+
+                <div class="edit-test-actions">
                     <a href="{{ route('dashboard.admins.tests-show', ['id' => encrypt($test->id)]) }}"
-                       class="btn btn-info waves-effect waves-light mb-2">
+                       class="btn btn-light waves-effect waves-light">
                         <i class="fa fa-eye ti-xs me-1"></i>
                         @lang('l.View')
                     </a>
+
                     <a href="{{ route('dashboard.admins.tests') }}"
-                       class="btn btn-secondary waves-effect waves-light mb-2">
+                       class="btn btn-secondary waves-effect waves-light">
                         <i class="fa fa-arrow-left ti-xs me-1"></i>
                         @lang('l.back_to_list')
                     </a>
@@ -87,7 +268,7 @@
                 }
             @endphp
 
-            <div class="card" style="padding: 15px;">
+            <div class="card edit-test-card">
                 <div class="card-body">
                     <form action="{{ route('dashboard.admins.tests-update') }}" method="POST" id="editTestForm">
                         @csrf
@@ -96,7 +277,7 @@
 
                         <div class="row">
                             <div class="col-12">
-                                <h6 class="text-primary border-bottom pb-2 mb-3">@lang('l.basic_information')</h6>
+                                <h6 class="section-divider-title mb-3">@lang('l.basic_information')</h6>
                             </div>
 
                             <div class="col-md-6">
@@ -150,9 +331,9 @@
                             </div>
 
                             <div class="col-12">
-                                <h6 class="text-primary border-bottom pb-2 mb-3">@lang('l.scoring_system')</h6>
+                                <h6 class="section-divider-title mb-3">@lang('l.scoring_system')</h6>
                                 @if($hasStudents && !$adminOverride)
-                                    <div class="alert alert-warning">
+                                    <div class="alert locked-warning">
                                         <i class="fas fa-exclamation-triangle"></i>
                                         <strong>@lang('l.warning'):</strong> @lang('l.cannot_edit_structure_students_taken')
                                     </div>
@@ -168,7 +349,7 @@
                             </div>
 
                             <div class="col-12">
-                                <div class="alert alert-info">
+                                <div class="edit-help-note">
                                     <strong>@lang('l.Note'):</strong>
                                     Final score will be calculated automatically after adding the test questions based on module scoring settings.
                                     <br>
@@ -177,7 +358,7 @@
                             </div>
 
                             <div class="col-12">
-                                <h6 class="text-primary border-bottom pb-2 mb-3">Module Scoring</h6>
+                                <h6 class="section-divider-title mb-3">Module Scoring</h6>
                             </div>
 
                             @for($i = 1; $i <= 5; $i++)
@@ -238,7 +419,7 @@
                             @endfor
 
                             <div class="col-12">
-                                <h6 class="text-primary border-bottom pb-2 mb-3">@lang('l.test_structure')</h6>
+                                <h6 class="section-divider-title mb-3">@lang('l.test_structure')</h6>
                             </div>
 
                             <div class="col-md-4">
@@ -249,7 +430,7 @@
                                     @endfor
                                 </select>
                                 <small class="form-text text-muted">
-                                    @lang('l.modules_help_text', [], null) ?? 'Select number of modules (1–5). Hidden modules will be treated as 0 questions.'
+                                    Select number of modules (1–5). Hidden modules will be treated as 0 questions.
                                 </small>
                             </div>
 
@@ -323,14 +504,14 @@
                             </div>
 
                             <div class="col-12">
-                                <div class="alert alert-info">
+                                <div class="edit-help-note">
                                     <i class="fas fa-info-circle"></i>
                                     <strong>@lang('l.Note'):</strong> @lang('l.test_timing_info')
                                 </div>
                             </div>
 
                             <div class="col-12">
-                                <div class="text-end d-flex justify-content-end gap-2">
+                                <div class="text-end d-flex justify-content-end gap-2 form-actions-sticky">
                                     <button type="button" class="btn btn-secondary" onclick="window.history.back()">@lang('l.Cancel')</button>
                                     <button type="submit" class="btn btn-primary">@lang('l.Update')</button>
                                 </div>

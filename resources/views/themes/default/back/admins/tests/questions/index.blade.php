@@ -37,7 +37,6 @@ window.MathJax = {
     startup: {
         ready: function () {
             MathJax.startup.defaultReady();
-            console.log('✅ MathJax loaded successfully for test questions');
         }
     }
 };
@@ -72,6 +71,148 @@ window.MathJax = {
     .options-container {
         width: 100%;
     }
+
+    /* ===== Admin Questions Page Safe Polish ===== */
+    .questions-page-header {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: #fff;
+        border-radius: 18px;
+        padding: 24px 26px;
+        margin-bottom: 22px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 14px 34px rgba(30, 64, 175, 0.16);
+    }
+
+    .questions-page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: -90px;
+        width: 180px;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.12);
+        transform: skewX(-15deg);
+    }
+
+    .questions-page-header h4,
+    .questions-page-header p {
+        color: #fff !important;
+        position: relative;
+        z-index: 2;
+    }
+
+    .questions-page-header h4 {
+        font-weight: 900;
+        font-size: 1.45rem;
+        line-height: 1.35;
+    }
+
+    .questions-page-header p {
+        opacity: 0.92;
+        font-weight: 700;
+    }
+
+    .questions-header-actions {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .questions-header-actions .btn {
+        border-radius: 10px;
+        font-weight: 800;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+    }
+
+    .modules-summary-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+        overflow: hidden;
+    }
+
+    .modules-summary-card .card-body {
+        padding: 20px 22px;
+    }
+
+    .module-counter-box {
+        min-width: 150px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 13px 16px;
+        transition: all 0.2s ease;
+    }
+
+    .module-counter-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.07);
+    }
+
+    .module-counter-box h6 {
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .module-counter-box .badge {
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-weight: 900;
+    }
+
+    .questions-status-alert {
+        border-radius: 14px;
+        border: none;
+        font-weight: 700;
+        padding: 15px 18px;
+    }
+
+    .quiz-container {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+    }
+
+    .question-card {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .floating-add-btn {
+        box-shadow: 0 12px 30px rgba(37, 99, 235, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .questions-page-header {
+            padding: 22px;
+        }
+
+        .questions-page-header h4 {
+            font-size: 1.25rem;
+        }
+
+        .questions-header-actions {
+            width: 100%;
+            justify-content: stretch;
+            margin-top: 14px;
+        }
+
+        .questions-header-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .module-counter-box {
+            width: 100%;
+        }
+    }
+
 </style>
 @endsection
 
@@ -103,23 +244,24 @@ window.MathJax = {
         @endif
 
         @can('show lectures')
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="questions-page-header d-flex justify-content-between align-items-center flex-wrap">
                 <div>
-                    <h4 class="mb-0">
+                    <h4 class="mb-1">
+                        <i class="fas fa-question-circle me-2"></i>
                         @lang('l.test_questions') -
-                        <span class="text-primary">{{ $test->name }}</span>
+                        <span>{{ $test->name }}</span>
                     </h4>
-                    <p class="text-muted mb-0">{{ $test->course->name ?? '' }}</p>
+                    <p class="mb-0">{{ $test->course->name ?? '' }}</p>
                 </div>
 
-                <div>
-                    <a href="{{ route('dashboard.admins.tests-show', ['id' => encrypt($test->id)]) }}" class="btn btn-info waves-effect waves-light">
+                <div class="questions-header-actions">
+                    <a href="{{ route('dashboard.admins.tests-show', ['id' => encrypt($test->id)]) }}" class="btn btn-light waves-effect waves-light">
                         <i class="fas fa-eye me-2"></i>
                         @lang('l.view_test')
                     </a>
 
                     <a href="{{ route('dashboard.admins.tests-preview', ['id' => encrypt($test->id)]) }}" class="btn btn-success waves-effect waves-light" target="_blank">
-                        <i class="fas fa-eye me-2"></i>
+                        <i class="fas fa-user-graduate me-2"></i>
                         @lang('l.preview_as_student')
                     </a>
 
@@ -130,7 +272,7 @@ window.MathJax = {
                 </div>
             </div>
 
-            <div class="card mb-4">
+            <div class="card modules-summary-card mb-4">
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12">
@@ -140,7 +282,7 @@ window.MathJax = {
                                 @endphp
 
                                 @foreach($activeModules as $partKey => $module)
-                                    <div class="mx-3 mb-2 text-center" style="min-width: 120px;">
+                                    <div class="module-counter-box mx-2 mb-2 text-center">
                                         <h6 class="{{ $loop->index % 2 == 0 ? 'text-primary' : 'text-success' }}">
                                             {{ $module['label'] }}
                                         </h6>
@@ -175,7 +317,7 @@ window.MathJax = {
             </div>
 
             @if(!$allModulesComplete)
-                <div class="alert alert-warning">
+                <div class="alert alert-warning questions-status-alert">
                     <i class="fas fa-exclamation-triangle"></i>
                     <strong>@lang('l.questions_incomplete'):</strong>
                     @php $first = true; @endphp
@@ -188,7 +330,7 @@ window.MathJax = {
                     @endforeach
                 </div>
             @else
-                <div class="alert alert-success">
+                <div class="alert alert-success questions-status-alert">
                     <i class="fas fa-check-circle"></i>
                     <strong>@lang('l.test_ready')!</strong> @lang('l.all_questions_added').
                 </div>

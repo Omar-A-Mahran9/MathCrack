@@ -30,16 +30,25 @@ return [
     'about_professor' => 'عن الأستاذ',
     
     // Hero Section
-    'hero_title_before' => 'تعلم الرياضيات مع',
-    'hero_dsat_title' => 'أتقن اختبارات DSAT و EST مع',
-    'hero_dsat_line1' => 'توجيه وخبرة في الرياضيات',
-    'hero_dsat_line2' => 'نتائج مثبتة • أكثر من ٤٠ عامًا من الخبرة',
-    'hero_line1' => 'أستاذ جامعي بخبرة أكاديمية أكثر من 40 عاما',
-    'hero_line2' => 'أكثر من 15 عاما في تدريس الدبلومة الامريكية',
-    'hero_subtitle' => 'تعليم متميز للرياضيات',
-    'hero_trust_line' => 'موثوق به من قبل آلاف الطلاب حول العالم',
-    'cta_meet_prof' => 'تعرف على الأستاذ الدكتور',
-    
+   'hero_title_before' => 'تعلم الرياضيات مع',
+
+'hero_dsat_title' => 'أتقن رياضيات DSAT و EST',
+
+'hero_dsat_line1' => 'تدريب مركز لطلاب DSAT و EST و ACT و AP في الرياضيات.',
+
+'hero_dsat_line2' => 'شرح واضح • تدريب بنظام الاختبارات • خبرة أكثر من ٤٠ عامًا',
+
+'hero_line1' => 'خبرة أكاديمية أكثر من ٤٠ عامًا في تدريس الرياضيات الجامعية',
+
+'hero_line2' => 'خبرة أكثر من ١٥ عامًا في إعداد طلاب الدبلومة الأمريكية',
+
+'hero_subtitle' => 'إعداد منظم للرياضيات بأسلوب واضح وعملي',
+
+'hero_trust_line' => 'مصمم للطلاب الذين يريدون تدريبًا مركزًا وتقدمًا واضحًا.',
+
+'cta_courses' => 'تعرف على الكورسات',
+'cta_meet_prof' => 'تعرف على الأستاذ الدكتور',
+
     // CV Section
     'cv_section_title' => 'السيرة الذاتية',
     'cv_title' => 'السيرة الذاتية',
@@ -93,15 +102,18 @@ return [
     'system_item4_title' => 'اختبارات تجريبية',
     'system_item4_desc' => 'اختبارات محاكاة كاملة مع تصحيح دقيق',
     
-    // Programs Section
-    'programs_title' => 'برامج الرياضيات لدينا',
-    'programs_desc' => 'دورات مصممة للتميز الأكاديمي',
-    'american_diploma' => 'الدبلومة الأمريكية',
-    'american_diploma_desc' => 'تحضير لاختبارات SAT I و SAT II و EST و ACT باستراتيجيات مثبتة',
-    'university_math' => 'رياضيات الجامعة',
-    'university_math_desc' => 'شرح مبسط ومراجعات وحل مسائل - التفاضل والتكامل، الجبر الخطي',
-    'test_preparation' => 'الاستعداد للاختبارات',
-    'test_preparation_desc' => 'تحضير لاختبارات SAT و ACT و EST و IG و IB',
+   // Programs Section
+'programs_title' => 'برامج الرياضيات لدينا',
+'programs_desc' => 'برامج رياضيات للمدرسة والجامعة والتحضير للاختبارات',
+
+'american_diploma' => 'كورسات الدبلومة الأمريكية',
+'american_diploma_desc' => '',
+
+'university_math' => 'الرياضيات الجامعية',
+'university_math_desc' => '',
+
+'test_preparation' => 'التحضير للاختبارات',
+'test_preparation_desc' => '',
     
     // Stats Section
     'impact_title' => 'الإحصائيات بالأرقام',

@@ -16,6 +16,183 @@
         .progress {
             height: 8px;
         }
+
+        /* ===== Admin Test Show Safe Polish ===== */
+        .test-show-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: #fff;
+            border-radius: 18px;
+            padding: 24px 26px;
+            margin-bottom: 22px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 14px 34px rgba(30, 64, 175, 0.16);
+        }
+
+        .test-show-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -90px;
+            width: 180px;
+            height: 100%;
+            background: rgba(255,255,255,0.12);
+            transform: skewX(-15deg);
+        }
+
+        .test-show-header h4,
+        .test-show-header p {
+            color: #fff !important;
+            position: relative;
+            z-index: 2;
+        }
+
+        .test-show-header h4 {
+            font-size: 1.55rem;
+            font-weight: 900;
+            line-height: 1.35;
+        }
+
+        .test-show-header p {
+            opacity: 0.92;
+            font-weight: 700;
+        }
+
+        .test-show-actions {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .test-show-actions .btn {
+            border-radius: 10px;
+            font-weight: 800;
+        }
+
+        .test-details-card,
+        .test-structure-card,
+        .test-stats-card,
+        .quick-actions-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .test-details-card .card-header,
+        .test-structure-card .card-header,
+        .test-stats-card .card-header,
+        .quick-actions-card .card-header {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-bottom: 1px solid #bfdbfe;
+            padding: 16px 20px;
+        }
+
+        .test-details-card .card-title,
+        .test-structure-card .card-title,
+        .test-stats-card .card-title,
+        .quick-actions-card .card-title {
+            color: #1e3a8a;
+            font-weight: 900;
+        }
+
+        .test-details-table td {
+            padding: 10px 8px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .test-details-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .test-details-table td:first-child {
+            color: #475569;
+            width: 42%;
+        }
+
+        .test-details-table .badge {
+            border-radius: 999px;
+            padding: 7px 11px;
+            font-weight: 800;
+        }
+
+        .description-box {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 14px 16px;
+        }
+
+        .part-card {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+            border-width: 1px !important;
+        }
+
+        .part-card .card-header {
+            border-bottom: none;
+        }
+
+        .part-card h4 {
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        .part-card li {
+            padding: 6px 0;
+            color: #334155;
+        }
+
+        .stat-item {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 13px 14px;
+        }
+
+        .quick-actions-card .btn {
+            border-radius: 11px;
+            font-weight: 800;
+            padding: 11px 14px;
+        }
+
+        .quick-actions-card .form-check {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 14px 14px 14px 46px;
+        }
+
+        [dir="rtl"] .quick-actions-card .form-check {
+            padding: 14px 46px 14px 14px;
+        }
+
+        @media (max-width: 768px) {
+            .test-show-header {
+                padding: 22px;
+            }
+
+            .test-show-header h4 {
+                font-size: 1.3rem;
+            }
+
+            .test-show-actions {
+                width: 100%;
+                justify-content: stretch;
+                margin-top: 14px;
+            }
+
+            .test-show-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
     </style>
 @endsection
 
@@ -30,23 +207,29 @@
 
         @can('show lectures')
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div class="test-show-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div>
-                    <h4 class="mb-0">{{ $test->name }}</h4>
-                    <p class="text-muted mb-0">{{ $test->course->name ?? '' }}</p>
+                    <h4 class="mb-1">
+                        <i class="fa fa-clipboard-list me-2"></i>
+                        {{ $test->name }}
+                    </h4>
+                    <p class="mb-0">{{ $test->course->name ?? '' }}</p>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('dashboard.admins.tests-questions', ['test_id' => encrypt($test->id)]) }}" 
-                       class="btn btn-primary waves-effect waves-light">
+
+                <div class="test-show-actions">
+                    <a href="{{ route('dashboard.admins.tests-questions', ['test_id' => encrypt($test->id)]) }}"
+                       class="btn btn-light waves-effect waves-light">
                         <i class="fa fa-question-circle ti-xs me-1"></i>
                         @lang('l.test_questions')
                     </a>
-                    <a href="{{ route('dashboard.admins.tests-edit', ['id' => encrypt($test->id)]) }}" 
+
+                    <a href="{{ route('dashboard.admins.tests-edit', ['id' => encrypt($test->id)]) }}"
                        class="btn btn-warning waves-effect waves-light">
                         <i class="fa fa-edit ti-xs me-1"></i>
                         @lang('l.edit')
                     </a>
-                    <a href="{{ route('dashboard.admins.tests') }}" 
+
+                    <a href="{{ route('dashboard.admins.tests') }}"
                        class="btn btn-secondary waves-effect waves-light">
                         <i class="fa fa-arrow-left ti-xs me-1"></i>
                         @lang('l.back_to_list')
@@ -58,14 +241,14 @@
             <div class="row">
                 <div class="col-lg-8">
                     <!-- Basic Info Card -->
-                    <div class="card mb-3">
+                    <div class="card test-details-card mb-3">
                         <div class="card-header">
                             <h5 class="card-title mb-0">@lang('l.test_details')</h5>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <table class="table table-borderless">
+                                    <table class="table table-borderless test-details-table">
                                         <tr>
                                             <td class="fw-bold">@lang('l.test_name'):</td>
                                             <td>{{ $test->name }}</td>
@@ -99,7 +282,7 @@
                                     </table>
                                 </div>
                                 <div class="col-md-6">
-                                    <table class="table table-borderless">
+                                    <table class="table table-borderless test-details-table">
                                         <tr>
                                             <td class="fw-bold">@lang('l.total_score'):</td>
                                             <td><span class="badge bg-primary">{{ $test->total_score }}</span></td>
@@ -107,10 +290,6 @@
                                         <tr>
                                             <td class="fw-bold">@lang('l.initial_score'):</td>
                                             <td><span class="badge bg-secondary">{{ $test->initial_score }}</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-bold">@lang('l.default_question_score'):</td>
-                                            <td><span class="badge bg-info">{{ $test->default_question_score }}</span></td>
                                         </tr>
                                         <tr>
                                             <td class="fw-bold">@lang('l.total_time'):</td>
@@ -134,16 +313,16 @@
                             </div>
 
                             @if($test->description)
-                                <div class="mt-3">
-                                    <h6 class="fw-bold">@lang('l.description'):</h6>
-                                    <p class="text-muted">{{ $test->description }}</p>
+                                <div class="description-box mt-3">
+                                    <h6 class="fw-bold mb-2">@lang('l.description'):</h6>
+                                    <p class="text-muted mb-0">{{ $test->description }}</p>
                                 </div>
                             @endif
                         </div>
                     </div>
 
                     <!-- Test Structure -->
-                    <div class="card">
+                    <div class="card test-structure-card">
                         <div class="card-header">
                             <h5 class="card-title mb-0">@lang('l.test_structure')</h5>
                         </div>
@@ -170,7 +349,7 @@
                                         <div class="col-md-6 mb-3">
                                             <div class="card part-card {{ $colors[$i]['border'] }}">
                                                 <div class="card-header {{ $colors[$i]['bg'] }} text-white">
-                                                    <h4 class="mb-0">@lang('Module') {{ $i }}</h4>
+                                                    <h4 class="mb-0">Module {{ $i }}</h4>
                                                 </div>
                                                 <div class="card-body">
                                                     <ul class="list-unstyled mb-0">
@@ -221,7 +400,7 @@
                 <!-- Statistics & Quick Actions -->
                 <div class="col-lg-4">
                     <!-- Statistics Card -->
-                    <div class="card mb-3">
+                    <div class="card test-stats-card mb-3">
                         <div class="card-header">
                             <h5 class="card-title mb-0">@lang('l.statistics')</h5>
                         </div>
@@ -288,7 +467,7 @@
                     </div>
 
                     <!-- Quick Actions -->
-                    <div class="card">
+                    <div class="card quick-actions-card">
                         <div class="card-header">
                             <h5 class="card-title mb-0">@lang('l.quick_actions')</h5>
                         </div>

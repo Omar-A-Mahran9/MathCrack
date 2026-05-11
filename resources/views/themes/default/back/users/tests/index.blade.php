@@ -6,7 +6,6 @@
 
 @section('css')
 <style>
-    /* ===== General Spacing ===== */
     .course-section {
         margin-bottom: 30px !important;
         background: white;
@@ -42,6 +41,40 @@
         transform: skewX(-15deg);
     }
 
+    .course-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        color: white !important;
+        position: relative;
+        z-index: 2;
+    }
+
+    .course-meta {
+        margin-top: 12px !important;
+        gap: 20px !important;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 2;
+    }
+
+    .course-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .course-meta-item i,
+    .course-meta-item span {
+        color: white !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
     .tests-grid {
         padding: 25px 30px !important;
     }
@@ -64,183 +97,25 @@
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     }
 
-    .card-body {
-        padding: 20px !important;
-    }
-
-    .test-stats {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        margin-bottom: 15px !important;
-        gap: 12px !important;
-    }
-
-    .test-status {
-        margin-bottom: 15px !important;
-    }
-
-    .test-actions {
-        display: flex;
-        gap: 10px !important;
-    }
-
-    .course-purchase-section {
-        padding: 20px 25px !important;
-        margin-top: 20px !important;
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        border-top: 1px solid #e2e8f0;
-        text-align: center;
-        border-radius: 0 0 20px 20px;
-    }
-
-    .course-purchase-info {
-        margin-bottom: 15px !important;
-    }
-
-    .course-meta {
-        margin-top: 12px !important;
-        gap: 20px !important;
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        position: relative;
-        z-index: 2;
-    }
-
-    /* ===== Page Header ===== */
-    .page-headers {
-        margin-bottom: 5px !important;
-        padding: 40px 0 !important;
-        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-        color: white !important;
-        border-radius: 20px !important;
-        position: relative !important;
-        overflow: hidden !important;
-    }
-
-    .page-headers::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: -100px;
-        width: 200px;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.1) !important;
-        transform: skewX(-15deg);
-    }
-
-    .page-header h1 {
-        margin: 0 0 10px 0 !important;
-        font-size: 2.5rem !important;
-        font-weight: 300 !important;
-        color: white !important;
-        position: relative !important;
-        z-index: 2 !important;
-        display: block !important;
-        width: 100% !important;
-    }
-
-    .page-header p {
-        margin: 0 !important;
-        opacity: 0.9 !important;
-        color: white !important;
-        font-size: 1.1rem !important;
-        position: relative !important;
-        z-index: 2 !important;
-        display: block !important;
-        width: 100% !important;
-    }
-
-    .page-headers .container-fluid,
-    .page-headers .row,
-    .page-headers .col-md-8,
-    .page-headers .col-md-4,
-    .page-headers .page-header,
-    .page-headers .stats-summary {
-        background: transparent !important;
-    }
-
-    .page-headers h1,
-    .page-headers p,
-    .page-headers .badge,
-    .course-header .course-title,
-    .course-meta-item,
-    .course-meta-item span,
-    .course-meta-item i {
-        color: white !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    }
-
-    .stats-summary {
-        position: relative;
-        z-index: 2;
-    }
-
-    .stats-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 12px 18px;
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.18);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        color: white;
-        font-weight: 700;
-        backdrop-filter: blur(10px);
-    }
-
-    .badge {
-        background: rgba(255, 255, 255, 0.2) !important;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3) !important;
-        color: white !important;
-    }
-
-    .badge.bg-light {
-        background: rgba(255, 255, 255, 0.2) !important;
-        border: 1px solid rgba(255, 255, 255, 0.3) !important;
-        color: white !important;
-        backdrop-filter: blur(10px);
-    }
-
-    /* ===== Course Header Content ===== */
-    .course-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin: 0;
-        color: white !important;
-        position: relative;
-        z-index: 2;
-    }
-
-    .course-meta-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: rgba(255, 255, 255, 0.95);
-        font-size: 1rem;
-        font-weight: 500;
-    }
-
-    .course-meta-item i {
-        font-size: 1.1rem;
-    }
-
-    /* ===== Card Content ===== */
     .card-header {
         color: white;
         padding: 20px;
         position: relative;
     }
 
-    .card-header::after {
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 0;
-        width: 100%;
-        height: 20px;
-        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 0);
-        opacity: 0.8;
+    .test-card:nth-child(3n+1) .card-header,
+    .test-card:nth-child(3n+1) .btn-primary-test {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    }
+
+    .test-card:nth-child(3n+2) .card-header,
+    .test-card:nth-child(3n+2) .btn-primary-test {
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    }
+
+    .test-card:nth-child(3n+3) .card-header,
+    .test-card:nth-child(3n+3) .btn-primary-test {
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
     }
 
     .test-title {
@@ -257,28 +132,15 @@
         line-height: 1.5;
     }
 
-    .test-card:nth-child(3n+1) .card-header {
-        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    .card-body {
+        padding: 20px !important;
     }
 
-    .test-card:nth-child(3n+2) .card-header {
-        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-    }
-
-    .test-card:nth-child(3n+3) .card-header {
-        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-    }
-
-    .test-card:nth-child(3n+1) .btn-primary-test {
-        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-    }
-
-    .test-card:nth-child(3n+2) .btn-primary-test {
-        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-    }
-
-    .test-card:nth-child(3n+3) .btn-primary-test {
-        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    .test-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        margin-bottom: 15px !important;
+        gap: 12px !important;
     }
 
     .stat-item {
@@ -329,6 +191,10 @@
         opacity: 0.9;
     }
 
+    .test-status {
+        margin-bottom: 15px !important;
+    }
+
     .status-badge {
         display: inline-flex;
         align-items: center;
@@ -359,6 +225,11 @@
         color: #991b1b;
     }
 
+    .test-actions {
+        display: flex;
+        gap: 10px !important;
+    }
+
     .btn-test {
         flex: 1;
         padding: 12px 20px;
@@ -375,7 +246,6 @@
     }
 
     .btn-primary-test {
-        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
         color: white;
         border: none;
     }
@@ -384,18 +254,6 @@
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(30, 64, 175, 0.4);
         color: white;
-    }
-
-    .btn-secondary-test {
-        background: white;
-        color: #64748b;
-        border: 2px solid #e2e8f0;
-    }
-
-    .btn-secondary-test:hover {
-        border-color: #3b82f6;
-        color: #3b82f6;
-        transform: translateY(-2px);
     }
 
     .btn-success-test {
@@ -422,6 +280,15 @@
         color: white;
     }
 
+    .course-purchase-section {
+        padding: 20px 25px !important;
+        margin-top: 20px !important;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-top: 1px solid #e2e8f0;
+        text-align: center;
+        border-radius: 0 0 20px 20px;
+    }
+
     .course-purchase-price {
         font-size: 1.5rem;
         font-weight: 700;
@@ -434,32 +301,69 @@
         font-size: 1rem;
     }
 
-    .no-tests {
-        text-align: center;
-        padding: 80px 20px;
-        color: #64748b;
+    .page-headers {
+        margin-bottom: 5px !important;
+        padding: 40px 0 !important;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white !important;
+        border-radius: 20px !important;
+        position: relative !important;
+        overflow: hidden !important;
     }
 
-    .no-tests i {
-        font-size: 5rem;
-        margin-bottom: 25px;
-        color: #cbd5e1;
+    .page-headers::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: -100px;
+        width: 200px;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1) !important;
+        transform: skewX(-15deg);
     }
 
-    .no-tests h3 {
-        font-size: 1.8rem;
-        margin-bottom: 15px;
-        color: #475569;
+    .page-header h1,
+    .page-main-title {
+        margin: 0 0 10px 0 !important;
+        font-size: 2.5rem !important;
+        font-weight: 700 !important;
+        color: white !important;
+        position: relative !important;
+        z-index: 2 !important;
     }
 
-    /* ===== Filters ===== */
+    .page-header p,
+    .page-subtitle {
+        margin: 0 !important;
+        opacity: 0.9 !important;
+        color: white !important;
+        font-size: 1.1rem !important;
+        position: relative !important;
+        z-index: 2 !important;
+    }
+
+    .stats-summary {
+        position: relative;
+        z-index: 2;
+    }
+
+    .stats-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 12px 18px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-weight: 700;
+        backdrop-filter: blur(10px);
+    }
+
     #filtersForm {
         background: linear-gradient(135deg, #239BA7 0%, #48B3AF 100%) !important;
         padding: 10px 25px 20px 25px !important;
         border-radius: 22px !important;
-        box-shadow:
-            inset 0 2px 4px rgba(255, 255, 255, 0.8),
-            0 8px 25px rgba(0, 0, 0, 0.06) !important;
+        box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8), 0 8px 25px rgba(0, 0, 0, 0.06) !important;
         margin-top: 12px !important;
         margin-bottom: 18px !important;
         border: 1px solid #e2e8f0 !important;
@@ -469,28 +373,11 @@
         min-height: 100px !important;
     }
 
-    #filtersForm::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #3b82f6, #8b5cf6, #10b981) !important;
-        border-radius: 22px 22px 0 0 !important;
-    }
-
     #filtersForm label.form-label {
         font-size: 1.5rem !important;
         color: #0c0c0c !important;
         font-weight: 700 !important;
-        text-shadow: 0 1px 1px rgba(255, 255, 255, 0.9);
-        margin-top: -2px !important;
         margin-bottom: 5px !important;
-        padding: 0 !important;
-        display: block !important;
-        position: relative !important;
-        top: -2px !important;
     }
 
     #filtersForm .form-select,
@@ -505,22 +392,6 @@
         border: 2px solid #cbd5e0 !important;
     }
 
-    #filtersForm .row.g-3 {
-        --bs-gutter-y: 0.5rem !important;
-        margin-top: -5px !important;
-    }
-
-    #filtersForm .col-md-4 {
-        padding-top: 0 !important;
-        margin-top: -5px !important;
-    }
-
-    .main-content > form {
-        margin-left: auto !important;
-        margin-right: auto !important;
-    }
-
-    /* ===== View Toggle ===== */
     .view-toggle-wrapper {
         display: flex;
         justify-content: flex-end;
@@ -553,22 +424,12 @@
         cursor: pointer;
     }
 
-    .view-toggle-btn i {
-        font-size: 0.95rem;
-    }
-
     .view-toggle-btn.active {
         background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
         color: #fff;
         box-shadow: 0 6px 18px rgba(30, 64, 175, 0.25);
     }
 
-    .view-toggle-btn:not(.active):hover {
-        background: #eff6ff;
-        color: #1d4ed8;
-    }
-
-    /* ===== Table View ===== */
     .tests-table-wrapper {
         padding: 25px 30px !important;
     }
@@ -610,14 +471,6 @@
         font-size: 0.95rem;
         text-align: center !important;
         vertical-align: middle !important;
-    }
-
-    .tests-table tbody tr:hover {
-        background: #f8fbff;
-    }
-
-    .tests-table tbody tr:last-child td {
-        border-bottom: none;
     }
 
     .tests-table thead th:first-child,
@@ -676,24 +529,6 @@
         color: #b45309;
     }
 
-    .tests-table td:nth-child(7),
-    .tests-table th:nth-child(7) {
-        text-align: center !important;
-        white-space: nowrap;
-    }
-
-    .tests-table td:nth-child(7) .status-badge {
-        margin: 0 auto !important;
-        justify-content: center !important;
-        display: inline-flex !important;
-    }
-
-    .tests-table td:nth-child(8),
-    .tests-table th:nth-child(8) {
-        text-align: center !important;
-        white-space: nowrap;
-    }
-
     .table-actions {
         display: flex;
         justify-content: center !important;
@@ -717,7 +552,24 @@
         font-weight: 600;
     }
 
-    /* ===== Responsive ===== */
+    .no-tests {
+        text-align: center;
+        padding: 80px 20px;
+        color: #64748b;
+    }
+
+    .no-tests i {
+        font-size: 5rem;
+        margin-bottom: 25px;
+        color: #cbd5e1;
+    }
+
+    .no-tests h3 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+        color: #475569;
+    }
+
     @media (max-width: 992px) {
         .tests-table-wrapper {
             padding: 20px !important;
@@ -741,24 +593,16 @@
             font-size: 1.5rem;
         }
 
-        .course-meta {
-            gap: 15px;
-        }
-
         .test-actions {
             flex-direction: column;
         }
 
-        .page-header h1 {
+        .page-main-title {
             font-size: 2rem !important;
         }
 
         .page-headers {
             padding: 30px 0 !important;
-            margin-bottom: 10px !important;
-        }
-
-        .course-section {
             margin-bottom: 10px !important;
         }
     }
@@ -767,22 +611,42 @@
 
 @section('content')
 <div class="main-content">
+    @php
+        $track = request()->query('track');
+
+        $trackTitles = [
+            'digital-sat' => 'Digital SAT',
+            'est-i' => 'EST I',
+            'est-ii' => 'EST II',
+            'act-i' => 'ACT I',
+            'act-ii' => 'ACT II',
+            'ap-math' => 'AP Math',
+        ];
+
+        $trackTitle = $trackTitles[$track] ?? null;
+        $totalTests = $coursesWithTests->sum(function($course) {
+            return $course['tests']->count();
+        });
+    @endphp
+
     <div class="page-headers">
         <div class="container-fluid">
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <div class="page-header-content">
-                        <h1 class="page-main-title">Practice Tests</h1>
-                        <p class="page-subtitle">Explore available practice tests and improve your skills</p>
+                        <h1 class="page-main-title">
+                            {{ $trackTitle ? $trackTitle . ' Practice Tests' : 'Practice Tests' }}
+                        </h1>
+                        <p class="page-subtitle">
+                            {{ $trackTitle
+                                ? 'Practice tests for ' . $trackTitle . '. The Free Mock Test is included as the first practice test.'
+                                : 'Explore available practice tests and improve your skills'
+                            }}
+                        </p>
                     </div>
                 </div>
                 <div class="col-md-4 text-end">
                     <div class="stats-summary">
-                        @php
-                            $totalTests = $coursesWithTests->sum(function($course) {
-                                return $course['tests']->count();
-                            });
-                        @endphp
                         <span class="stats-badge">
                             <i class="fas fa-clipboard-list me-2"></i>
                             {{ $totalTests }} Tests Available
@@ -793,7 +657,13 @@
         </div>
     </div>
 
+
+    @if(!request('track'))
     <form id="filtersForm" method="GET" action="{{ route('dashboard.users.tests.index') }}" class="row g-3 mb-3">
+        @if(request('track'))
+            <input type="hidden" name="track" value="{{ request('track') }}">
+        @endif
+
         <div class="col-md-4">
             <label class="form-label">Level</label>
             <select id="levelSelect" name="level_id" class="form-select">
@@ -818,6 +688,8 @@
             </select>
         </div>
     </form>
+@endif
+
 
     @if($coursesWithTests->count() > 0)
         <div class="view-toggle-wrapper">
@@ -836,7 +708,19 @@
         @foreach($coursesWithTests as $course)
             <div class="course-section">
                 <div class="course-header">
-                    <h2 class="course-title">{{ $course['name'] }}</h2>
+                    @php
+    $displayCourseName = $course['name'];
+
+    if (request('track') === 'digital-sat') {
+        if (stripos($course['name'], 'part 1') !== false) {
+            $displayCourseName = 'Practice Tests - Set 1';
+        } elseif (stripos($course['name'], 'part 2') !== false) {
+            $displayCourseName = 'Practice Tests - Set 2';
+        }
+    }
+@endphp
+
+<h2 class="course-title">{{ $displayCourseName }}</h2>
                     <div class="course-meta">
                         <div class="course-meta-item">
                             <i class="fas fa-clipboard-list"></i>
@@ -845,7 +729,7 @@
                         @if($course['tests_price'] > 0)
                             <div class="course-meta-item">
                                 <i class="fas fa-tag"></i>
-                                <span>@lang('l.course_tests_price'): {{ number_format($course['tests_price'], 2) }} @lang('l.currency')</span>
+                                <span>Practice Tests Price: {{ number_format($course['tests_price'], 2) }} @lang('l.currency')</span>
                             </div>
                         @endif
                         @if($course['has_purchased_all'])
@@ -857,16 +741,15 @@
                     </div>
                 </div>
 
-                {{-- Cards View --}}
                 <div class="tests-grid tests-view-block" data-view="cards">
                     <div class="row">
                         @foreach($course['tests'] as $test)
                             @php
                                 $testModel = \App\Models\Test::find($test['id']);
 
-                                $modulesCount   = 0;
+                                $modulesCount = 0;
                                 $questionsTotal = 0;
-                                $timeTotal      = 0;
+                                $timeTotal = 0;
 
                                 if ($testModel) {
                                     foreach (range(1, 5) as $i) {
@@ -879,19 +762,19 @@
                                         if ($q > 0 || $t > 0) {
                                             $modulesCount++;
                                             $questionsTotal += $q;
-                                            $timeTotal      += $t;
+                                            $timeTotal += $t;
                                         }
                                     }
 
                                     if ($modulesCount === 0) {
-                                        $modulesCount   = 1;
+                                        $modulesCount = 1;
                                         $questionsTotal = (int)($testModel->total_questions ?? $test['total_questions'] ?? 0);
-                                        $timeTotal      = (int)($testModel->total_time ?? $test['total_time'] ?? 0);
+                                        $timeTotal = (int)($testModel->total_time ?? $test['total_time'] ?? 0);
                                     }
                                 } else {
-                                    $modulesCount   = 1;
+                                    $modulesCount = 1;
                                     $questionsTotal = (int)($test['total_questions'] ?? 0);
-                                    $timeTotal      = (int)($test['total_time'] ?? 0);
+                                    $timeTotal = (int)($test['total_time'] ?? 0);
                                 }
                             @endphp
 
@@ -910,17 +793,14 @@
                                                 <span class="stat-number">{{ $questionsTotal }}</span>
                                                 <div class="stat-label">@lang('l.questions')</div>
                                             </div>
-
                                             <div class="stat-item">
                                                 <span class="stat-number">{{ $timeTotal }}</span>
                                                 <div class="stat-label">@lang('l.minutes')</div>
                                             </div>
-
                                             <div class="stat-item">
                                                 <span class="stat-number">{{ $modulesCount }}</span>
                                                 <div class="stat-label">@lang('l.modules')</div>
                                             </div>
-
                                             <div class="stat-item">
                                                 <span class="stat-number">{{ $test['total_score'] }}</span>
                                                 <div class="stat-label">@lang('l.points')</div>
@@ -944,11 +824,12 @@
                                                         </span>
                                                         @break
                                                     @case('part1_in_progress')
+                                                   @case('break_time')
                                                     @case('in_break')
                                                     @case('part2_in_progress')
                                                         <span class="status-badge status-in-progress">
                                                             <i class="fas fa-clock"></i>
-                                                            @lang('l.in_progress')
+                                                            @lang('l.continue_test')
                                                         </span>
                                                         @break
                                                     @case('completed')
@@ -976,7 +857,8 @@
                                                         </a>
                                                         @break
                                                     @case('part1_in_progress')
-                                                    @case('in_break')
+                                                    @case('break_time')
+                                                        @case('in_break')
                                                     @case('part2_in_progress')
                                                         <a href="{{ route('dashboard.users.tests.take', $test['id']) }}" class="btn-test btn-warning-test">
                                                             <i class="fas fa-forward"></i>
@@ -999,7 +881,7 @@
                                                 @else
                                                     <a href="{{ route('dashboard.users.tests.show', $test['id']) }}" class="btn-test btn-success-test">
                                                         <i class="fas fa-gift"></i>
-                                                        @lang('l.access_free_test')
+                                                        Start Free Test
                                                     </a>
                                                 @endif
                                             @endif
@@ -1028,25 +910,22 @@
                     @endif
                 </div>
 
-                {{-- Table View --}}
                 <div class="tests-table-wrapper tests-view-block" data-view="table" style="display:none;">
                     <div class="tests-table-card">
                         <table class="tests-table">
-                    <colgroup>
-        <col style="width: 20%;">
-        <col style="width: 10%;">
-        <col style="width: 10%;">
-        <col style="width: 10%;">
-        <col style="width: 10%;">
-        <col style="width: 10%;">
-        <col style="width: 16%;">
-        <col style="width: 14%;">
-    </colgroup>
-
-    <thead>
+                            <colgroup>
+                                <col style="width: 20%;">
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                                <col style="width: 10%;">
+                                <col style="width: 16%;">
+                                <col style="width: 14%;">
+                            </colgroup>
                             <thead>
                                 <tr>
-                                    <th>Test</th>
+                                    <th>Practice Test</th>
                                     <th>@lang('l.questions')</th>
                                     <th>@lang('l.minutes')</th>
                                     <th>@lang('l.modules')</th>
@@ -1061,9 +940,9 @@
                                     @php
                                         $testModel = \App\Models\Test::find($test['id']);
 
-                                        $modulesCount   = 0;
+                                        $modulesCount = 0;
                                         $questionsTotal = 0;
-                                        $timeTotal      = 0;
+                                        $timeTotal = 0;
 
                                         if ($testModel) {
                                             foreach (range(1, 5) as $i) {
@@ -1076,21 +955,22 @@
                                                 if ($q > 0 || $t > 0) {
                                                     $modulesCount++;
                                                     $questionsTotal += $q;
-                                                    $timeTotal      += $t;
+                                                    $timeTotal += $t;
                                                 }
                                             }
 
                                             if ($modulesCount === 0) {
-                                                $modulesCount   = 1;
+                                                $modulesCount = 1;
                                                 $questionsTotal = (int)($testModel->total_questions ?? $test['total_questions'] ?? 0);
-                                                $timeTotal      = (int)($testModel->total_time ?? $test['total_time'] ?? 0);
+                                                $timeTotal = (int)($testModel->total_time ?? $test['total_time'] ?? 0);
                                             }
                                         } else {
-                                            $modulesCount   = 1;
+                                            $modulesCount = 1;
                                             $questionsTotal = (int)($test['total_questions'] ?? 0);
-                                            $timeTotal      = (int)($test['total_time'] ?? 0);
+                                            $timeTotal = (int)($test['total_time'] ?? 0);
                                         }
                                     @endphp
+
                                     <tr>
                                         <td>
                                             <div class="table-test-name">{{ $test['name'] }}</div>
@@ -1119,11 +999,12 @@
                                                         </span>
                                                         @break
                                                     @case('part1_in_progress')
+                                                    @case('break_time')
                                                     @case('in_break')
                                                     @case('part2_in_progress')
                                                         <span class="status-badge status-in-progress">
                                                             <i class="fas fa-clock"></i>
-                                                            @lang('l.in_progress')
+                                                            @lang('l.continue_test')
                                                         </span>
                                                         @break
                                                     @case('completed')
@@ -1163,6 +1044,7 @@
                                                             </a>
                                                             @break
                                                         @case('part1_in_progress')
+                                                        @case('break_time')
                                                         @case('in_break')
                                                         @case('part2_in_progress')
                                                             <a href="{{ route('dashboard.users.tests.take', $test['id']) }}" class="btn-test btn-warning-test">
@@ -1186,7 +1068,7 @@
                                                     @else
                                                         <a href="{{ route('dashboard.users.tests.show', $test['id']) }}" class="btn-test btn-success-test">
                                                             <i class="fas fa-gift"></i>
-                                                            @lang('l.access_free_test')
+                                                            Start Free Test
                                                         </a>
                                                     @endif
                                                 @endif
@@ -1266,10 +1148,6 @@
         font-size: 15px !important;
         font-weight: 700 !important;
         box-shadow: 0 10px 25px rgba(37, 99, 235, 0.28) !important;
-    }
-
-    .final-elegant-confirm:focus {
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18) !important;
     }
 </style>
 

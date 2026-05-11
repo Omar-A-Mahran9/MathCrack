@@ -1,7 +1,7 @@
 @extends('themes.default.layouts.back.student-master')
 
 @section('title')
-    {{ $course->name }} - @lang('l.lectures')
+    {{ (($course->track_slug ?? null) === 'digital-sat') ? __('l.digital_sat_course') : $course->name }} - @lang('l.lessons')
 @endsection
 
 @section('css')
@@ -14,81 +14,13 @@
             border-radius: 15px;
         }
 
-        .course-info {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
+        .course-header h1 {
+            color: white !important;
+            font-weight: 800;
         }
 
-        .filters-section {
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .filters-section h6 {
-            color: #495057;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .filters-section .form-select,
-        .filters-section .form-control {
-            border-radius: 8px;
-            border: 1px solid #ced4da;
-            transition: all 0.3s ease;
-        }
-
-        .filters-section .form-select:focus,
-        .filters-section .form-control:focus {
-            border-color: #1e40af;
-            box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.25);
-        }
-
-        .btn-filter {
-            border-radius: 8px;
-            font-weight: 500;
-            padding: 10px 20px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-filter:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        .btn-filter i {
-            margin-right: 8px;
-        }
-
-        .table-container {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
-        .table th {
-            background-color: #f8f9fa;
-            border: none;
-            font-weight: 600;
-            color: #495057;
-            padding: 15px 12px;
-        }
-
-        .table td {
-            padding: 15px 12px;
-            vertical-align: middle;
-            border-color: #f1f3f4;
-        }
-
-        .lecture-image {
-            border-radius: 8px;
-            object-fit: cover;
+        .course-header p {
+            color: white !important;
         }
 
         .back-btn {
@@ -99,6 +31,9 @@
             border-radius: 8px;
             text-decoration: none;
             transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .back-btn:hover {
@@ -108,33 +43,36 @@
         }
 
         .stats-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 16px;
             text-align: center;
             backdrop-filter: blur(10px);
+            min-height: 88px;
         }
 
         .stats-number {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 1.6rem;
+            font-weight: 800;
             display: block;
+            color: white;
         }
 
         .stats-label {
             font-size: 0.9rem;
-            opacity: 0.9;
+            opacity: 0.95;
             margin-top: 5px;
+            color: white;
         }
 
         .purchase-btn {
             border-radius: 12px;
-            font-weight: 600;
+            font-weight: 800;
             padding: 12px 25px;
             border: none;
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            color: #333;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            background: linear-gradient(45deg, #f59e0b, #fbbf24);
+            color: #111827;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -142,90 +80,265 @@
 
         .purchase-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
-            background: linear-gradient(45deg, #ffed4e, #ffd700);
-            color: #333;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
+            color: #111827;
         }
 
-        .purchase-btn:active {
-            transform: translateY(-1px);
+        .free-course-alert,
+        .purchased-course-alert {
+            color: white !important;
+            border-radius: 12px;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
 
         .free-course-alert {
-            background: rgba(40, 167, 69, 0.2) !important;
-            border: 1px solid rgba(40, 167, 69, 0.3);
-            color: white !important;
+            background: rgba(16, 185, 129, 0.22) !important;
+        }
+
+        .purchased-course-alert {
+            background: rgba(34, 197, 94, 0.22) !important;
+        }
+
+        .filters-section {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+        }
+
+        .filters-section h6 {
+            color: #111827;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .filters-section .form-select {
             border-radius: 10px;
-            font-weight: 500;
-            backdrop-filter: blur(10px);
+            border: 1px solid #cbd5e1;
+            min-height: 44px;
+            transition: all 0.3s ease;
         }
 
-        .purchase-modal .modal-content {
-            border-radius: 15px;
-            border: none;
+        .filters-section .form-select:focus {
+            border-color: #1e40af;
+            box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.18);
         }
 
-        .purchase-modal .modal-header {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 15px 15px 0 0;
-        }
-
-        .price-display {
-            font-size: 2rem;
+        .btn-filter {
+            border-radius: 10px;
             font-weight: 700;
-            color: #28a745;
+            padding: 10px 18px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+        }
+
+        #lecturesTable {
+            width: 100% !important;
+        }
+
+        #lecturesTable th {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+            border: none;
+            font-weight: 800;
+            color: white !important;
+            padding: 14px 12px;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            vertical-align: middle;
+        }
+
+        #lecturesTable td {
+            padding: 15px 12px;
+            vertical-align: middle;
+            border-color: #eef2f7;
+            color: #1f2937;
+        }
+
+        #lecturesTable tbody tr:hover {
+            background: #f8fbff;
+        }
+
+        #lecturesTable th:nth-child(1),
+        #lecturesTable td:nth-child(1) {
+            width: 55px;
             text-align: center;
-            margin: 20px 0;
+        }
+
+        #lecturesTable th:nth-child(2),
+        #lecturesTable td:nth-child(2) {
+            width: 80px;
+            text-align: center;
+        }
+
+        #lecturesTable th:nth-child(3),
+        #lecturesTable td:nth-child(3) {
+            width: 34%;
+            min-width: 320px;
+        }
+
+        #lecturesTable td:nth-child(3) {
+            white-space: normal;
+            line-height: 1.45;
+            font-weight: 700;
+            max-width: 380px;
+        }
+
+        #lecturesTable th:nth-child(4),
+        #lecturesTable td:nth-child(4) {
+            width: 12%;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        #lecturesTable th:nth-child(5),
+        #lecturesTable td:nth-child(5) {
+            width: 10%;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        #lecturesTable th:nth-child(6),
+        #lecturesTable td:nth-child(6) {
+            width: 13%;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        #lecturesTable th:nth-child(7),
+        #lecturesTable td:nth-child(7) {
+            width: 16%;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .lecture-image {
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .dataTables_wrapper .dataTables_length select,
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            min-width: 220px;
+        }
+
+        @media (max-width: 992px) {
+            .table-container {
+                padding: 18px;
+                overflow-x: auto;
+            }
+
+            #lecturesTable {
+                min-width: 980px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .course-header {
+                padding: 24px 0;
+            }
+
+            .course-header h1 {
+                font-size: 1.6rem;
+            }
+
+            .stats-card {
+                margin-top: 12px;
+            }
         }
     </style>
 @endsection
 
 @section('content')
+    @php
+        $backToCoursesUrl = !empty($course->track_slug)
+            ? route('dashboard.users.courses', ['track' => $course->track_slug])
+            : route('dashboard.users.courses');
+
+        $displayCourseName = $course->name;
+
+        if (($course->track_slug ?? null) === 'digital-sat') {
+            $displayCourseName = __('l.digital_sat_course');
+        }
+    @endphp
+
     <div class="main-content">
-        <!-- Course Header -->
         <div class="course-header">
             <div class="container-fluid">
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <div class="d-flex align-items-center mb-3">
-                            <a href="{{ route('dashboard.users.courses') }}" class="back-btn me-3">
-                                <i class="fas fa-arrow-right me-2"></i>@lang('l.back_to_courses')
+                            <a href="{{ $backToCoursesUrl }}" class="back-btn me-3">
+                                <i class="fas fa-arrow-right"></i>
+                                @lang('l.back_to_courses')
                             </a>
                         </div>
-                        <h1 class="mb-2">{{ $course->name }}</h1>
+
+                        <h1 class="mb-2">{{ $displayCourseName }}</h1>
+                        <p class="mb-2" style="opacity:0.95;">
+                            @lang('l.lessons_materials_assignments_for_course')
+                        </p>
+
                         <p class="mb-0">
                             <i class="fas fa-layer-group me-2"></i>{{ $course->level->name ?? '-' }}
+
                             @if($course->price && $course->price > 0)
-                                <span class="ms-3"><i class="fas fa-tag me-2"></i>{{ $course->price }} @lang('l.currency')</span>
+                                <span class="ms-3">
+                                    <i class="fas fa-tag me-2"></i>{{ $course->price }} @lang('l.currency')
+                                </span>
                             @else
-                                <span class="ms-3 text-success"><i class="fas fa-gift me-2"></i>@lang('l.Free')</span>
+                                <span class="ms-3 text-success">
+                                    <i class="fas fa-gift me-2"></i>@lang('l.Free')
+                                </span>
                             @endif
                         </p>
                     </div>
+
                     <div class="col-md-4">
-                        <div class="row">
+                        <div class="row g-3">
                             <div class="col-6">
                                 <div class="stats-card">
                                     <span class="stats-number">{{ $course->lectures->count() }}</span>
-                                    <div class="stats-label">@lang('l.lectures')</div>
+                                    <div class="stats-label">@lang('l.lessons')</div>
                                 </div>
                             </div>
+
                             <div class="col-6">
                                 <div class="stats-card">
-                                    <span class="stats-number">{{ $course->lectures->sum(function($lecture) { return $lecture->assignments->count(); }) }}</span>
+                                    <span class="stats-number">
+                                        {{ $course->lectures->sum(function($lecture) { return $lecture->assignments->count(); }) }}
+                                    </span>
                                     <div class="stats-label">@lang('l.assignments')</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Purchase Button -->
                         @if($course->price && $course->price > 0 && !auth()->user()->hasPurchasedCourseLectures($course->id))
                             <div class="mt-3 text-center">
                                 <button type="button" class="btn btn-warning btn-lg purchase-btn w-100" onclick="purchaseCourse('{{ encrypt($course->id) }}')">
                                     <i class="fas fa-shopping-cart me-2"></i>
                                     @lang('l.purchase_course')
-                                    <br>
                                 </button>
                             </div>
                         @elseif($course->price && $course->price > 0 && auth()->user()->hasPurchasedCourseLectures($course->id))
@@ -248,14 +361,14 @@
             </div>
         </div>
 
-        <!-- Filters Section -->
         <div class="filters-section">
             <h6>
-                <i class="fas fa-filter me-2"></i>@lang('l.filter_lectures')
+                <i class="fas fa-filter me-2"></i>@lang('l.filter_lessons')
             </h6>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="form-label small text-muted">@lang('l.lecture_type')</label>
+
+            <div class="row align-items-end">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <label class="form-label small text-muted">@lang('l.lesson_type')</label>
                     <select class="form-select" id="filter_type">
                         <option value="">@lang('l.all_types')</option>
                         <option value="free">@lang('l.Free')</option>
@@ -264,94 +377,31 @@
                         <option value="course">@lang('l.Course')</option>
                     </select>
                 </div>
-                {{-- <div class="col-md-3 mb-3">
-                    <label class="form-label small text-muted">@lang('l.price_range')</label>
-                    <select class="form-select" id="filter_price">
-                        <option value="">@lang('l.all_prices')</option>
-                        <option value="free">@lang('l.Free')</option>
-                        <option value="paid">@lang('l.paid_lectures')</option>
-                    </select>
-                </div> --}}
-                <div class="col-md-4 mb-3">
-                    <label class="form-label small text-muted">@lang('l.from_date')</label>
-                    <input type="date" class="form-control" id="filter_date_from">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label small text-muted">@lang('l.to_date')</label>
-                    <input type="date" class="form-control" id="filter_date_to">
-                </div>
-            </div>
-            <div class="row mt-2">
-                <div class="col-md-12">
-                    <button type="button" class="btn btn-primary btn-filter d-none" id="apply_filters">
-                        <i class="fas fa-filter"></i>@lang('l.apply_filters')
-                    </button>
+
+                <div class="col-md-8">
                     <button type="button" class="btn btn-outline-secondary btn-filter" id="clear_filters">
-                        <i class="fas fa-times"></i>@lang('l.clear_filters')
+                        <i class="fas fa-times me-1"></i>
+                        @lang('l.clear_filters')
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Lectures Table -->
         <div class="table-container">
             <div class="table-responsive">
                 <table class="table table-hover" id="lecturesTable">
-                    <thead class="table-dark">
+                    <thead>
                         <tr>
-                            <th style="color: white;">#</th>
-                            <th style="color: white;">@lang('l.image')</th>
-                            <th style="color: white;">@lang('l.lecture_name')</th>
-                            <th style="color: white;">@lang('l.Lecture Type')</th>
-                            <th style="color: white;">@lang('l.Price')</th>
-                            <th style="color: white;">@lang('l.assignments')</th>
-                            <th style="color: white;">@lang('l.created_at')</th>
-                            <th style="color: white;">@lang('l.Action')</th>
+                            <th>#</th>
+                            <th>@lang('l.image')</th>
+                            <th>@lang('l.lesson_name')</th>
+                            <th>@lang('l.lesson_type')</th>
+                            <th>@lang('l.price')</th>
+                            <th>@lang('l.assignments')</th>
+                            <th>@lang('l.Action')</th>
                         </tr>
                     </thead>
                 </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Purchase Modal -->
-    <div class="modal fade purchase-modal" id="purchaseModal" tabindex="-1" aria-labelledby="purchaseModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="purchaseModalLabel">
-                        <i class="fas fa-shopping-cart me-2"></i>@lang('l.purchase_course')
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center">
-                        <div class="course-info-purchase">
-                            <h4>{{ $course->name }}</h4>
-                            <p class="text-muted">{{ $course->level->name ?? '-' }}</p>
-
-                            @if($course->price && $course->price > 0)
-                                <div class="price-display">
-                                    {{ $course->price }} @lang('l.currency')
-                                </div>
-                            @endif
-
-                            <div class="course-benefits mt-4">
-                                <h6>@lang('l.what_you_get'):</h6>
-                                <ul class="list-unstyled">
-                                    <li><i class="fas fa-check text-success me-2"></i>{{ $course->lectures->count() }} @lang('l.lectures')</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>{{ $course->lectures->sum(function($lecture) { return $lecture->assignments->count(); }) }} @lang('l.assignments')</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@lang('l.Cancel')</button>
-                    <a type="button" class="btn btn-success btn-lg" href="{{route('dashboard.users.courses-purchase')}}?id={{ encrypt($course->id) }}">
-                        <i class="fas fa-credit-card me-2"></i>@lang('l.proceed_to_payment')
-                    </a>
-                </div>
             </div>
         </div>
     </div>
@@ -367,9 +417,6 @@
                     url: "{{ route('dashboard.users.courses-lectures') }}?id={{ encrypt($course->id) }}",
                     data: function (d) {
                         d.type = $('#filter_type').val();
-                        d.price_range = $('#filter_price').val();
-                        d.date_from = $('#filter_date_from').val();
-                        d.date_to = $('#filter_date_to').val();
                     }
                 },
                 columns: [
@@ -379,10 +426,9 @@
                     {data: 'type', name: 'type'},
                     {data: 'price', name: 'price'},
                     {data: 'assignments_count', name: 'assignments_count'},
-                    {data: 'created_at', name: 'created_at'},
                     {data: 'action', name: 'action', orderable: false, searchable: false}
                 ],
-                order: [[6, 'desc']],
+                order: [[0, 'asc']],
                 language: {
                     url: "{{ asset('assets/back/js/datatables-ar.json') }}"
                 },
@@ -390,97 +436,18 @@
                 responsive: false
             });
 
-            // Apply filters
-            $('#apply_filters').click(function() {
-                updateFiltersStatus();
-                table.draw();
-            });
-
-            // Clear filters
             $('#clear_filters').click(function() {
                 $('#filter_type').val('');
-                $('#filter_price').val('');
-                $('#filter_date_from').val('');
-                $('#filter_date_to').val('');
-                updateFiltersStatus();
                 table.draw();
             });
 
-            // Update filters status
-            function updateFiltersStatus() {
-                var hasActiveFilters = $('#filter_type').val() || $('#filter_price').val() ||
-                                     $('#filter_date_from').val() || $('#filter_date_to').val();
-
-                if (hasActiveFilters) {
-                    $('#apply_filters').removeClass('btn-primary').addClass('btn-success');
-                    $('#apply_filters i').removeClass('fa-filter').addClass('fa-check');
-                } else {
-                    $('#apply_filters').removeClass('btn-success').addClass('btn-primary');
-                    $('#apply_filters i').removeClass('fa-check').addClass('fa-filter');
-                }
-            }
-
-            // Auto apply filters on change
-            $('#filter_type, #filter_price, #filter_date_from, #filter_date_to').change(function() {
-                updateFiltersStatus();
+            $('#filter_type').change(function() {
                 table.draw();
             });
-
-            // Initialize filters status
-            updateFiltersStatus();
         });
 
         function purchaseCourse(courseId) {
-            // التوجه مباشرة لصفحة شراء الكورس
             window.location.href = "{{ route('dashboard.users.courses-purchase') }}?course_id=" + courseId;
-        }
-
-        function confirmPurchase() {
-            // يمكنك هنا إضافة منطق الدفع الفعلي
-            // مثل التوجيه لبوابة الدفع أو إرسال طلب AJAX
-
-            Swal.fire({
-                title: '@lang("l.confirm_purchase")',
-                text: '@lang("l.purchase_confirmation_text")',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#dc3545',
-                confirmButtonText: '@lang("l.yes_purchase")',
-                cancelButtonText: '@lang("l.cancel")'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // إرسال طلب الشراء
-                    processPurchase();
-                }
-            });
-        }
-
-        function processPurchase() {
-            // إضافة منطق معالجة الشراء هنا
-            Swal.fire({
-                title: '@lang("l.processing")',
-                text: '@lang("l.please_wait")',
-                icon: 'info',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // محاكاة معالجة الدفع
-            setTimeout(() => {
-                Swal.fire({
-                    title: '@lang("l.success")',
-                    text: '@lang("l.purchase_successful")',
-                    icon: 'success',
-                    confirmButtonText: '@lang("l.ok")'
-                }).then(() => {
-                    // إعادة تحميل الصفحة لإظهار التحديثات
-                    location.reload();
-                });
-            }, 2000);
         }
     </script>
 @endsection

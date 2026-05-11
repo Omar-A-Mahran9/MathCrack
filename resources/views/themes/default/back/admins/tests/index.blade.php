@@ -38,6 +38,225 @@
             font-weight: 700;
             color: #2563eb;
         }
+
+        /* ===== Admin Tests Management Polish ===== */
+        .admin-page-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: #fff;
+            border-radius: 18px;
+            padding: 26px 28px;
+            margin-bottom: 22px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 14px 34px rgba(30, 64, 175, 0.18);
+        }
+
+        .admin-page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -90px;
+            width: 180px;
+            height: 100%;
+            background: rgba(255,255,255,0.12);
+            transform: skewX(-15deg);
+        }
+
+        .admin-page-header h4,
+        .admin-page-header p {
+            color: #fff !important;
+            position: relative;
+            z-index: 2;
+        }
+
+        .admin-page-header h4 {
+            font-size: 1.65rem;
+            font-weight: 900;
+        }
+
+        .admin-page-header p {
+            opacity: 0.92;
+            font-weight: 600;
+        }
+
+        .admin-header-actions {
+            position: relative;
+            z-index: 2;
+        }
+
+        .admin-filter-card,
+        .admin-table-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .admin-filter-card .card-body,
+        .admin-table-card .card-body {
+            padding: 22px;
+        }
+
+        .admin-filter-card label {
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .admin-filter-card .form-select,
+        .admin-filter-card .form-control {
+            border-radius: 12px;
+            min-height: 44px;
+            border-color: #dbe3ef;
+            font-weight: 600;
+        }
+
+        .tests-table-wrapper {
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        #testsTable {
+            margin-bottom: 0 !important;
+        }
+
+        #testsTable thead th {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #1e3a8a;
+            font-weight: 900;
+            text-align: center;
+            vertical-align: middle;
+            border-bottom: 1px solid #bfdbfe;
+            white-space: nowrap;
+        }
+
+        #testsTable tbody td {
+            vertical-align: middle;
+            text-align: center;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        #testsTable tbody td:nth-child(2),
+        #testsTable tbody td:nth-child(3) {
+            text-align: left;
+        }
+
+        [dir="rtl"] #testsTable tbody td:nth-child(2),
+        [dir="rtl"] #testsTable tbody td:nth-child(3) {
+            text-align: right;
+        }
+
+        #testsTable tbody tr:hover {
+            background: #f8fbff;
+        }
+
+        .modal-content {
+            border-radius: 20px;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: #fff;
+            border-bottom: none;
+            padding: 20px 24px;
+        }
+
+        .modal-header .modal-title {
+            color: #fff;
+            font-weight: 900;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1);
+            opacity: .9;
+        }
+
+        .modal-body {
+            background: #f8fafc;
+        }
+
+        .modal-footer {
+            background: #fff;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .modal .form-control,
+        .modal .form-select {
+            border-radius: 12px;
+            min-height: 44px;
+            border-color: #dbe3ef;
+            font-weight: 600;
+        }
+
+        .modal textarea.form-control {
+            min-height: 90px;
+        }
+
+        .section-divider-title {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 12px 14px;
+            color: #1e40af !important;
+            font-size: 1.05rem !important;
+            font-weight: 900 !important;
+        }
+
+        .module-score-card {
+            background: #ffffff;
+            border: 1px solid #dbeafe;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+        }
+
+        .module-score-card h6 {
+            color: #1e40af;
+            font-weight: 900;
+        }
+
+        .module-block .mb-3 {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            padding: 14px;
+            border-radius: 14px;
+        }
+
+        .admin-help-note {
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+            color: #1e3a8a;
+            border-radius: 14px;
+            padding: 14px 16px;
+            font-weight: 700;
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 800;
+        }
+
+        @media (max-width: 768px) {
+            .admin-page-header {
+                padding: 22px;
+            }
+
+            .admin-page-header h4 {
+                font-size: 1.35rem;
+            }
+
+            .admin-header-actions {
+                width: 100%;
+                margin-top: 14px;
+            }
+
+            .admin-header-actions .btn {
+                width: 100%;
+            }
+        }
+
     </style>
 @endsection
 
@@ -60,14 +279,18 @@
         @endif
 
         @can('show lectures')
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div class="admin-page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div>
-                    <h4 class="mb-0">@lang('l.tests_management')</h4>
-                    <p class="text-muted mb-0">@lang('l.manage_all_tests')</p>
+                    <h4 class="mb-1">
+                        <i class="fa fa-clipboard-list me-2"></i>
+                        @lang('l.tests_management')
+                    </h4>
+                    <p class="mb-0">@lang('l.manage_all_tests')</p>
                 </div>
-                <div>
+
+                <div class="admin-header-actions">
                     @can('add tests')
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTestModal">
+                        <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addTestModal">
                             <i class="fa fa-plus ti-xs me-1"></i>
                             @lang('l.add_new_test')
                         </button>
@@ -75,7 +298,7 @@
                 </div>
             </div>
 
-            <div class="card mb-3">
+            <div class="card admin-filter-card mb-3">
                 <div class="card-body">
                     <form id="filterForm">
                         <div class="row g-3">
@@ -119,9 +342,9 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card admin-table-card">
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table-responsive tests-table-wrapper">
                         <table id="testsTable" class="table table-striped table-bordered nowrap w-100">
                             <thead>
                             <tr>
@@ -156,7 +379,7 @@
                                     <div class="row">
 
                                         <div class="col-12">
-                                            <h6 class="text-primary border-bottom pb-2 mb-3">@lang('l.basic_information')</h6>
+                                            <h6 class="section-divider-title mb-3">@lang('l.basic_information')</h6>
                                         </div>
 
                                         <div class="col-md-6">
@@ -205,7 +428,7 @@
                                         </div>
 
                                         <div class="col-12">
-                                            <h6 class="text-primary border-bottom pb-2 mb-3">@lang('l.scoring_system')</h6>
+                                            <h6 class="section-divider-title mb-3">@lang('l.scoring_system')</h6>
                                         </div>
 
                                         <div class="col-md-4">
@@ -216,7 +439,7 @@
                                         </div>
 
                                         <div class="col-12">
-                                            <div class="alert alert-info">
+                                            <div class="admin-help-note">
                                                 <strong>@lang('l.Note'):</strong>
                                                 Final score will be calculated automatically after adding the test questions based on each module scoring settings.
                                                 <br>
@@ -225,7 +448,7 @@
                                         </div>
 
                                         <div class="col-12">
-                                            <h6 class="text-primary border-bottom pb-2 mb-2">@lang('l.test_structure')</h6>
+                                            <h6 class="section-divider-title mb-2">@lang('l.test_structure')</h6>
                                         </div>
 
                                         <div class="col-md-4">
@@ -238,12 +461,12 @@
                                                 <option value="5">5</option>
                                             </select>
                                             <small class="form-text text-muted">
-                                                @lang('l.modules_help_text', [], null) ?? 'Select number of modules (1–5). Hidden modules will be treated as 0 questions.'
+                                                Select number of modules (1–5). Hidden modules will be treated as 0 questions.
                                             </small>
                                         </div>
 
                                         <div class="col-12 mt-3">
-                                            <h6 class="text-primary border-bottom pb-2 mb-3">Module Scoring Settings</h6>
+                                            <h6 class="section-divider-title mb-3">Module Scoring Settings</h6>
                                         </div>
 
                                         @for($i = 1; $i <= 5; $i++)
@@ -348,7 +571,7 @@
                                         </div>
 
                                         <div class="col-12">
-                                            <div class="alert alert-info">
+                                            <div class="admin-help-note">
                                                 <i class="fas fa-info-circle"></i>
                                                 <strong>@lang('l.Note'):</strong> @lang('l.test_timing_info')
                                             </div>
@@ -372,8 +595,6 @@
 @section('js')
 <script>
 $(document).ready(function() {
-    console.log('Tests Management - Loading...');
-
     var testsTable = $('#testsTable').DataTable({
         processing: true,
         serverSide: true,
@@ -396,6 +617,9 @@ $(document).ready(function() {
             { data: 'action', name: 'action', orderable: false, searchable: false },
         ],
         order: [[1, 'asc']],
+        pageLength: 25,
+        responsive: true,
+        autoWidth: false,
         language: {
             url: "{{ app()->getLocale() == 'ar' ? asset('back-assets/js/datatable-ar.json') : '' }}"
         }
@@ -522,7 +746,7 @@ $(document).ready(function() {
 
     $(document).on('click', '.delete-record', function() {
         var href     = $(this).attr('href');
-        var testName = $(this).closest('tr').find('td:eq(1)').text();
+        var testName = $(this).closest('tr').find('td:eq(1)').text().trim() || 'this test';
         if (confirm('@lang("l.are_you_sure_delete_test") "' + testName + '"?')) {
             window.location.href = href;
         }
