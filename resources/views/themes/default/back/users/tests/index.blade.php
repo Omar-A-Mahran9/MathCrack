@@ -605,7 +605,39 @@
             padding: 30px 0 !important;
             margin-bottom: 10px !important;
         }
+        .actions-cell a,
+.actions-cell button,
+.action-cell a,
+.action-cell button,
+.test-action-btn,
+.start-test-btn,
+.continue-test-btn {
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-indent: 0 !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+}
+
+.actions-cell a span,
+.actions-cell button span,
+.action-cell a span,
+.action-cell button span,
+.test-action-btn span,
+.start-test-btn span,
+.continue-test-btn span {
+    display: inline !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
     }
+
 </style>
 @endsection
 
