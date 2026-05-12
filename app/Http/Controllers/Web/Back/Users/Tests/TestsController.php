@@ -519,39 +519,63 @@ $studentTest->updateCurrentScore();
         return true;
     }
 
-    private function checkAttempts($user, $test)
-    {
-        $completedAttempts = StudentTest::where('student_id', $user->id)
-            ->where('test_id', $test->id)
-            ->where('status', self::STATUS_COMPLETED)
-            ->count();
+   private function checkAttempts($user, $test)
+{
+    $completedAttempts = StudentTest::where('student_id', $user->id)
+        ->where('test_id', $test->id)
+        ->where('status', self::STATUS_COMPLETED)
+        ->count();
 
-        $nextAttempt       = $completedAttempts + 1;
-        $remainingAttempts = max(0, $test->max_attempts - $nextAttempt);
+    $nextAttempt       = $completedAttempts + 1;
+    $remainingAttempts = max(0, (int) $test->max_attempts - $nextAttempt);
 
-        if ($completedAttempts >= $test->max_attempts) {
-            return [
-                'allowed' => false,
-                'message' => "You have used all available attempts ({$test->max_attempts} attempts)",
-            ];
-        }
-
-        $activeTest = $this->getActiveStudentTest($user, $test);
-        if ($activeTest) {
-            return [
-                'allowed' => false,
-                'message' => 'You already have a test in progress',
-            ];
-        }
-
+    if ($completedAttempts >= (int) $test->max_attempts) {
         return [
-            'allowed'            => true,
-            'next_attempt'       => $nextAttempt,
-            'remaining_attempts' => $remainingAttempts,
-            'completed_attempts' => $completedAttempts,
+            'allowed' => false,
+            'message' => "You have used all available attempts ({$test->max_attempts} attempts)",
         ];
     }
 
+    $activeTest = $this->getActiveStudentTest($user, $test);
+    if ($activeTest) {
+        return [
+            'allowed' => false,
+            'message' => 'You already have a test in progress',
+        ];
+    }
+
+    $lastCompletedAttempt = StudentTest::where('student_id', $user->id)
+        ->where('test_id', $test->id)
+        ->where('status', self::STATUS_COMPLETED)
+        ->orderBy('attempt_number', 'desc')
+        ->first();
+
+    if (
+        $completedAttempts > 0 &&
+        $completedAttempts < (int) $test->max_attempts &&
+        $lastCompletedAttempt
+    ) {
+        $retakeBaseDate = $lastCompletedAttempt->completed_at ?? $lastCompletedAttempt->updated_at;
+
+        if ($retakeBaseDate) {
+            $retakeDeadline = $retakeBaseDate->copy()->addMonth();
+
+            if (now()->greaterThan($retakeDeadline)) {
+                return [
+                    'allowed' => false,
+                    'message' => 'The allowed time for the next attempt has expired. You had one month after your previous attempt.',
+                ];
+            }
+        }
+    }
+
+    return [
+        'allowed'            => true,
+        'next_attempt'       => $nextAttempt,
+        'remaining_attempts' => $remainingAttempts,
+        'completed_attempts' => $completedAttempts,
+    ];
+}
     private function createStudentTest($user, $test, $attemptNumber)
     {
         return StudentTest::create([
