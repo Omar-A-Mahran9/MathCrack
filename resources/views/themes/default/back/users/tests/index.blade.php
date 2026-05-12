@@ -232,21 +232,42 @@
 
     .btn-test {
         flex: 1;
+        min-height: 42px;
         padding: 12px 20px;
         border-radius: 10px;
-        font-weight: 600;
-        text-decoration: none;
+        font-weight: 800;
+        text-decoration: none !important;
         text-align: center;
         transition: all 0.3s ease;
-        display: flex;
+        display: inline-flex !important;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        font-size: 0.9rem;
+        font-size: 0.92rem;
+        line-height: 1.2;
+        opacity: 1 !important;
+        visibility: visible !important;
+        white-space: nowrap;
+    }
+
+    .btn-test i,
+    .btn-test span {
+        display: inline-flex !important;
+        align-items: center;
+        color: inherit !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        text-indent: 0 !important;
+        line-height: 1.2;
+    }
+
+    .btn-test span {
+        font-size: 0.92rem;
+        font-weight: 800;
     }
 
     .btn-primary-test {
-        color: white;
+        color: #ffffff !important;
         border: none;
     }
 
@@ -258,7 +279,7 @@
 
     .btn-success-test {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
+        color: #ffffff !important;
         border: none;
     }
 
@@ -270,7 +291,7 @@
 
     .btn-warning-test {
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        color: white;
+        color: #ffffff !important;
         border: none;
     }
 
@@ -539,10 +560,14 @@
     }
 
     .table-actions .btn-test {
-        min-width: 130px;
+        min-width: 150px;
         flex: 0 0 auto;
-        padding: 10px 14px;
-        font-size: 0.88rem;
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+
+    .table-actions .btn-test span {
+        font-size: 0.9rem;
     }
 
     .table-empty-note {
@@ -605,37 +630,6 @@
             padding: 30px 0 !important;
             margin-bottom: 10px !important;
         }
-        .actions-cell a,
-.actions-cell button,
-.action-cell a,
-.action-cell button,
-.test-action-btn,
-.start-test-btn,
-.continue-test-btn {
-    color: #ffffff !important;
-    font-size: 14px !important;
-    font-weight: 800 !important;
-    line-height: 1 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    text-indent: 0 !important;
-    overflow: visible !important;
-    white-space: nowrap !important;
-}
-
-.actions-cell a span,
-.actions-cell button span,
-.action-cell a span,
-.action-cell button span,
-.test-action-btn span,
-.start-test-btn span,
-.continue-test-btn span {
-    display: inline !important;
-    color: #ffffff !important;
-    font-size: 14px !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
     }
 
 </style>
@@ -856,7 +850,7 @@
                                                         </span>
                                                         @break
                                                     @case('part1_in_progress')
-                                                   @case('break_time')
+                                                    @case('break_time')
                                                     @case('in_break')
                                                     @case('part2_in_progress')
                                                         <span class="status-badge status-in-progress">
@@ -885,22 +879,22 @@
                                                     @case('not_started')
                                                         <a href="{{ route('dashboard.users.tests.show', $test['id']) }}" class="btn-test btn-primary-test">
                                                             <i class="fas fa-play"></i>
-                                                            @lang('l.start_test')
+                                                            <span>Start Test</span>
                                                         </a>
                                                         @break
                                                     @case('part1_in_progress')
                                                     @case('break_time')
-                                                        @case('in_break')
+                                                    @case('in_break')
                                                     @case('part2_in_progress')
                                                         <a href="{{ route('dashboard.users.tests.take', $test['id']) }}" class="btn-test btn-warning-test">
                                                             <i class="fas fa-forward"></i>
-                                                            @lang('l.continue_test')
+                                                            <span>Continue Test</span>
                                                         </a>
                                                         @break
                                                     @case('completed')
                                                         <a href="{{ route('dashboard.users.tests.results', $test['id']) }}" class="btn-test btn-success-test">
                                                             <i class="fas fa-chart-line"></i>
-                                                            @lang('l.view_results')
+                                                            <span>View Results</span>
                                                         </a>
                                                         @break
                                                 @endswitch
@@ -908,12 +902,12 @@
                                                 @if($test['price'] > 0)
                                                     <a href="{{ route('dashboard.users.tests.purchase.test', $test['id']) }}" class="btn-test btn-primary-test">
                                                         <i class="fas fa-shopping-cart"></i>
-                                                        @lang('l.purchase_test')
+                                                        <span>Purchase Test</span>
                                                     </a>
                                                 @else
                                                     <a href="{{ route('dashboard.users.tests.show', $test['id']) }}" class="btn-test btn-success-test">
                                                         <i class="fas fa-gift"></i>
-                                                        Start Free Test
+                                                        <span>Start Free Test</span>
                                                     </a>
                                                 @endif
                                             @endif
@@ -936,7 +930,7 @@
                             </div>
                             <a href="{{ route('dashboard.users.tests.purchase.course-tests', $course['id']) }}" class="btn-test btn-primary-test" style="max-width: 300px; margin: 0 auto;">
                                 <i class="fas fa-shopping-cart"></i>
-                                @lang('l.purchase_all_tests')
+                                <span>Purchase All Tests</span>
                             </a>
                         </div>
                     @endif
@@ -952,8 +946,8 @@
                                 <col style="width: 10%;">
                                 <col style="width: 10%;">
                                 <col style="width: 10%;">
-                                <col style="width: 16%;">
                                 <col style="width: 14%;">
+                                <col style="width: 16%;">
                             </colgroup>
                             <thead>
                                 <tr>
@@ -1077,7 +1071,7 @@
                                                             @break
                                                         @case('part1_in_progress')
                                                         @case('break_time')
-                                                        @case('in_break')
+                                                    @case('in_break')
                                                         @case('part2_in_progress')
                                                             <a href="{{ route('dashboard.users.tests.take', $test['id']) }}" class="btn-test btn-warning-test">
                                                                 <i class="fas fa-forward"></i>
@@ -1121,7 +1115,7 @@
                                                 </div>
                                                 <a href="{{ route('dashboard.users.tests.purchase.course-tests', $course['id']) }}" class="btn-test btn-primary-test" style="max-width: 320px;">
                                                     <i class="fas fa-shopping-cart"></i>
-                                                    @lang('l.purchase_all_tests')
+                                                    <span>Purchase All Tests</span>
                                                 </a>
                                             </div>
                                         </td>
