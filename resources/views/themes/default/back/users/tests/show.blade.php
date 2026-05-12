@@ -465,6 +465,30 @@
 
         [dir="rtl"] .ms-auto{ margin-left:0 !important; margin-right:auto !important; }
 
+
+
+        .retake-expired-popup{
+            border-radius:22px !important;
+            box-shadow:0 25px 80px rgba(15,23,42,.18) !important;
+            padding:2rem !important;
+        }
+
+        .retake-expired-title{
+            font-size:26px !important;
+            font-weight:900 !important;
+            color:#0f172a !important;
+        }
+
+        .retake-expired-confirm{
+            background:linear-gradient(135deg, var(--mc-primary) 0%, var(--mc-primary-2) 100%) !important;
+            color:#fff !important;
+            border:none !important;
+            border-radius:12px !important;
+            padding:12px 28px !important;
+            font-size:15px !important;
+            font-weight:800 !important;
+        }
+
         @media (max-width:768px){
             .test-hero h1{ font-size:1.8rem; }
             .info-grid{ grid-template-columns:1fr; }
@@ -484,12 +508,6 @@
 
     $allowedLevels = ['Digital SAT','EST I','EST II','ACT I','ACT II'];
     $levelName = $test->course->level->name ?? '';
-
-    $displayCourseName = $test->course->name ?? '';
-    if ($levelName === 'Digital SAT') {
-        $displayCourseName = __('l.digital_sat_course');
-    }
-
     $useRoundUpTo10 = in_array($levelName, $allowedLevels, true);
 
     $allQuestions = $test->questions()->get();
@@ -609,7 +627,7 @@
                     <div class="hero-badges">
                         <span class="hero-badge">
                             <i class="fas fa-book"></i>
-                            {{ $displayCourseName }}
+                            {{ $test->course->name ?? '' }}
                         </span>
 
                         <span class="hero-badge">
@@ -649,7 +667,7 @@
                 <div class="card-body-custom">
                     <div class="course-info">
                         <h6>@lang('l.course')</h6>
-                        <p>{{ $displayCourseName }}</p>
+                        <p>{{ $test->course->name ?? '' }}</p>
                     </div>
 
                     @if($test->description)
@@ -927,14 +945,42 @@
 
 @section('js')
 <script>
+    function showStartError(message) {
+        const safeMessage = message || 'Unable to start this test. Please try again later.';
+
+        if (!window.Swal) {
+            alert(safeMessage);
+            return;
+        }
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Unable to Start Test',
+            html: `
+                <div style="font-size:16px; line-height:1.8; color:#475569;">
+                    ${safeMessage}
+                </div>
+            `,
+            confirmButtonText: 'Back to Tests',
+            confirmButtonColor: '#1e40af',
+            background: '#ffffff',
+            allowOutsideClick: false,
+            customClass: {
+                popup: 'retake-expired-popup',
+                title: 'retake-expired-title',
+                confirmButton: 'retake-expired-confirm'
+            }
+        }).then(() => {
+            window.location.href = "{{ route('dashboard.users.tests.index', request()->only('track')) }}";
+        });
+    }
+
     function startTest() {
         const csrfMeta = document.querySelector('meta[name="csrf-token"]');
         const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : null;
 
         if (!csrfToken) {
-            if (window.Swal) {
-                Swal.fire({ title: 'Error', text: 'CSRF token missing', icon: 'error' });
-            }
+            showStartError('CSRF token missing. Please refresh the page and try again.');
             return;
         }
 
@@ -956,6 +1002,7 @@
 
         const loading = () => {
             if (!window.Swal) return;
+
             Swal.fire({
                 title: '@lang("l.starting_test")',
                 text: '@lang("l.please_wait")',
@@ -981,24 +1028,39 @@
                 },
                 body: JSON.stringify({})
             })
-            .then(r => {
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-                return r.json();
+            .then(async response => {
+                let data = null;
+
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = null;
+                }
+
+                if (!response.ok) {
+                    const message =
+                        data?.error ||
+                        data?.message ||
+                        'Unable to start this test. Please try again later.';
+
+                    throw new Error(message);
+                }
+
+                return data;
             })
             .then(data => {
                 if (!data || !data.success) {
-                    if (window.Swal) {
-                        Swal.fire({
-                            title: '@lang("l.error")',
-                            text: (data && data.error) ? data.error : '@lang("l.unknown_error")',
-                            icon: 'error',
-                            confirmButtonColor: '#1e40af'
-                        });
-                    }
+                    showStartError(
+                        data?.error ||
+                        data?.message ||
+                        '@lang("l.unknown_error")'
+                    );
                     return;
                 }
 
-                const go = () => { window.location.href = data.redirect; };
+                const go = () => {
+                    window.location.href = data.redirect;
+                };
 
                 if (window.Swal && data.attempt_number) {
                     Swal.fire({
@@ -1013,15 +1075,8 @@
                     go();
                 }
             })
-            .catch(err => {
-                if (window.Swal) {
-                    Swal.fire({
-                        title: '@lang("l.error")',
-                        text: err.message || '@lang("l.connection_error")',
-                        icon: 'error',
-                        confirmButtonColor: '#1e40af'
-                    });
-                }
+            .catch(error => {
+                showStartError(error.message);
             });
         });
     }
