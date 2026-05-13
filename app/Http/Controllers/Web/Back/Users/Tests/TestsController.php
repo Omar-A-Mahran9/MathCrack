@@ -38,6 +38,11 @@ class TestsController extends Controller
     $levelId  = $request->get('level_id');
     $courseId = $request->get('course_id');
     $track    = $request->get('track');
+    $statusFilter = $request->get('status_filter', 'all');
+
+    if (!in_array($statusFilter, ['all', 'not_started', 'in_progress', 'completed'])) {
+        $statusFilter = 'all';
+    }
 
     $levels = Level::orderBy('name')->get();
 
@@ -78,10 +83,16 @@ class TestsController extends Controller
 
     $coursesData = $coursesQuery->get();
 
-    $coursesWithTests = $coursesData->map(function ($course) use ($user) {
+    $coursesWithTests = $coursesData->map(function ($course) use ($user, $statusFilter) {
         $tests = $course->activeTests->map(function ($test) use ($user) {
             return $this->formatTestData($test, $user);
         });
+
+        if ($statusFilter !== 'all') {
+            $tests = $tests->filter(function ($test) use ($statusFilter) {
+                return ($test['display_status'] ?? 'not_started') === $statusFilter;
+            })->values();
+        }
 
         return [
             'id'                => $course->id,
@@ -91,7 +102,9 @@ class TestsController extends Controller
             'tests'             => $tests,
             'level_id'          => $course->level_id,
         ];
-    });
+    })->filter(function ($course) {
+        return $course['tests']->count() > 0;
+    })->values();
 
     return view('themes.default.back.users.tests.index', compact(
         'coursesWithTests',
@@ -99,7 +112,8 @@ class TestsController extends Controller
         'courses',
         'levelId',
         'courseId',
-        'track'
+        'track',
+        'statusFilter'
     ));
 }
 
@@ -536,11 +550,11 @@ $studentTest->updateCurrentScore();
         ];
     }
 
-    $activeTest = $this->getActiveStudentTest($user, $test);
+    $activeTest = $this->getAnyActiveStudentTest($user);
     if ($activeTest) {
         return [
             'allowed' => false,
-            'message' => 'You already have a test in progress',
+            'message' => 'You already have a test in progress. Please complete or continue your current test before starting another one.',
         ];
     }
 
@@ -563,7 +577,7 @@ $studentTest->updateCurrentScore();
             if (now()->greaterThan($retakeDeadline)) {
                 return [
                     'allowed' => false,
-                    'message' => 'The allowed time for the next attempt has expired. You had one month after your previous attempt.',
+                    'message' => 'Retake time expired. You had one month after your previous attempt to start the next attempt.',
                 ];
             }
         }
@@ -590,6 +604,19 @@ $studentTest->updateCurrentScore();
             'remaining_seconds'         => $this->getModuleTime($test, 1) * 60,
             'part1_started_at'          => now(),
         ]);
+    }
+
+    private function getAnyActiveStudentTest($user)
+    {
+        return StudentTest::where('student_id', $user->id)
+            ->whereIn('status', [
+                self::STATUS_PART1,
+                self::STATUS_BREAK,
+                self::STATUS_PART2,
+            ])
+            ->with('test')
+            ->orderBy('updated_at', 'desc')
+            ->first();
     }
 
     private function getActiveStudentTest($user, $test)
@@ -626,8 +653,40 @@ $studentTest->updateCurrentScore();
         return $answerData;
     }
 
+
+    private function getStudentTestProgressStatus($user, $test)
+    {
+        $activeAttempt = StudentTest::where('student_id', $user->id)
+            ->where('test_id', $test->id)
+            ->whereIn('status', [
+                self::STATUS_PART1,
+                self::STATUS_BREAK,
+                self::STATUS_PART2,
+            ])
+            ->orderBy('attempt_number', 'desc')
+            ->first();
+
+        if ($activeAttempt) {
+            return 'in_progress';
+        }
+
+        $completedAttempts = StudentTest::where('student_id', $user->id)
+            ->where('test_id', $test->id)
+            ->where('status', self::STATUS_COMPLETED)
+            ->count();
+
+        if ($completedAttempts > 0) {
+            return 'completed';
+        }
+
+        return 'not_started';
+    }
+
     private function formatTestData($test, $user)
     {
+        $status = $this->getTestStatus($user, $test);
+        $displayStatus = $this->getStudentTestProgressStatus($user, $test);
+
         return [
             'id'              => $test->id,
             'name'            => $test->name,
@@ -637,7 +696,8 @@ $studentTest->updateCurrentScore();
             'total_questions' => $test->total_questions_count,
             'total_time'      => $test->total_time_minutes,
             'has_paid'        => $user->canAccessTest($test->id),
-            'status'          => $this->getTestStatus($user, $test),
+            'status'          => $status,
+            'display_status'  => $displayStatus,
         ];
     }
 
@@ -817,9 +877,9 @@ $studentTest->updateCurrentScore();
             ->where('status', self::STATUS_COMPLETED)
             ->count();
 
-        $maxAttempts = (int) ($test->max_attempts ?? 1);
+        $maxAttempts = max(1, (int) ($test->max_attempts ?? 1));
 
-        if ($completedAttempts >= $maxAttempts) {
+        if ($completedAttempts > 0 && $completedAttempts >= $maxAttempts) {
             return self::STATUS_COMPLETED;
         }
 

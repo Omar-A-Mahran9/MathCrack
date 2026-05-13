@@ -898,6 +898,104 @@
   line-height: 1.7;
 }
 
+
+
+  /* === Readability Upgrade === */
+  .stem{
+    font-size: 20px !important;
+    line-height: 1.85 !important;
+    color: #111827 !important;
+    font-weight: 500;
+  }
+
+  .stem p{
+    font-size: 20px !important;
+    line-height: 1.85 !important;
+  }
+
+  .option-item{
+    grid-template-columns: 50px 1fr !important;
+    padding: 14px 16px !important;
+    border-radius: 12px !important;
+    align-items: center !important;
+  }
+
+  .option-text{
+    font-size: 19px !important;
+    line-height: 1.8 !important;
+    color: #111827 !important;
+    font-weight: 500;
+  }
+
+  .option-text p{
+    font-size: 19px !important;
+    line-height: 1.8 !important;
+  }
+
+  .option-label{
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 17px !important;
+    font-weight: 800 !important;
+  }
+
+  .options{
+    gap: 16px !important;
+  }
+
+  .q-body{
+    padding: 30px !important;
+  }
+
+  .q-num{
+    width: 42px !important;
+    height: 42px !important;
+    font-size: 16px !important;
+  }
+
+  .numeric-answer-input{
+    font-size: 22px !important;
+    font-weight: 700 !important;
+  }
+
+  .numeric-answer-box{
+    max-width: 280px !important;
+    padding: 26px 24px 38px !important;
+  }
+
+  mjx-container{
+    font-size: 112% !important;
+  }
+
+  @media (max-width:768px){
+    .stem,
+    .stem p{
+      font-size: 18px !important;
+      line-height: 1.75 !important;
+    }
+
+    .option-text,
+    .option-text p{
+      font-size: 17px !important;
+      line-height: 1.7 !important;
+    }
+
+    .option-item{
+      grid-template-columns: 44px 1fr !important;
+      padding: 12px 14px !important;
+    }
+
+    .option-label{
+      width: 36px !important;
+      height: 36px !important;
+      font-size: 15px !important;
+    }
+
+    .q-body{
+      padding: 22px !important;
+    }
+  }
+
 </style>
 
   <script src="https://www.desmos.com/api/v1.10/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>

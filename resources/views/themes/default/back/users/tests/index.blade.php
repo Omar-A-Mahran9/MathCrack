@@ -578,6 +578,95 @@
         font-weight: 600;
     }
 
+
+    .tests-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin: 20px 0 18px 0;
+    }
+
+    .tests-summary-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .tests-summary-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #e0ecff;
+        color: #1e40af;
+        font-size: 1.25rem;
+        flex: 0 0 auto;
+    }
+
+    .tests-summary-number {
+        display: block;
+        font-size: 1.65rem;
+        font-weight: 900;
+        color: #0f172a;
+        line-height: 1;
+    }
+
+    .tests-summary-label {
+        display: block;
+        margin-top: 6px;
+        color: #64748b;
+        font-weight: 700;
+        font-size: 0.92rem;
+    }
+
+    .tests-filter-bar {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 12px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .tests-filter-btn {
+        border: none;
+        background: #f1f5f9;
+        color: #334155;
+        border-radius: 999px;
+        padding: 10px 16px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .tests-filter-btn.active {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: #ffffff;
+        box-shadow: 0 6px 18px rgba(30, 64, 175, 0.25);
+    }
+
+    .tests-filter-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .test-hidden-by-filter {
+        display: none !important;
+    }
+
+
     .no-tests {
         text-align: center;
         padding: 80px 20px;
@@ -651,9 +740,29 @@
         ];
 
         $trackTitle = $trackTitles[$track] ?? null;
+        $statusFilter = $statusFilter ?? request('status_filter', 'all');
+
         $totalTests = $coursesWithTests->sum(function($course) {
             return $course['tests']->count();
         });
+
+        $completedTests = 0;
+        $inProgressTests = 0;
+        $notStartedTests = 0;
+
+        foreach ($coursesWithTests as $courseItem) {
+            foreach ($courseItem['tests'] as $testItem) {
+                $displayStatus = $testItem['display_status'] ?? 'not_started';
+
+                if ($displayStatus === 'completed') {
+                    $completedTests++;
+                } elseif ($displayStatus === 'in_progress') {
+                    $inProgressTests++;
+                } else {
+                    $notStartedTests++;
+                }
+            }
+        }
     @endphp
 
     <div class="page-headers">
@@ -719,13 +828,81 @@
 
 
     @if($coursesWithTests->count() > 0)
+        <div class="tests-summary-grid">
+            <div class="tests-summary-card">
+                <span class="tests-summary-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </span>
+                <span>
+                    <span class="tests-summary-number">{{ $totalTests }}</span>
+                    <span class="tests-summary-label">Total Tests</span>
+                </span>
+            </div>
+
+            <div class="tests-summary-card">
+                <span class="tests-summary-icon">
+                    <i class="fas fa-check-circle"></i>
+                </span>
+                <span>
+                    <span class="tests-summary-number">{{ $completedTests }}</span>
+                    <span class="tests-summary-label">Completed</span>
+                </span>
+            </div>
+
+            <div class="tests-summary-card">
+                <span class="tests-summary-icon">
+                    <i class="fas fa-clock"></i>
+                </span>
+                <span>
+                    <span class="tests-summary-number">{{ $inProgressTests }}</span>
+                    <span class="tests-summary-label">In Progress</span>
+                </span>
+            </div>
+
+            <div class="tests-summary-card">
+                <span class="tests-summary-icon">
+                    <i class="fas fa-play-circle"></i>
+                </span>
+                <span>
+                    <span class="tests-summary-number">{{ $notStartedTests }}</span>
+                    <span class="tests-summary-label">Not Started</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="tests-filter-bar">
+            <a href="{{ request()->fullUrlWithQuery(['status_filter' => 'all']) }}"
+               class="tests-filter-btn {{ $statusFilter === 'all' ? 'active' : '' }}">
+                <i class="fas fa-layer-group"></i>
+                All
+            </a>
+
+            <a href="{{ request()->fullUrlWithQuery(['status_filter' => 'not_started']) }}"
+               class="tests-filter-btn {{ $statusFilter === 'not_started' ? 'active' : '' }}">
+                <i class="fas fa-play-circle"></i>
+                Not Started
+            </a>
+
+            <a href="{{ request()->fullUrlWithQuery(['status_filter' => 'in_progress']) }}"
+               class="tests-filter-btn {{ $statusFilter === 'in_progress' ? 'active' : '' }}">
+                <i class="fas fa-clock"></i>
+                In Progress
+            </a>
+
+            <a href="{{ request()->fullUrlWithQuery(['status_filter' => 'completed']) }}"
+               class="tests-filter-btn {{ $statusFilter === 'completed' ? 'active' : '' }}">
+                <i class="fas fa-check-circle"></i>
+                Completed
+            </a>
+        </div>
+
         <div class="view-toggle-wrapper">
             <div class="view-toggle">
-                <button type="button" class="view-toggle-btn active" id="cardsToggleBtn" onclick="setTestsView('cards')">
+                <button type="button" class="view-toggle-btn active" id="cardsToggleBtn">
                     <i class="fas fa-grip-horizontal"></i>
                     Cards View
                 </button>
-                <button type="button" class="view-toggle-btn" id="tableToggleBtn" onclick="setTestsView('table')">
+                <button type="button" class="view-toggle-btn" id="tableToggleBtn">
                     <i class="fas fa-table"></i>
                     Table View
                 </button>
@@ -805,7 +982,11 @@
                                 }
                             @endphp
 
-                            <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+                            @php
+                                $testFilterStatus = $test['display_status'] ?? 'not_started';
+                            @endphp
+
+                            <div class="col-xl-4 col-lg-6 col-md-6 mb-4 test-filter-item" data-test-status="{{ $testFilterStatus }}">
                                 <div class="test-card">
                                     <div class="card-header">
                                         <h3 class="test-title">{{ $test['name'] }}</h3>
@@ -841,38 +1022,28 @@
                                             </div>
                                         @endif
 
-                                        @if($test['has_paid'])
-                                            <div class="test-status">
-                                                @switch($test['status'])
-                                                    @case('not_started')
-                                                        <span class="status-badge status-not-started">
-                                                            <i class="fas fa-play-circle"></i>
-                                                            @lang('l.not_started')
-                                                        </span>
-                                                        @break
-                                                    @case('part1_in_progress')
-                                                    @case('break_time')
-                                                    @case('in_break')
-                                                    @case('part2_in_progress')
-                                                        <span class="status-badge status-in-progress">
-                                                            <i class="fas fa-clock"></i>
-                                                            @lang('l.continue_test')
-                                                        </span>
-                                                        @break
-                                                    @case('completed')
-                                                        <span class="status-badge status-completed">
-                                                            <i class="fas fa-check-circle"></i>
-                                                            @lang('l.completed')
-                                                        </span>
-                                                        @break
-                                                    @default
-                                                        <span class="status-badge status-locked">
-                                                            <i class="fas fa-lock"></i>
-                                                            @lang('l.locked')
-                                                        </span>
-                                                @endswitch
-                                            </div>
-                                        @endif
+                                        <div class="test-status">
+                                            @switch($test['display_status'] ?? 'not_started')
+                                                @case('not_started')
+                                                    <span class="status-badge status-not-started">
+                                                        <i class="fas fa-play-circle"></i>
+                                                        @lang('l.not_started')
+                                                    </span>
+                                                    @break
+                                                @case('in_progress')
+                                                    <span class="status-badge status-in-progress">
+                                                        <i class="fas fa-clock"></i>
+                                                        @lang('l.continue_test')
+                                                    </span>
+                                                    @break
+                                                @case('completed')
+                                                    <span class="status-badge status-completed">
+                                                        <i class="fas fa-check-circle"></i>
+                                                        @lang('l.completed')
+                                                    </span>
+                                                    @break
+                                            @endswitch
+                                        </div>
 
                                         <div class="test-actions">
                                             @if($test['has_paid'])
@@ -919,7 +1090,7 @@
                         @endforeach
                     </div>
 
-                    @if($course['tests_price'] > 0 && !$course['has_purchased_all'])
+                    @if($statusFilter === 'all' && $course['tests_price'] > 0 && !$course['has_purchased_all'])
                         <div class="course-purchase-section">
                             <div class="course-purchase-info">
                                 <div class="course-purchase-price">
@@ -998,7 +1169,11 @@
                                         }
                                     @endphp
 
-                                    <tr>
+                                    @php
+                                        $testFilterStatus = $test['display_status'] ?? 'not_started';
+                                    @endphp
+
+                                    <tr class="test-filter-item" data-test-status="{{ $testFilterStatus }}">
                                         <td>
                                             <div class="table-test-name">{{ $test['name'] }}</div>
                                             @if($test['description'])
@@ -1017,48 +1192,26 @@
                                             @endif
                                         </td>
                                         <td>
-                                            @if($test['has_paid'])
-                                                @switch($test['status'])
-                                                    @case('not_started')
-                                                        <span class="status-badge status-not-started">
-                                                            <i class="fas fa-play-circle"></i>
-                                                            @lang('l.not_started')
-                                                        </span>
-                                                        @break
-                                                    @case('part1_in_progress')
-                                                    @case('break_time')
-                                                    @case('in_break')
-                                                    @case('part2_in_progress')
-                                                        <span class="status-badge status-in-progress">
-                                                            <i class="fas fa-clock"></i>
-                                                            @lang('l.continue_test')
-                                                        </span>
-                                                        @break
-                                                    @case('completed')
-                                                        <span class="status-badge status-completed">
-                                                            <i class="fas fa-check-circle"></i>
-                                                            @lang('l.completed')
-                                                        </span>
-                                                        @break
-                                                    @default
-                                                        <span class="status-badge status-locked">
-                                                            <i class="fas fa-lock"></i>
-                                                            @lang('l.locked')
-                                                        </span>
-                                                @endswitch
-                                            @else
-                                                @if($test['price'] > 0)
-                                                    <span class="status-badge status-locked">
-                                                        <i class="fas fa-shopping-cart"></i>
-                                                        @lang('l.purchase_required')
+                                            @switch($test['display_status'] ?? 'not_started')
+                                                @case('not_started')
+                                                    <span class="status-badge status-not-started">
+                                                        <i class="fas fa-play-circle"></i>
+                                                        @lang('l.not_started')
                                                     </span>
-                                                @else
+                                                    @break
+                                                @case('in_progress')
+                                                    <span class="status-badge status-in-progress">
+                                                        <i class="fas fa-clock"></i>
+                                                        @lang('l.continue_test')
+                                                    </span>
+                                                    @break
+                                                @case('completed')
                                                     <span class="status-badge status-completed">
-                                                        <i class="fas fa-gift"></i>
-                                                        @lang('l.free')
+                                                        <i class="fas fa-check-circle"></i>
+                                                        @lang('l.completed')
                                                     </span>
-                                                @endif
-                                            @endif
+                                                    @break
+                                            @endswitch
                                         </td>
                                         <td>
                                             <div class="table-actions">
@@ -1104,7 +1257,7 @@
                                     </tr>
                                 @endforeach
 
-                                @if($course['tests_price'] > 0 && !$course['has_purchased_all'])
+                                @if($statusFilter === 'all' && $course['tests_price'] > 0 && !$course['has_purchased_all'])
                                     <tr>
                                         <td colspan="8" class="table-empty-note">
                                             <div style="display:flex; flex-direction:column; align-items:center; gap:14px;">
@@ -1139,131 +1292,64 @@
 @endsection
 
 @section('js')
-<style>
-    .swal2-container.swal2-backdrop-show,
-    .swal2-container.swal2-noanimation {
-        background: #ffffff !important;
-    }
-
-    .final-elegant-popup {
-        border-radius: 22px !important;
-        box-shadow: 0 25px 80px rgba(15, 23, 42, 0.18) !important;
-        padding: 2.2rem 2rem 1.8rem !important;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    }
-
-    .final-elegant-title {
-        font-size: 28px !important;
-        font-weight: 800 !important;
-        color: #0f172a !important;
-        margin-bottom: 10px !important;
-    }
-
-    .final-elegant-html {
-        font-size: 16px !important;
-        line-height: 1.8 !important;
-        color: #475569 !important;
-        margin-top: 8px !important;
-    }
-
-    .final-elegant-confirm {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-        color: #fff !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 12px 28px !important;
-        font-size: 15px !important;
-        font-weight: 700 !important;
-        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.28) !important;
-    }
-</style>
-
 <script>
-    @if(session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: @json(session('success')),
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#2563eb'
-        });
-    @endif
-
-    @if(session('error'))
-        Swal.fire({
-            icon: 'warning',
-            title: 'Unable to continue',
-            text: @json(session('error')),
-            confirmButtonText: 'Back to Home',
-            confirmButtonColor: '#2563eb',
-            backdrop: 'rgba(255,255,255,1)',
-            background: '#ffffff',
-            allowOutsideClick: false
-        }).then(function(){
-            window.location.href = "{{ url('/') }}";
-        });
-    @endif
-
-    @if($errors->any())
-        Swal.fire({
-            icon: 'warning',
-            title: 'Unable to continue',
-            html: `{!! implode('<br>', $errors->all()) !!}`,
-            confirmButtonText: 'Back to Home',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            backdrop: '#ffffff',
-            background: '#ffffff',
-            width: 560,
-            customClass: {
-                popup: 'final-elegant-popup',
-                title: 'final-elegant-title',
-                htmlContainer: 'final-elegant-html',
-                confirmButton: 'final-elegant-confirm'
-            }
-        }).then(() => {
-            window.location.href = "{{ url('/') }}";
-        });
-    @endif
-
-    function setTestsView(viewType) {
+    document.addEventListener('DOMContentLoaded', function () {
         const cardsBlocks = document.querySelectorAll('.tests-view-block[data-view="cards"]');
         const tableBlocks = document.querySelectorAll('.tests-view-block[data-view="table"]');
         const cardsBtn = document.getElementById('cardsToggleBtn');
         const tableBtn = document.getElementById('tableToggleBtn');
 
-        if (viewType === 'table') {
-            cardsBlocks.forEach(el => el.style.display = 'none');
-            tableBlocks.forEach(el => el.style.display = 'block');
-            cardsBtn?.classList.remove('active');
-            tableBtn?.classList.add('active');
-        } else {
-            cardsBlocks.forEach(el => el.style.display = 'block');
-            tableBlocks.forEach(el => el.style.display = 'none');
-            tableBtn?.classList.remove('active');
-            cardsBtn?.classList.add('active');
+        function setTestsView(viewType) {
+            if (viewType === 'table') {
+                cardsBlocks.forEach(function (block) {
+                    block.style.setProperty('display', 'none', 'important');
+                });
+
+                tableBlocks.forEach(function (block) {
+                    block.style.setProperty('display', 'block', 'important');
+                });
+
+                if (cardsBtn) cardsBtn.classList.remove('active');
+                if (tableBtn) tableBtn.classList.add('active');
+            } else {
+                cardsBlocks.forEach(function (block) {
+                    block.style.setProperty('display', 'block', 'important');
+                });
+
+                tableBlocks.forEach(function (block) {
+                    block.style.setProperty('display', 'none', 'important');
+                });
+
+                if (tableBtn) tableBtn.classList.remove('active');
+                if (cardsBtn) cardsBtn.classList.add('active');
+            }
+
+            try {
+                localStorage.setItem('testsViewMode', viewType);
+            } catch (e) {}
         }
 
-        localStorage.setItem('testsViewMode', viewType);
-    }
+        if (cardsBtn) {
+            cardsBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                setTestsView('cards');
+            });
+        }
 
-    $(document).ready(function() {
-        $('.course-section').each(function(index) {
-            $(this).css('opacity', '0').css('transform', 'translateY(30px)')
-                .delay(index * 200)
-                .animate({ opacity: 1 }, 600)
-                .css('transform', 'translateY(0)');
-        });
+        if (tableBtn) {
+            tableBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                setTestsView('table');
+            });
+        }
 
-        $('.test-card').hover(
-            function() { $(this).find('.stat-item').css('transform', 'translateY(-3px)'); },
-            function() { $(this).find('.stat-item').css('transform', 'translateY(0)'); }
-        );
+        let savedView = 'cards';
 
-        $('.btn-test').on('click', function() {
-            $(this).css('transform', 'scale(0.95)');
-            setTimeout(() => { $(this).css('transform', ''); }, 150);
-        });
+        try {
+            savedView = localStorage.getItem('testsViewMode') || 'cards';
+        } catch (e) {}
+
+        setTestsView(savedView);
 
         const form = document.getElementById('filtersForm');
         const levelSelect = document.getElementById('levelSelect');
@@ -1280,8 +1366,52 @@
             });
         }
 
-        const savedView = localStorage.getItem('testsViewMode') || 'cards';
-        setTestsView(savedView);
+        @if(session('success'))
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: @json(session('success')),
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#2563eb'
+                });
+            }
+        @endif
+
+        @if(session('error'))
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Unable to continue',
+                    text: @json(session('error')),
+                    confirmButtonText: 'Back to Home',
+                    confirmButtonColor: '#2563eb',
+                    backdrop: 'rgba(255,255,255,1)',
+                    background: '#ffffff',
+                    allowOutsideClick: false
+                }).then(function(){
+                    window.location.href = "{{ url('/') }}";
+                });
+            }
+        @endif
+
+        @if($errors->any())
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Unable to continue',
+                    html: `{!! implode('<br>', $errors->all()) !!}`,
+                    confirmButtonText: 'Back to Home',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    backdrop: '#ffffff',
+                    background: '#ffffff',
+                    width: 560
+                }).then(function () {
+                    window.location.href = "{{ url('/') }}";
+                });
+            }
+        @endif
     });
 </script>
 @endsection

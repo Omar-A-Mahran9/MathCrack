@@ -311,6 +311,138 @@
         }
 
 
+
+        .track-dashboard {
+            background: #fff;
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .track-dashboard-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .track-dashboard-title {
+            margin: 0 0 8px 0;
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .track-dashboard-subtitle {
+            margin: 0;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .track-dashboard-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .track-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            padding: 10px 16px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .track-action-primary {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: #fff !important;
+        }
+
+        .track-action-secondary {
+            background: #f1f5f9;
+            color: #1e293b !important;
+        }
+
+        .track-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(30, 64, 175, 0.18);
+        }
+
+        .track-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .track-stat-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .track-stat-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: #e0ecff;
+            color: #1e40af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .track-stat-number {
+            display: block;
+            font-size: 1.55rem;
+            font-weight: 900;
+            color: #0f172a;
+            line-height: 1;
+        }
+
+        .track-stat-label {
+            display: block;
+            margin-top: 8px;
+            color: #64748b;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .track-dashboard-progress-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .track-dashboard-progress-text {
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .track-dashboard-progress-bar {
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .track-dashboard-progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            border-radius: 999px;
+        }
+
         @media (max-width: 768px) {
             .page-headers {
                 padding: 24px 0;
@@ -366,6 +498,63 @@
 
         $displayedCoursesCount = $displayCourses->count();
         $courseCountLabel = $track === 'digital-sat' ? __('l.course_count') : ($trackTitle ? __('l.course_parts') : __('l.courses_available'));
+
+        $totalLessons = 0;
+        $totalAssignments = 0;
+        $completedAssignments = 0;
+        $practiceTestsCount = 0;
+        $continueLecture = null;
+        $latestStartedAssignment = null;
+        $latestSubmittedAssignment = null;
+
+        foreach ($displayCourses as $course) {
+            $totalLessons += (int) ($course->lectures_count ?? $course->lectures->count());
+
+            if (method_exists($course, 'activeTests')) {
+                $practiceTestsCount += (int) $course->activeTests()->count();
+            }
+
+            foreach ($course->lectures as $lecture) {
+                if (!$continueLecture) {
+                    $continueLecture = $lecture;
+                }
+
+                foreach ($lecture->assignments as $assignment) {
+                    $totalAssignments++;
+
+                    if (isset($assignment->studentAssignments)) {
+                        $studentAssignment = $assignment->studentAssignments
+                            ->where('student_id', auth()->id())
+                            ->first();
+
+                        if ($studentAssignment) {
+                            if (!$studentAssignment->submitted_at && $studentAssignment->started_at) {
+                                if (!$latestStartedAssignment || $studentAssignment->started_at > $latestStartedAssignment->started_at) {
+                                    $latestStartedAssignment = $studentAssignment;
+                                    $continueLecture = $lecture;
+                                }
+                            }
+
+                            if ($studentAssignment->submitted_at) {
+                                $completedAssignments++;
+
+                                if (!$latestSubmittedAssignment || $studentAssignment->submitted_at > $latestSubmittedAssignment->submitted_at) {
+                                    $latestSubmittedAssignment = $studentAssignment;
+
+                                    if (!$latestStartedAssignment) {
+                                        $continueLecture = $lecture;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $assignmentProgress = $totalAssignments > 0
+            ? round(($completedAssignments / $totalAssignments) * 100)
+            : 0;
     @endphp
 
     <div class="main-content">
@@ -405,6 +594,80 @@
         </div>
 
         @if($trackTitle)
+            <div class="track-dashboard">
+                <div class="track-dashboard-top">
+                    <div>
+                        <h2 class="track-dashboard-title">{{ $trackTitle }} Dashboard</h2>
+                        <p class="track-dashboard-subtitle">
+                            Track your lessons, practice tests, and progress in one place.
+                        </p>
+                    </div>
+
+                    <div class="track-dashboard-actions">
+                        @if($continueLecture)
+                            <a
+                                href="{{ route('dashboard.users.courses-lectures-show', ['id' => encrypt($continueLecture->id)]) }}"
+                                class="track-action-btn track-action-primary"
+                            >
+                                <i class="fas fa-play"></i>
+                                Continue Learning
+                            </a>
+                        @endif
+
+                        <a
+                            href="{{ route('dashboard.users.tests.index', ['track' => request('track')]) }}"
+                            class="track-action-btn track-action-secondary"
+                        >
+                            <i class="fas fa-pen"></i>
+                            Practice Tests
+                        </a>
+                    </div>
+                </div>
+
+                <div class="track-stats-grid">
+                    <div class="track-stat-card">
+                        <div class="track-stat-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <span class="track-stat-number">{{ $totalLessons }}</span>
+                        <span class="track-stat-label">@lang('l.lessons')</span>
+                    </div>
+
+                    <div class="track-stat-card">
+                        <div class="track-stat-icon">
+                            <i class="fas fa-pen"></i>
+                        </div>
+                        <span class="track-stat-number">{{ $practiceTestsCount }}</span>
+                        <span class="track-stat-label">Practice Tests</span>
+                    </div>
+
+                    <div class="track-stat-card">
+                        <div class="track-stat-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <span class="track-stat-number">{{ $completedAssignments }}/{{ $totalAssignments }}</span>
+                        <span class="track-stat-label">@lang('l.assignments')</span>
+                    </div>
+
+                    <div class="track-stat-card">
+                        <div class="track-stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <span class="track-stat-number">{{ $assignmentProgress }}%</span>
+                        <span class="track-stat-label">@lang('l.assignment_progress')</span>
+                    </div>
+                </div>
+
+                <div class="track-dashboard-progress-row">
+                    <span>Overall Progress</span>
+                    <span class="track-dashboard-progress-text">{{ $assignmentProgress }}%</span>
+                </div>
+
+                <div class="track-dashboard-progress-bar">
+                    <div class="track-dashboard-progress-fill" style="width: {{ $assignmentProgress }}%;"></div>
+                </div>
+            </div>
+
             <div class="track-tabs-wrap">
                 <ul class="nav track-tabs" id="trackTabs" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -481,7 +744,7 @@
                                 @php
                                     $displayCardCourseName = $course->name;
 
-                                    if (request('track') === 'digital-sat') {
+                                    if ($course->track_slug === 'digital-sat') {
                                         $displayCardCourseName = __('l.digital_sat_course');
                                     }
                                 @endphp
@@ -614,7 +877,7 @@
                                 @php
                                     $displayProgressCourseName = $course->name;
 
-                                    if (request('track') === 'digital-sat') {
+                                    if ($course->track_slug === 'digital-sat') {
                                         $displayProgressCourseName = __('l.digital_sat_course');
                                     }
 

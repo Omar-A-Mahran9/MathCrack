@@ -489,6 +489,180 @@
             font-weight:800 !important;
         }
 
+
+        .status-sidebar-sticky {
+            position: sticky;
+            top: 95px;
+        }
+
+        .status-action-panel {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 12px 30px rgba(15,23,42,.08);
+            margin-bottom: 18px;
+        }
+
+        .status-big-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.6rem;
+            margin-bottom: 14px;
+        }
+
+        .status-big-icon.not-started {
+            background: linear-gradient(135deg, #64748b 0%, #334155 100%);
+        }
+
+        .status-big-icon.in-progress {
+            background: linear-gradient(135deg, var(--mc-warn) 0%, var(--mc-warn-2) 100%);
+        }
+
+        .status-big-icon.completed {
+            background: linear-gradient(135deg, var(--mc-success) 0%, var(--mc-success-2) 100%);
+        }
+
+        .status-main-title {
+            margin: 0 0 6px 0;
+            color: #0f172a;
+            font-size: 1.35rem;
+            font-weight: 950;
+        }
+
+        .status-main-desc {
+            margin: 0;
+            color: #64748b;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
+        .attempts-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .attempt-mini-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .attempt-mini-number {
+            display: block;
+            color: var(--mc-primary);
+            font-size: 1.45rem;
+            font-weight: 950;
+            line-height: 1;
+        }
+
+        .attempt-mini-label {
+            display: block;
+            margin-top: 7px;
+            color: #64748b;
+            font-weight: 800;
+            font-size: .82rem;
+        }
+
+        .main-cta-button {
+            width: 100%;
+            justify-content: center;
+            min-height: 56px;
+            font-size: 1.08rem;
+            border-radius: 16px;
+            margin-bottom: 10px;
+        }
+
+        .secondary-action-row {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .module-progress-mini {
+            margin: 18px 0;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 15px;
+        }
+
+        .module-progress-title {
+            color: #0f172a;
+            font-weight: 950;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-steps {
+            display: grid;
+            gap: 9px;
+        }
+
+        .module-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #64748b;
+            font-weight: 800;
+        }
+
+        .module-step-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #e2e8f0;
+            color: #475569;
+            font-size: .78rem;
+            flex: 0 0 auto;
+        }
+
+        .module-step.current .module-step-icon {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .module-step.done .module-step-icon {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .module-step.current {
+            color: #92400e;
+        }
+
+        .module-step.done {
+            color: #166534;
+        }
+
+        .attempt-highlight {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-weight: 900;
+            margin-top: 12px;
+        }
+
+
         @media (max-width:768px){
             .test-hero h1{ font-size:1.8rem; }
             .info-grid{ grid-template-columns:1fr; }
@@ -497,6 +671,7 @@
             .btn-action{ justify-content:center; }
             .hero-score-box{ width:100%; }
             .test-hero h1{ line-height:1.25; }
+            .status-sidebar-sticky{ position: static; }
         }
     </style>
 @endsection
@@ -614,6 +789,47 @@
 
     $currentModuleNumber = (int) ($activeAttempt->current_module ?? 1);
     $activeStatus = $activeAttempt->status ?? 'not_started';
+
+    $completedAttemptsCount = $allAttempts->where('status', 'completed')->count();
+    $maxAttemptsAllowed = (int) ($test->max_attempts ?? 1);
+    $remainingAttemptsCount = max(0, $maxAttemptsAllowed - $completedAttemptsCount);
+    $nextAttemptNumber = min($maxAttemptsAllowed, $completedAttemptsCount + 1);
+
+    $bestScore800 = null;
+    foreach ($allAttempts->where('status', 'completed') as $attemptForBestScore) {
+        $rawEarnedBest = $calcRawEarnedForAttempt($attemptForBestScore->id);
+        $score800Best = $calcScaled800($rawEarnedBest);
+
+        if ($bestScore800 === null || $score800Best > $bestScore800) {
+            $bestScore800 = $score800Best;
+        }
+    }
+
+    $statusUiType = 'not-started';
+    $statusUiIcon = 'fas fa-play';
+    $statusUiTitle = __('l.not_started');
+    $statusUiDesc = __('l.click_start_to_begin');
+
+    if ($activeAttempt && in_array($activeStatus, ['part1_in_progress', 'part2_in_progress', 'break_time'])) {
+        $statusUiType = 'in-progress';
+        $statusUiIcon = $activeStatus === 'break_time' ? 'fas fa-coffee' : 'fas fa-clock';
+        $statusUiTitle = $activeStatus === 'break_time'
+            ? __('l.break_time')
+            : 'Module ' . $currentModuleNumber . ' in progress';
+        $statusUiDesc = $activeStatus === 'break_time'
+            ? 'Ready for Module ' . ($currentModuleNumber + 1)
+            : __('l.continue_where_you_left');
+    } elseif ($activeAttempt && $activeStatus === 'completed') {
+        $statusUiType = 'completed';
+        $statusUiIcon = 'fas fa-check';
+        $statusUiTitle = __('l.test_completed');
+        $statusUiDesc = __('l.final_score') . ' ' . (int) ($activeScore800 ?? $baseScore) . '/' . $maxScore;
+    } elseif ($activeAttempt && $activeStatus === 'not_started') {
+        $statusUiType = 'not-started';
+        $statusUiIcon = 'fas fa-play';
+        $statusUiTitle = __('l.ready_to_start');
+        $statusUiDesc = __('l.test_ready_to_start_desc');
+    }
 @endphp
 
 <div class="main-content mc-wrap">
@@ -767,176 +983,198 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="status-section">
+            <div class="status-sidebar-sticky">
+                <div class="status-section">
+                    <div class="status-action-panel">
+                        <div class="status-big-icon {{ $statusUiType }}">
+                            <i class="{{ $statusUiIcon }}"></i>
+                        </div>
 
-                @if($activeAttempt)
-                    @if($activeStatus === 'not_started')
-                        <div class="current-status status-not-started">
-                            <div class="status-icon"><i class="fas fa-play"></i></div>
-                            <div class="status-info">
-                                <h4>@lang('l.ready_to_start')</h4>
-                                <p>@lang('l.test_ready_to_start_desc')</p>
+                        <h3 class="status-main-title">{{ $statusUiTitle }}</h3>
+                        <p class="status-main-desc">{{ $statusUiDesc }}</p>
+
+                        <div class="attempt-highlight">
+                            <i class="fas fa-redo"></i>
+                            Attempt {{ $nextAttemptNumber }} of {{ $maxAttemptsAllowed }}
+                        </div>
+
+                        <div class="attempts-mini-grid">
+                            <div class="attempt-mini-card">
+                                <span class="attempt-mini-number">{{ $remainingAttemptsCount }}</span>
+                                <span class="attempt-mini-label">Attempts Left</span>
+                            </div>
+
+                            <div class="attempt-mini-card">
+                                <span class="attempt-mini-number">{{ $bestScore800 ?? '-' }}</span>
+                                <span class="attempt-mini-label">Best Score</span>
                             </div>
                         </div>
-                    @elseif($activeStatus === 'break_time')
-                        <div class="current-status status-in-progress">
-                            <div class="status-icon"><i class="fas fa-coffee"></i></div>
-                            <div class="status-info">
-                                <h4>@lang('l.break_time')</h4>
-                                <p>Ready for Module {{ $currentModuleNumber + 1 }}</p>
-                            </div>
-                        </div>
-                    @elseif(in_array($activeStatus, ['part1_in_progress', 'part2_in_progress']))
-                        <div class="current-status status-in-progress">
-                            <div class="status-icon"><i class="fas fa-clock"></i></div>
-                            <div class="status-info">
-                                <h4>Module {{ $currentModuleNumber }} in progress</h4>
-                                <p>@lang('l.continue_where_you_left')</p>
-                            </div>
-                        </div>
-                    @elseif($activeStatus === 'completed')
-                        <div class="current-status status-completed">
-                            <div class="status-icon"><i class="fas fa-check"></i></div>
-                            <div class="status-info">
-                                <h4>@lang('l.test_completed')</h4>
-                                <p>@lang('l.final_score') {{ (int) ($activeScore800 ?? $baseScore) }}/{{ $maxScore }}</p>
-                            </div>
-                        </div>
-                    @endif
-                @else
-                    <div class="current-status status-not-started">
-                        <div class="status-icon"><i class="fas fa-play"></i></div>
-                        <div class="status-info">
-                            <h4>@lang('l.not_started')</h4>
-                            <p>@lang('l.click_start_to_begin')</p>
-                        </div>
-                    </div>
-                @endif
 
-                @if(!$activeAttempt || $activeStatus === 'not_started')
-                    <div class="warning-notice">
-                        <div class="notice-header">
-                            <i class="fas fa-exclamation-triangle notice-icon"></i>
-                            <h6 class="notice-title">@lang('l.important_notice')</h6>
-                        </div>
-                        <p class="notice-content">@lang('l.test_start_warning')</p>
-                    </div>
-                @endif
+                        @if($activeAttempt && in_array($activeStatus, ['part1_in_progress', 'part2_in_progress', 'break_time']))
+                            <div class="module-progress-mini">
+                                <div class="module-progress-title">
+                                    <i class="fas fa-route"></i>
+                                    Test Progress
+                                </div>
 
-                <div class="action-buttons">
-                    @if($activeAttempt)
-                        @if($activeStatus === 'not_started')
-                            <button type="button" class="btn-action btn-primary-action" onclick="startTest()">
-                                <i class="fas fa-play"></i>
-                                @lang('l.start_test')
-                            </button>
-                        @elseif(in_array($activeStatus, ['part1_in_progress', 'part2_in_progress', 'break_time']))
-                            <a href="{{ route('dashboard.users.tests.take', $test->id) }}" class="btn-action btn-warning-action">
-                                <i class="fas fa-play"></i>
-                                @lang('l.continue_test')
-                            </a>
-                        @elseif($activeStatus === 'completed')
-                            @if($remainingAttempts > 0)
-                                <button type="button" class="btn-action btn-primary-action" onclick="startTest()">
-                                    <i class="fas fa-redo"></i>
-                                    @lang('l.start_new_attempt')
-                                </button>
-                            @endif
-                            <a href="{{ route('dashboard.users.tests.results', $test->id) }}" class="btn-action btn-success-action">
-                                <i class="fas fa-chart-line"></i>
-                                @lang('l.view_results')
-                            </a>
-                        @endif
-                    @else
-                        @if($remainingAttempts > 0)
-                            <button type="button" class="btn-action btn-primary-action" onclick="startTest()">
-                                <i class="fas fa-play"></i>
-                                @lang('l.start_test')
-                            </button>
-                        @else
-                            <div class="alert alert-warning mb-0" style="width:100%;">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                @lang('l.no_more_attempts_available')
-                            </div>
-                        @endif
-                    @endif
-
-                    <a href="{{ route('dashboard.users.tests.index', request()->only('track')) }}" class="btn-action btn-secondary-action">
-                        @if(app()->getLocale() == 'ar')
-                            <i class="fas fa-arrow-right"></i>
-                        @else
-                            <i class="fas fa-arrow-left"></i>
-                        @endif
-                        @lang('l.back_to_tests')
-                    </a>
-                </div>
-
-                @if(($allAttempts->where('status', 'completed')->count() ?? 0) > 0)
-                    <div class="previous-attempts mt-4">
-                        <div class="attempts-header">
-                            <h5>
-                                <i class="fas fa-history"></i>
-                                @lang('l.previous_attempts')
-                            </h5>
-                        </div>
-
-                        <div class="attempts-table-container">
-                            <table class="table table-hover attempts-table">
-                                <thead>
-                                    <tr>
-                                        <th>@lang('l.attempt_number')</th>
-                                        <th>@lang('l.attempt_date')</th>
-                                        <th>@lang('l.attempt_score')</th>
-                                        <th>@lang('l.percentage')</th>
-                                        <th>@lang('l.actions')</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($allAttempts->where('status', 'completed')->sortByDesc('created_at') as $attempt)
+                                <div class="module-steps">
+                                    @foreach($modules as $module)
                                         @php
-                                            $rawEarned = $calcRawEarnedForAttempt($attempt->id);
-                                            $score800  = $calcScaled800($rawEarned);
-                                            $percentage = round(($score800 / $maxScore) * 100, 1);
+                                            $moduleClass = '';
 
-                                            if ($percentage >= 80) {
-                                                $badgeClass = 'excellent';
-                                            } elseif ($percentage >= 60) {
-                                                $badgeClass = 'good';
-                                            } else {
-                                                $badgeClass = 'needs-improvement';
+                                            if ($module['number'] < $currentModuleNumber) {
+                                                $moduleClass = 'done';
+                                            } elseif ($module['number'] === $currentModuleNumber) {
+                                                $moduleClass = 'current';
                                             }
                                         @endphp
-                                        <tr class="attempt-row">
-                                            <td><span class="attempt-number-badge">{{ $attempt->attempt_number }}</span></td>
-                                            <td>
-                                                <div class="attempt-date">
-                                                    <div class="date">{{ $attempt->created_at->format('Y-m-d') }}</div>
-                                                    <small class="time">{{ $attempt->created_at->format('H:i') }}</small>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="score-display">
-                                                    <span class="score-value">{{ $score800 }}</span>
-                                                    <span class="score-total">/ {{ $maxScore }}</span>
-                                                </div>
-                                            </td>
-                                            <td><span class="percentage-badge {{ $badgeClass }}">{{ $percentage }}%</span></td>
-                                            <td>
-                                                <a class="btn btn-sm btn-outline-primary view-attempt-btn"
-                                                   href="{{ route('dashboard.users.tests.results', $test->id) }}?attempt_id={{ $attempt->id }}"
-                                                   title="@lang('l.view_details')">
-                                                    <i class="fas fa-eye me-1"></i>
-                                                    @lang('l.view_details')
-                                                </a>
-                                            </td>
-                                        </tr>
+
+                                        <div class="module-step {{ $moduleClass }}">
+                                            <span class="module-step-icon">
+                                                @if($moduleClass === 'done')
+                                                    <i class="fas fa-check"></i>
+                                                @elseif($moduleClass === 'current')
+                                                    <i class="fas fa-play"></i>
+                                                @else
+                                                    {{ $module['number'] }}
+                                                @endif
+                                            </span>
+
+                                            <span>{{ $module['title'] }}</span>
+                                        </div>
                                     @endforeach
-                                </tbody>
-                            </table>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if(!$activeAttempt || $activeStatus === 'not_started')
+                            <div class="warning-notice">
+                                <div class="notice-header">
+                                    <i class="fas fa-exclamation-triangle notice-icon"></i>
+                                    <h6 class="notice-title">@lang('l.important_notice')</h6>
+                                </div>
+                                <p class="notice-content">@lang('l.test_start_warning')</p>
+                            </div>
+                        @endif
+
+                        <div class="action-buttons">
+                            @if($activeAttempt)
+                                @if($activeStatus === 'not_started')
+                                    <button type="button" class="btn-action btn-primary-action main-cta-button" onclick="startTest()">
+                                        <i class="fas fa-play"></i>
+                                        @lang('l.start_test')
+                                    </button>
+                                @elseif(in_array($activeStatus, ['part1_in_progress', 'part2_in_progress', 'break_time']))
+                                    <a href="{{ route('dashboard.users.tests.take', $test->id) }}" class="btn-action btn-warning-action main-cta-button">
+                                        <i class="fas fa-play"></i>
+                                        @lang('l.continue_test')
+                                    </a>
+                                @elseif($activeStatus === 'completed')
+                                    @if($remainingAttempts > 0)
+                                        <button type="button" class="btn-action btn-primary-action main-cta-button" onclick="startTest()">
+                                            <i class="fas fa-redo"></i>
+                                            @lang('l.start_new_attempt')
+                                        </button>
+                                    @endif
+
+                                    <a href="{{ route('dashboard.users.tests.results', $test->id) }}" class="btn-action btn-success-action main-cta-button">
+                                        <i class="fas fa-chart-line"></i>
+                                        @lang('l.view_results')
+                                    </a>
+                                @endif
+                            @else
+                                @if($remainingAttempts > 0)
+                                    <button type="button" class="btn-action btn-primary-action main-cta-button" onclick="startTest()">
+                                        <i class="fas fa-play"></i>
+                                        @lang('l.start_test')
+                                    </button>
+                                @else
+                                    <div class="alert alert-warning mb-0" style="width:100%;">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        @lang('l.no_more_attempts_available')
+                                    </div>
+                                @endif
+                            @endif
+
+                            <div class="secondary-action-row">
+                                <a href="{{ route('dashboard.users.tests.index', request()->only('track')) }}" class="btn-action btn-secondary-action main-cta-button">
+                                    @if(app()->getLocale() == 'ar')
+                                        <i class="fas fa-arrow-right"></i>
+                                    @else
+                                        <i class="fas fa-arrow-left"></i>
+                                    @endif
+                                    @lang('l.back_to_tests')
+                                </a>
+                            </div>
                         </div>
                     </div>
-                @endif
 
+                    @if(($allAttempts->where('status', 'completed')->count() ?? 0) > 0)
+                        <div class="previous-attempts mt-4">
+                            <div class="attempts-header">
+                                <h5>
+                                    <i class="fas fa-history"></i>
+                                    @lang('l.previous_attempts')
+                                </h5>
+                            </div>
+
+                            <div class="attempts-table-container">
+                                <table class="table table-hover attempts-table">
+                                    <thead>
+                                        <tr>
+                                            <th>@lang('l.attempt_number')</th>
+                                            <th>@lang('l.attempt_date')</th>
+                                            <th>@lang('l.attempt_score')</th>
+                                            <th>@lang('l.percentage')</th>
+                                            <th>@lang('l.actions')</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($allAttempts->where('status', 'completed')->sortByDesc('created_at') as $attempt)
+                                            @php
+                                                $rawEarned = $calcRawEarnedForAttempt($attempt->id);
+                                                $score800  = $calcScaled800($rawEarned);
+                                                $percentage = round(($score800 / $maxScore) * 100, 1);
+
+                                                if ($percentage >= 80) {
+                                                    $badgeClass = 'excellent';
+                                                } elseif ($percentage >= 60) {
+                                                    $badgeClass = 'good';
+                                                } else {
+                                                    $badgeClass = 'needs-improvement';
+                                                }
+                                            @endphp
+                                            <tr class="attempt-row">
+                                                <td><span class="attempt-number-badge">{{ $attempt->attempt_number }}</span></td>
+                                                <td>
+                                                    <div class="attempt-date">
+                                                        <div class="date">{{ $attempt->created_at->format('Y-m-d') }}</div>
+                                                        <small class="time">{{ $attempt->created_at->format('H:i') }}</small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="score-display">
+                                                        <span class="score-value">{{ $score800 }}</span>
+                                                        <span class="score-total">/ {{ $maxScore }}</span>
+                                                    </div>
+                                                </td>
+                                                <td><span class="percentage-badge {{ $badgeClass }}">{{ $percentage }}%</span></td>
+                                                <td>
+                                                    <a class="btn btn-sm btn-outline-primary view-attempt-btn"
+                                                       href="{{ route('dashboard.users.tests.results', $test->id) }}?attempt_id={{ $attempt->id }}"
+                                                       title="@lang('l.view_details')">
+                                                        <i class="fas fa-eye me-1"></i>
+                                                        @lang('l.view_details')
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

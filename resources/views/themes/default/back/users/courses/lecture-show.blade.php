@@ -190,6 +190,141 @@
             height: 100% !important;
         }
 
+
+        .lesson-navigation-card {
+            position: sticky;
+            top: 95px;
+        }
+
+        .course-progress-small {
+            margin-bottom: 16px;
+        }
+
+        .course-progress-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            color: #0f172a;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .course-progress-track {
+            height: 9px;
+            background: #e5e7eb;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .course-progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            border-radius: 999px;
+        }
+
+        .lesson-list {
+            display: grid;
+            gap: 8px;
+            max-height: 520px;
+            overflow-y: auto;
+            padding-inline-end: 4px;
+        }
+
+        .lesson-list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 11px;
+            color: #334155;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .lesson-list-item:hover {
+            color: #1e40af;
+            border-color: #bfdbfe;
+            background: #eff6ff;
+            transform: translateY(-1px);
+        }
+
+        .lesson-list-item.active {
+            border-color: #2563eb;
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .lesson-list-status {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #e2e8f0;
+            color: #475569;
+            flex: 0 0 auto;
+            font-size: 0.8rem;
+        }
+
+        .lesson-list-item.active .lesson-list-status {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .lesson-list-item.completed .lesson-list-status {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .lesson-list-title {
+            font-weight: 800;
+            line-height: 1.35;
+            margin-bottom: 4px;
+        }
+
+        .lesson-list-meta {
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .lesson-next-prev {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .lesson-nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-weight: 800;
+            text-decoration: none;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            background: #fff;
+            transition: all 0.25s ease;
+        }
+
+        .lesson-nav-btn:hover {
+            color: #1e40af;
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            transform: translateY(-2px);
+        }
+
+        .lesson-nav-btn.disabled {
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
         @media (max-width: 768px) {
             .video-container {
                 height: 260px;
@@ -481,6 +616,14 @@
             .assignment-header {
                 flex-direction: column;
             }
+
+            .lesson-navigation-card {
+                position: static;
+            }
+
+            .lesson-next-prev {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 @endsection
@@ -589,6 +732,38 @@
 
             <div class="row">
                 <div class="col-lg-8">
+                    <div class="lesson-next-prev">
+                        @if($previousLecture)
+                            <a
+                                href="{{ route('dashboard.users.courses-lectures-show', ['id' => encrypt($previousLecture->id)]) }}"
+                                class="lesson-nav-btn"
+                            >
+                                <i class="fas fa-arrow-left"></i>
+                                Previous Lesson
+                            </a>
+                        @else
+                            <span class="lesson-nav-btn disabled">
+                                <i class="fas fa-arrow-left"></i>
+                                Previous Lesson
+                            </span>
+                        @endif
+
+                        @if($nextLecture)
+                            <a
+                                href="{{ route('dashboard.users.courses-lectures-show', ['id' => encrypt($nextLecture->id)]) }}"
+                                class="lesson-nav-btn"
+                            >
+                                Next Lesson
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        @else
+                            <span class="lesson-nav-btn disabled">
+                                Next Lesson
+                                <i class="fas fa-arrow-right"></i>
+                            </span>
+                        @endif
+                    </div>
+
                     @if ($lecture->video_url)
                         <div class="lesson-card" id="@lang('l.video')Lesson">
                             <h3 class="lesson-card-title">
@@ -771,6 +946,76 @@
                 </div>
 
                 <div class="col-lg-4">
+                    <div class="sidebar-card lesson-navigation-card">
+                        <h5 class="sidebar-title">
+                            <i class="fas fa-list-ul"></i>
+                            Course Lessons
+                        </h5>
+
+                        <div class="course-progress-small">
+                            <div class="course-progress-label">
+                                <span>Course Progress</span>
+                                <span>{{ $courseProgress ?? 0 }}%</span>
+                            </div>
+
+                            <div class="course-progress-track">
+                                <div class="course-progress-fill" style="width: {{ $courseProgress ?? 0 }}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="lesson-list">
+                            @foreach($courseLectures ?? collect() as $index => $courseLecture)
+                                @php
+                                    $isCurrentLecture = $courseLecture->id === $lecture->id;
+
+                                    $isCompletedLecture = false;
+
+                                    if ($courseLecture->assignments && $courseLecture->assignments->count() > 0) {
+                                        $isCompletedLecture = true;
+
+                                        foreach ($courseLecture->assignments as $navAssignment) {
+                                            $navStudentAssignment = $navAssignment->studentAssignments
+                                                ->where('student_id', auth()->id())
+                                                ->first();
+
+                                            if (!$navStudentAssignment || !$navStudentAssignment->submitted_at) {
+                                                $isCompletedLecture = false;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    $lessonItemClass = $isCurrentLecture ? 'active' : ($isCompletedLecture ? 'completed' : '');
+                                @endphp
+
+                                <a
+                                    href="{{ route('dashboard.users.courses-lectures-show', ['id' => encrypt($courseLecture->id)]) }}"
+                                    class="lesson-list-item {{ $lessonItemClass }}"
+                                >
+                                    <span class="lesson-list-status">
+                                        @if($isCurrentLecture)
+                                            <i class="fas fa-play"></i>
+                                        @elseif($isCompletedLecture)
+                                            <i class="fas fa-check"></i>
+                                        @else
+                                            {{ $index + 1 }}
+                                        @endif
+                                    </span>
+
+                                    <span>
+                                        <span class="lesson-list-title">
+                                            {{ \Illuminate\Support\Str::limit($courseLecture->name, 55) }}
+                                        </span>
+
+                                        <span class="lesson-list-meta">
+                                            {{ $courseLecture->assignments->count() }} @lang('l.assignments')
+                                        </span>
+                                    </span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+
                     <div class="sidebar-card">
                         <h5 class="sidebar-title">
                             <i class="fas fa-book"></i>

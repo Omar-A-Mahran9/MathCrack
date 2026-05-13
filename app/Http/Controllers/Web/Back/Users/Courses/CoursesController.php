@@ -19,21 +19,33 @@ use Illuminate\Support\Str;
 class CoursesController extends Controller
 {
     public function index(Request $request)
-{
-    $track = $request->query('track');
+    {
+        $track = $request->query('track');
 
-    $coursesQuery = Course::where('level_id', auth()->user()->level_id)
-        ->with(['level', 'lectures'])
-        ->withCount('lectures');
+        $coursesQuery = Course::where('level_id', auth()->user()->level_id)
+            ->with(['level', 'lectures.assignments.studentAssignments'])
+            ->withCount('lectures');
 
-    if ($track) {
-        $coursesQuery->where('track_slug', $track);
+        if ($track) {
+            $coursesQuery->where('track_slug', $track);
+        }
+
+        $allCourses = $coursesQuery->get();
+
+        $courses = $allCourses
+            ->where('lectures_count', '>', 0)
+            ->sortByDesc('lectures_count')
+            ->unique('track_slug')
+            ->values();
+
+        if (!$track && $courses->count() === 1 && $courses->first()->track_slug) {
+            return redirect()->route('dashboard.users.courses', [
+                'track' => $courses->first()->track_slug
+            ]);
+        }
+
+        return view('themes/default/back.users.courses.courses-list', compact('courses', 'track'));
     }
-
-    $courses = $coursesQuery->get();
-
-    return view('themes/default/back.users.courses.courses-list', compact('courses', 'track'));
-}
     public function show(Request $request)
     {
         $course = Course::with(['level', 'lectures.assignments'])
@@ -123,23 +135,76 @@ class CoursesController extends Controller
     {
         $user = auth()->user();
 
-        $lecture = Lecture::with(['course', 'assignments'])
+        $lecture = Lecture::with([
+                'course.level',
+                'course.lectures.assignments.studentAssignments',
+                'assignments.questions',
+                'assignments.studentAssignments'
+            ])
             ->findOrFail(decrypt($request->id));
+
+        $courseLectures = $lecture->course->lectures
+            ->sortBy('id')
+            ->values();
+
+        $currentLectureIndex = $courseLectures->search(function ($item) use ($lecture) {
+            return $item->id === $lecture->id;
+        });
+
+        $previousLecture = $currentLectureIndex !== false && $currentLectureIndex > 0
+            ? $courseLectures[$currentLectureIndex - 1]
+            : null;
+
+        $nextLecture = $currentLectureIndex !== false && $currentLectureIndex < ($courseLectures->count() - 1)
+            ? $courseLectures[$currentLectureIndex + 1]
+            : null;
+
+        $completedLessons = $courseLectures->filter(function ($courseLecture) use ($user) {
+            if (!$courseLecture->assignments || $courseLecture->assignments->count() === 0) {
+                return false;
+            }
+
+            foreach ($courseLecture->assignments as $assignment) {
+                $studentAssignment = $assignment->studentAssignments
+                    ->where('student_id', $user->id)
+                    ->first();
+
+                if (!$studentAssignment || !$studentAssignment->submitted_at) {
+                    return false;
+                }
+            }
+
+            return true;
+        })->count();
+
+        $courseProgress = $courseLectures->count() > 0
+            ? round(($completedLessons / $courseLectures->count()) * 100)
+            : 0;
+
+        $viewData = compact(
+            'lecture',
+            'courseLectures',
+            'currentLectureIndex',
+            'previousLecture',
+            'nextLecture',
+            'completedLessons',
+            'courseProgress'
+        );
 
         // هل مجانية
         if ($lecture->type == 'free') {
-            return view('themes/default/back.users.courses.lecture-show', compact('lecture'));
+            return view('themes/default/back.users.courses.lecture-show', $viewData);
         // هل مدفوعة وقام بدفعها او قام بدفع الكورس بالكامل
         } elseif ($lecture->type == 'price') {
             if ($user->hasPaidLecture($lecture->id, $lecture->course_id) || $user->hasPurchasedCourseLectures($lecture->course_id)) {
-                return view('themes/default/back.users.courses.lecture-show', compact('lecture'));
+                return view('themes/default/back.users.courses.lecture-show', $viewData);
             } else {
                 return view('themes/default/back.users.courses.lecture-purchase', compact('lecture'));
             }
         // هل شهرية أو كورس وقام بشراء الكورس بالكامل
         } elseif ($lecture->type == 'month' || $lecture->type == 'course') {
             if ($user->hasPurchasedCourseLectures($lecture->course_id)) {
-                return view('themes/default/back.users.courses.lecture-show', compact('lecture'));
+                return view('themes/default/back.users.courses.lecture-show', $viewData);
             } else {
                 return view('themes/default/back.users.courses.lecture-purchase', compact('lecture'));
             }
