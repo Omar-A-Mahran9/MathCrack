@@ -151,6 +151,38 @@
             justify-content: center;
             gap: 8px;
         }
+
+        .security-notice {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0ea5e9;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 18px 0;
+        }
+
+        .security-notice .notice-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .security-notice .notice-icon {
+            color: #0369a1;
+            font-size: 1.1rem;
+        }
+
+        .security-notice .notice-title {
+            color: #0c4a6e;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .security-notice .notice-content {
+            color: #0369a1;
+            margin: 0;
+            font-size: 0.9rem;
+        }
     </style>
 @endsection
 
@@ -205,6 +237,22 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="row">
             <div class="col-lg-8 mb-4">
                 <div class="card purchase-card">
@@ -248,6 +296,16 @@
                         </div>
 
                         <div class="summary-row">
+                            <span>Book</span>
+                            <span>{{ $book->title }}</span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Course</span>
+                            <span>{{ $book->course->name ?? '-' }}</span>
+                        </div>
+
+                        <div class="summary-row">
                             <span>Track</span>
                             <span>{{ $trackTitle }}</span>
                         </div>
@@ -273,6 +331,16 @@
                             <span>{{ $book->allow_print ? 'Allowed' : 'Not allowed' }}</span>
                         </div>
 
+                        <div class="security-notice">
+                            <div class="notice-header">
+                                <i class="fas fa-shield-alt notice-icon"></i>
+                                <h6 class="notice-title">Secure Payment</h6>
+                            </div>
+                            <div class="notice-content">
+                                Your payment is processed securely through the existing payment gateway.
+                            </div>
+                        </div>
+
                         <div class="mt-4">
                             @if($userBook)
                                 <div class="book-lock-box unlocked">
@@ -290,14 +358,14 @@
                                     Locked - Purchase required
                                 </div>
 
-                                <form action="{{ route('dashboard.users.process-payment') }}" method="POST">
+                                <form action="{{ route('dashboard.users.process-payment') }}" method="POST" id="book-payment-form">
                                     @csrf
                                     <input type="hidden" name="book_id" value="{{ $book->id }}">
                                     <input type="hidden" name="track" value="{{ $track }}">
 
-                                    <button type="submit" class="btn btn-primary book-action-btn" onclick="return confirm('Confirm book purchase?')">
-                                        <i class="fas fa-shopping-cart"></i>
-                                        {{ $isFree ? 'Get Free Book' : 'Purchase Book' }}
+                                    <button type="submit" class="btn btn-primary book-action-btn" id="book-purchase-btn">
+                                        <i class="fas fa-credit-card"></i>
+                                        {{ $isFree ? 'Get Free Book' : 'Proceed to Payment' }}
                                     </button>
                                 </form>
                             @endif
@@ -315,4 +383,38 @@
 @endsection
 
 @section('js')
+    <script>
+        $(document).ready(function() {
+            $('#book-payment-form').submit(function(e) {
+                const form = this;
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Confirm Purchase',
+                    text: 'Are you sure you want to purchase this book?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Yes, Purchase Now',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Processing Payment',
+                            text: 'Please wait',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 @endsection

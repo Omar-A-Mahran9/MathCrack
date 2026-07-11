@@ -811,8 +811,9 @@ class PaymentController extends Controller
             return $this->redirectToPaymentFailed($invoice, $request);
         }
 
-        if ($invoice->category === 'book') {
-            return $this->redirectToPaymentSuccess($invoice, $request);
+        if ($invoice->category === 'book' && ! $this->grantBookAccessForPaidInvoice($invoice)) {
+            return $this->redirectToPaymentFailed($invoice, $request)
+                ->with('error', 'Book payment was paid, but access could not be assigned. Please contact support.');
         }
 
         return view('themes/default/back.users.payment.success', compact('invoice'));
@@ -953,14 +954,10 @@ class PaymentController extends Controller
         $target = route('dashboard.users.payment-success', ['invoice_id' => $invoice->id]);
 
         if ($invoice->category === 'book') {
-            $bookAccess = $this->grantBookAccessForPaidInvoice($invoice);
-
-            if (! $bookAccess?->book) {
+            if (! $this->grantBookAccessForPaidInvoice($invoice)) {
                 return $this->redirectToPaymentFailed($invoice, $request ?? request(), $response)
                     ->with('error', 'Book payment was paid, but access could not be assigned. Please contact support.');
             }
-
-            $target = route('books.reader.read', ['book' => $bookAccess->book->slug]);
         }
 
         $this->clearPendingKashierInvoice($invoice, $request);

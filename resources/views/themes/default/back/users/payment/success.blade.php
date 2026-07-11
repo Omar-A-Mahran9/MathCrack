@@ -158,7 +158,9 @@
                             <div class="detail-row">
                                 <span>@lang('l.type')</span>
                                 <span>
-                                    @if($invoice->category == 'quiz')
+                                    @if($invoice->category == 'book')
+                                        Book
+                                    @elseif($invoice->category == 'quiz')
                                         @if($invoice->type == 'single')
                                             @lang('l.single_test')
                                         @elseif($invoice->type == 'course')
@@ -189,7 +191,19 @@
 
                         <!-- أزرار العمل -->
                         <div class="action-buttons">
-                            @if($invoice->category == 'quiz')
+                            @if($invoice->category == 'book')
+                                @if($invoice->book)
+                                    <a href="{{ route('books.reader.read', ['book' => $invoice->book->slug]) }}"
+                                       class="btn btn-success-custom">
+                                        <i class="fas fa-book-open me-2"></i>Read Book
+                                    </a>
+                                @else
+                                    <a href="{{ route('dashboard.users.books') }}"
+                                       class="btn btn-success-custom">
+                                        <i class="fas fa-book me-2"></i>View Books
+                                    </a>
+                                @endif
+                            @elseif($invoice->category == 'quiz')
                                 @if($invoice->type == 'single')
                                     @php
                                         $test = \App\Models\Test::find($invoice->type_value);
