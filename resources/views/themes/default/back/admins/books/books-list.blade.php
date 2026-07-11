@@ -85,12 +85,14 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Course</label>
-                                    <select name="course_id" class="form-control" required>
-                                        <option value="">Select Course</option>
-                                        {{ $course->name }}
-                                        </option>
-                                        @endforeach
-                                    </select>
+                                <select name="course_id" class="form-control" required>
+    <option value="">Select Course</option>
+    @foreach($courses as $course)
+        <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>
+            {{ $course->name }}
+        </option>
+    @endforeach
+</select>
                                     <div class="form-hint">
                                         This book will appear only to students who belong to this course level/track.
                                     </div>
