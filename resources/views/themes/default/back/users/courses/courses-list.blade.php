@@ -1032,6 +1032,16 @@
                     </li>
 
                     <li class="nav-item" role="presentation">
+                        <a
+                            class="nav-link"
+                            href="{{ route('dashboard.users.books', ['track' => request('track', 'digital-sat')]) }}"
+                        >
+                            <i class="fas fa-book-open"></i>
+                            Books
+                        </a>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
                         <button
                             class="nav-link"
                             id="progress-tab"

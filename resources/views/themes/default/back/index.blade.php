@@ -31,6 +31,16 @@
             animation: pulse 2s infinite;
         }
 
+        .dashboard-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .dashboard-card-link:hover {
+            color: inherit;
+        }
+
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -102,6 +112,29 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Books Statistics -->
+            <div class="col-xxl-3 col-md-6">
+                <a href="{{ route('dashboard.admins.books') }}" class="dashboard-card-link">
+                    <div class="card stretch stretch-full dashboard-card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex gap-4 align-items-center">
+                                    <div class="avatar-text avatar-lg bg-danger-subtle text-danger stats-icon">
+                                        <i class="feather-book"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fs-2 fw-bold text-dark">
+                                            <span class="counter">{{ \App\Models\Book::query()->count() }}</span>
+                                        </div>
+                                        <h3 class="fs-14 fw-semibold">Books</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
             </div>
 
             <!-- Lectures Statistics -->

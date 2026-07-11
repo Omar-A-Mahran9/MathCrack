@@ -35,33 +35,20 @@ require __DIR__ . '/web/auth.php';
 
 /*
 |--------------------------------------------------------------------------
-| Mock Test Redirect (بسيط ومباشر)
+| Mock Test Redirect
 |--------------------------------------------------------------------------
 */
 Route::get('/start-mock', function() {
     if (!auth()->check()) {
         return redirect()->route('register', ['action' => 'mock', 'redirect' => 'mock-test', 'test' => 'mock']);
     }
-    
-    // التحقق من وجود Mock للمستخدم - عدل حسب قاعدة بياناتك
-    // هذه مجرد أمثلة، جرب واحدة تلو الأخرى
-    
-    // مثال 1: التحقق من جدول tests
-    // $hasMock = \App\Models\Test::where('level_id', auth()->user()->level_id)->exists();
-    
-    // مثال 2: التحقق من جدول exams  
-    // $hasMock = \App\Models\Exam::where('level_id', auth()->user()->level_id)->exists();
-    
-    // مثال 3: التحقق من جدول courses
-    // $hasMock = \App\Models\Course::where('level_id', auth()->user()->level_id)->exists();
-    
-    // حالياً نستخدم false للتجربة
+
     $hasMock = false;
-    
+
     if ($hasMock) {
         return redirect('/mock-test?course=1&test=mock');
     }
-    
+
     return view('message', [
         'title' => 'Unable to continue',
         'message' => 'No course found for your selected level.',
@@ -119,7 +106,9 @@ Route::group(
         Route::middleware(['auth'])->group(function () {
 
             Route::get('/home', [HomeController::class, 'index'])->name('home');
+
             Route::get('/mock-test', [UserTestsController::class, 'mockTest'])->name('mock-test');
+
             Route::prefix('/notification')->controller(NotificationController::class)->group(function () {
                 Route::get('/show', 'show')->name('dashboard.notification-show');
                 Route::delete('/delete', 'delete')->name('dashboard.notification-delete');
@@ -209,10 +198,6 @@ Route::post('reset-password', [PasswordResetController::class, 'resetPassword'])
     ->middleware('guest')
     ->name('password.update');
 
-
-
-
-
 Route::get('/mock-unavailable', function() {
     return view('message', [
         'message' => 'No course found for your selected level.'
@@ -221,3 +206,20 @@ Route::get('/mock-unavailable', function() {
 
 Route::get('/users/tests/{id}/report', [UserTestsController::class, 'report'])
     ->name('dashboard.users.tests.report');
+
+
+/*
+|--------------------------------------------------------------------------
+| Protected Book Reader
+|--------------------------------------------------------------------------
+| Keep these routes. They are used after purchase/admin preview to read book pages.
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::get('/books/{book:slug}/read', [\App\Http\Controllers\Web\Books\BookReaderController::class, 'read'])
+        ->name('books.reader.read');
+
+    Route::get('/reader/books/{book}/pages/{page}', [\App\Http\Controllers\Web\Books\BookReaderController::class, 'page'])
+        ->whereNumber('page')
+        ->name('books.reader.page');
+});

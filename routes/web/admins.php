@@ -53,14 +53,14 @@ use App\Http\Controllers\Web\Back\Admins\Tests\TestQuestionsController;
         Route::get('/edit', 'edit')->name('dashboard.admins.lectures-edit');
         Route::patch('/update', 'update')->name('dashboard.admins.lectures-update');
         Route::delete('/delete', 'delete')->name('dashboard.admins.lectures-delete');
-        // الواجبات
+        // Ø§Ù„ÙˆØ§Ø¬Ø¨Ø§Øª
         Route::get('/assignments', 'assignments')->name('dashboard.admins.lectures-assignments');
         Route::post('/assignments/store', 'storeAssignment')->name('dashboard.admins.lectures-assignments-store');
         Route::get('/assignments/edit', 'editAssignment')->name('dashboard.admins.lectures-assignments-edit');
         Route::patch('/assignments/update', 'updateAssignment')->name('dashboard.admins.lectures-assignments-update');
         Route::delete('/assignments/delete', 'deleteAssignment')->name('dashboard.admins.lectures-assignments-delete');
         Route::get('/assignments/preview', 'previewAssignment')->name('dashboard.admins.lectures-assignments-preview');
-        // الأسئلة
+        // Ø§Ù„Ø£Ø³Ø¦Ù„Ø©
         Route::get('/questions', 'questions')->name('dashboard.admins.lectures-questions');
         Route::post('/questions/store', 'storeQuestion')->name('dashboard.admins.lectures-questions-store');
         Route::get('/questions/edit', 'editQuestion')->name('dashboard.admins.lectures-questions-edit');
@@ -97,7 +97,21 @@ use App\Http\Controllers\Web\Back\Admins\Tests\TestQuestionsController;
         Route::patch('/update', 'update')->name('dashboard.admins.courses-update');
         Route::delete('/delete', 'delete')->name('dashboard.admins.courses-delete');
     });
-    // =======================================================customers==============================================================================================================
+    // 
+// --------------------------------------------------books-------------------------------------------------------------------------------------------------------------
+Route::prefix('admins/books')
+    ->controller(\App\Http\Controllers\Web\Back\Admins\Books\BooksController::class)
+    ->group(function () {
+        Route::get('/', 'index')->name('dashboard.admins.books');
+        Route::post('/store', 'store')->name('dashboard.admins.books-store');
+
+        Route::get('/edit', 'edit')->name('dashboard.admins.books-edit');
+        Route::post('/update', 'update')->name('dashboard.admins.books-update');
+
+        Route::post('/convert', 'convert')->name('dashboard.admins.books-convert');
+
+        Route::delete('/delete', 'delete')->name('dashboard.admins.books-delete');
+    });    // =======================================================customers==============================================================================================================
     Route::prefix('admins/students')->controller(CustomersController::class)->group(function () {
         Route::get('/', 'index')->name('dashboard.admins.customers');
         Route::get('/search', 'search')->name('dashboard.admins.customers-search');
@@ -365,7 +379,7 @@ Route::prefix('admins/tests/latex-import')->middleware('can:edit tests')->contro
     Route::post('/store', 'store')->name('dashboard.admins.tests-latex-import-store');
 });
 
-// صفحة أسئلة الاختبار نفس الاستايل القديم عندك
+// ØµÙØ­Ø© Ø£Ø³Ø¦Ù„Ø© Ø§Ù„Ø§Ø®ØªØ¨Ø§Ø± Ù†ÙØ³ Ø§Ù„Ø§Ø³ØªØ§ÙŠÙ„ Ø§Ù„Ù‚Ø¯ÙŠÙ… Ø¹Ù†Ø¯Ùƒ
 Route::prefix('admins/tests-questions')->controller(\App\Http\Controllers\Web\Back\Admins\Tests\TestQuestionsController::class)->group(function () {
 
     Route::get('/', 'index')->name('dashboard.admins.tests-questions');
@@ -380,7 +394,7 @@ Route::prefix('admins/tests-questions')->controller(\App\Http\Controllers\Web\Ba
     Route::get('/preview', 'preview')->name('dashboard.admins.tests-questions-preview');
 });
 
-    // test questions (يعتمد على query string test_id و id مثل كودك الحالي)
+    // test questions (ÙŠØ¹ØªÙ…Ø¯ Ø¹Ù„Ù‰ query string test_id Ùˆ id Ù…Ø«Ù„ ÙƒÙˆØ¯Ùƒ Ø§Ù„Ø­Ø§Ù„ÙŠ)
     Route::prefix('questions')->group(function () {
 
         Route::get('/', [\App\Http\Controllers\Web\Back\Admins\Tests\TestQuestionsController::class, 'index'])
@@ -392,7 +406,7 @@ Route::prefix('admins/tests-questions')->controller(\App\Http\Controllers\Web\Ba
         Route::get('/edit', [\App\Http\Controllers\Web\Back\Admins\Tests\TestQuestionsController::class, 'edit'])
             ->name('dashboard.admins.tests-questions-edit');
 
-        // POST لأن FormData + صور
+        // POST Ù„Ø£Ù† FormData + ØµÙˆØ±
         Route::post('/update', [\App\Http\Controllers\Web\Back\Admins\Tests\TestQuestionsController::class, 'update'])
             ->name('dashboard.admins.tests-questions-update');
 

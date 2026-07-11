@@ -60,6 +60,13 @@
                                 <span class="nxl-mtext">@lang('l.Courses')</span>
                             </a>
                         </li>
+
+                        <li class="nxl-item {{request()->is('admins/books*') ? 'active' : ''}}">
+                            <a href="{{route('dashboard.admins.books')}}" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-book"></i></span>
+                                <span class="nxl-mtext">Books</span>
+                            </a>
+                        </li>
                     @endcan
                     @can('show levels')
                         <li class="nxl-item {{request()->is('levels') ? 'active' : ''}}">

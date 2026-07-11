@@ -447,7 +447,7 @@
             .text-warning {
                 color: #d97706 !important;
             }
-<-- التحكم في حجم الخط اناف بار العلوي-->
+/* التحكم في حجم الخط الناف بار العلوي */
 /* تكبير الخطوط في النافبار العلوي */
 .student-nav-link {
     font-size: 20px !important;
@@ -911,6 +911,12 @@
                                     </a>
                                 </li>
                                 <li class="student-nav-item">
+                                    <a href="{{ route('dashboard.users.books', ['track' => request('track', 'digital-sat')]) }}" class="student-nav-link {{ request()->routeIs('dashboard.users.books*') ? 'active' : '' }}">
+                                        <i class="feather-book-open"></i>
+                                        Books
+                                    </a>
+                                </li>
+                                <li class="student-nav-item">
                                     <a href="{{ route('dashboard.users.lives') }}" class="student-nav-link {{ request()->is('dashboard/users/lives*') ? 'active' : '' }}">
                                         <i class="feather-tv"></i>
                                         @lang('l.Live')
@@ -985,6 +991,12 @@
                                 <a href="{{ route('dashboard.users.tests') }}" class="student-nav-link {{ request()->is('dashboard/users/tests*') ? 'active' : '' }}">
                                     <i class="feather-edit-3"></i>
                                     @lang('l.Tests')
+                                </a>
+                            </li>
+                            <li class="student-nav-item">
+                                <a href="{{ route('dashboard.users.books', ['track' => request('track', 'digital-sat')]) }}" class="student-nav-link {{ request()->routeIs('dashboard.users.books*') ? 'active' : '' }}">
+                                    <i class="feather-book-open"></i>
+                                    Books
                                 </a>
                             </li>
                             <li class="student-nav-item">
