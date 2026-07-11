@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Web\Back\Users\Payment;
 
 use App\Http\Controllers\Controller;
 use App\Services\Payments\KashierPaymentSessionService;
+use App\Models\Book;
 use App\Models\Lecture;
 use App\Models\Test;
 use App\Models\Invoice;
 use App\Models\Course;
 use App\Models\Live;
+use App\Models\UserBook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\PaymentGateway;
@@ -24,7 +26,9 @@ class PaymentController extends Controller
     public function processPayment(Request $request)
     {
         // التحقق من نوع العنصر المراد شراؤه
-        if ($request->has('lecture_id')) {
+        if ($request->has('book_id')) {
+            return $this->processBookPayment($request);
+        } elseif ($request->has('lecture_id')) {
             return $this->processLecturePayment($request);
         } elseif ($request->has('test_id') || ($request->has('payment_type') && in_array($request->payment_type, ['single_test', 'course_tests']))) {
             return $this->processTestPayment($request);
@@ -194,6 +198,86 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             logger('Payment Error: ' . $e->getMessage());
             return redirect()->back()->with('error', __('l.payment_failed'));
+        }
+    }
+
+    private function processBookPayment(Request $request)
+    {
+        $request->validate([
+            'book_id' => 'required|exists:books,id',
+            'track' => 'nullable|string|max:100',
+        ]);
+
+        $user = auth()->user();
+        $book = Book::with('course')->findOrFail($request->book_id);
+        $track = $request->input('track');
+
+        if ($book->status !== 'ready' || ! $this->bookBelongsToStudentCourse($book, $user, $track)) {
+            abort(404);
+        }
+
+        if ($this->hasActiveBookAccess($user, $book)) {
+            return redirect()->route('books.reader.read', ['book' => $book->slug])
+                ->with('info', 'Book access is already available.');
+        }
+
+        $amount = (float) $book->price;
+
+        if ($amount <= 0) {
+            $this->grantBookAccess($user, $book, 'free_book');
+
+            return redirect()->route('books.reader.read', ['book' => $book->slug])
+                ->with('success', 'Book access is now available.');
+        }
+
+        try {
+            $gatewayPercentage = PaymentGateway::where('name', 'kashier')->first()->fees ?? 0;
+            $gatewayFee = $amount * $gatewayPercentage / 100;
+            $total = $amount + $gatewayFee;
+
+            if (!$this->configureKashierGatewayFromDatabase()) {
+                return $this->kashierGatewayUnavailableResponse();
+            }
+
+            $usePaymentSessions = $this->usesKashierPaymentSessions();
+            $sourceMethods = $usePaymentSessions
+                ? (string) config('nafezly-payments.KASHIER_ALLOWED_METHODS')
+                : 'card,bank_installments,wallet,fawry';
+
+            $this->logKashierPaymentCreation('before_pay', $request, $user, $amount, $gatewayPercentage, $gatewayFee, $total, $sourceMethods);
+
+            if ($usePaymentSessions) {
+                $response = $this->createKashierPaymentSession($user, $total, 'Book payment: ' . $book->title);
+            } else {
+                $payment = new KashierPayment();
+                $response = $payment
+                    ->setAmount(round($total, 2))
+                    ->setSource($sourceMethods)
+                    ->pay();
+            }
+
+            $this->logKashierPaymentCreation('after_pay', $request, $user, $amount, $gatewayPercentage, $gatewayFee, $total, $sourceMethods, $response);
+
+            $invoice = $this->createBookInvoiceWithPayment($user, $book, $total, $response['payment_id'] ?? null);
+            $this->logKashierInvoiceCreated($invoice, $response, $sourceMethods);
+
+            return $usePaymentSessions
+                ? $this->kashierSessionView($response)
+                : view('themes/default/back.users.payment.pay', ['link' => $response['html']]);
+        } catch (\Exception $e) {
+            logger()->error('Book Payment Error: ' . $e->getMessage(), [
+                'book_id' => $request->input('book_id'),
+                'user_id' => $user?->id,
+                'track' => $track,
+            ]);
+
+            $message = 'Book payment could not be started. Please try again or contact support.';
+
+            if (app()->environment('local')) {
+                $message .= ' Reason: ' . $e->getMessage();
+            }
+
+            return redirect()->back()->with('error', $message);
         }
     }
 
@@ -529,6 +613,24 @@ class PaymentController extends Controller
         return $invoice;
     }
 
+    private function createBookInvoiceWithPayment($user, Book $book, $amount, $paymentId)
+    {
+        $invoice = Invoice::create([
+            'user_id' => $user->id,
+            'category' => 'book',
+            'type' => 'single',
+            'type_value' => $book->id,
+            'course_id' => $book->course_id,
+            'amount' => $amount,
+            'status' => 'pending',
+            'pid' => $paymentId,
+        ]);
+
+        $this->rememberPendingKashierInvoice($invoice);
+
+        return $invoice;
+    }
+
     /**
      * إنشاء الفاتورة (للدفع المباشر بدون بوابة)
      */
@@ -701,12 +803,16 @@ class PaymentController extends Controller
     public function paymentSuccess(Request $request)
     {
         $invoiceId = $request->get('invoice_id');
-        $invoice = Invoice::with(['student', 'lecture', 'course'])
+        $invoice = Invoice::with(['student', 'lecture', 'course', 'book'])
                          ->where('user_id', auth()->id())
                          ->findOrFail($invoiceId);
 
         if ($invoice->status !== 'paid') {
             return $this->redirectToPaymentFailed($invoice, $request);
+        }
+
+        if ($invoice->category === 'book') {
+            return $this->redirectToPaymentSuccess($invoice, $request);
         }
 
         return view('themes/default/back.users.payment.success', compact('invoice'));
@@ -723,7 +829,7 @@ class PaymentController extends Controller
         $invoice = null;
 
         if ($invoiceId !== null && ctype_digit($invoiceId) && (int) $invoiceId > 0) {
-            $invoice = Invoice::with(['student', 'lecture', 'course'])
+            $invoice = Invoice::with(['student', 'lecture', 'course', 'book'])
                 ->where('user_id', auth()->id())
                 ->find($invoiceId);
         }
@@ -736,7 +842,7 @@ class PaymentController extends Controller
         }
 
         if ($invoice === null && $invoiceId === null && $paymentReference === null) {
-            $recentPaidInvoices = Invoice::with(['student', 'lecture', 'course'])
+            $recentPaidInvoices = Invoice::with(['student', 'lecture', 'course', 'book'])
                 ->where('user_id', auth()->id())
                 ->where('status', 'paid')
                 ->where(function ($query) {
@@ -773,7 +879,7 @@ class PaymentController extends Controller
             return null;
         }
 
-        return Invoice::with(['student', 'lecture', 'course'])
+        return Invoice::with(['student', 'lecture', 'course', 'book'])
             ->where('user_id', auth()->id())
             ->where('pid', $reference)
             ->first();
@@ -796,7 +902,7 @@ class PaymentController extends Controller
             return null;
         }
 
-        return Invoice::with(['student', 'lecture', 'course'])
+        return Invoice::with(['student', 'lecture', 'course', 'book'])
             ->where('user_id', auth()->id())
             ->where('pid', $invoicePid)
             ->where('created_at', '>=', now()->subMinutes(self::PENDING_KASHIER_INVOICE_MAX_AGE_MINUTES))
@@ -845,6 +951,17 @@ class PaymentController extends Controller
     private function redirectToPaymentSuccess(Invoice $invoice, ?Request $request = null, array $response = [])
     {
         $target = route('dashboard.users.payment-success', ['invoice_id' => $invoice->id]);
+
+        if ($invoice->category === 'book') {
+            $bookAccess = $this->grantBookAccessForPaidInvoice($invoice);
+
+            if (! $bookAccess?->book) {
+                return $this->redirectToPaymentFailed($invoice, $request ?? request(), $response)
+                    ->with('error', 'Book payment was paid, but access could not be assigned. Please contact support.');
+            }
+
+            $target = route('books.reader.read', ['book' => $bookAccess->book->slug]);
+        }
 
         $this->clearPendingKashierInvoice($invoice, $request);
 
@@ -911,6 +1028,7 @@ class PaymentController extends Controller
             'invoice_id' => $invoice?->id,
             'invoice_pid' => $invoice?->pid,
             'invoice_status' => $invoice?->status,
+            'invoice_category' => $invoice?->category,
         ];
     }
 
@@ -973,6 +1091,7 @@ class PaymentController extends Controller
             'gateway_fee' => $gatewayFee,
             'final_total_sent_to_kashier' => round($total, 2),
             'payment_type' => $request->input('payment_type'),
+            'book_id' => $request->input('book_id'),
             'lecture_id' => $request->input('lecture_id'),
             'test_id' => $request->input('test_id'),
             'course_id' => $request->input('course_id'),
@@ -993,6 +1112,10 @@ class PaymentController extends Controller
 
     private function getPaymentFlowTypeForLog(Request $request): string
     {
+        if ($request->has('book_id')) {
+            return 'book';
+        }
+
         if ($request->has('live_id')) {
             return 'live';
         }
@@ -1006,6 +1129,109 @@ class PaymentController extends Controller
         }
 
         return 'unknown';
+    }
+
+    private function hasActiveBookAccess($user, Book $book): bool
+    {
+        return UserBook::query()
+            ->where('user_id', $user->id)
+            ->where('book_id', $book->id)
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('starts_at')
+                    ->orWhere('starts_at', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                    ->orWhere('expires_at', '>=', now());
+            })
+            ->exists();
+    }
+
+    private function bookBelongsToStudentCourse(Book $book, $user, ?string $track): bool
+    {
+        if (! $book->course_id || ! $user?->level_id) {
+            return false;
+        }
+
+        return Course::query()
+            ->where('id', $book->course_id)
+            ->where('level_id', $user->level_id)
+            ->when($track, function ($query) use ($track) {
+                $query->where('track_slug', $track);
+            })
+            ->exists();
+    }
+
+    private function grantBookAccessForPaidInvoice(Invoice $invoice): ?UserBook
+    {
+        if ($invoice->status !== 'paid' || $invoice->category !== 'book' || $invoice->type !== 'single') {
+            return null;
+        }
+
+        $user = auth()->user();
+        $book = Book::with('course')->find($invoice->type_value);
+
+        if (! $user || ! $book || (int) $invoice->user_id !== (int) $user->id) {
+            return null;
+        }
+
+        if ((int) $invoice->course_id !== (int) $book->course_id || ! $this->bookBelongsToStudentCourse($book, $user, null)) {
+            logger()->warning('Paid book invoice failed access validation', [
+                'invoice_id' => $invoice->id,
+                'invoice_user_id' => $invoice->user_id,
+                'book_id' => $book->id,
+                'invoice_course_id' => $invoice->course_id,
+                'book_course_id' => $book->course_id,
+                'user_level_id' => $user->level_id,
+            ]);
+
+            return null;
+        }
+
+        $source = 'kashier_book:' . $invoice->id;
+        $existingAccess = UserBook::query()
+            ->where('user_id', $user->id)
+            ->where('book_id', $book->id)
+            ->first();
+
+        if ($existingAccess && $this->isActiveBookAccess($existingAccess)) {
+            return $existingAccess->load('book');
+        }
+
+        if ($existingAccess && $existingAccess->source === $source) {
+            return null;
+        }
+
+        return $this->grantBookAccess($user, $book, $source);
+    }
+
+    private function grantBookAccess($user, Book $book, string $source): UserBook
+    {
+        $startsAt = now();
+        $expiresAt = $book->access_duration_days
+            ? now()->addDays((int) $book->access_duration_days)
+            : null;
+
+        return UserBook::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'book_id' => $book->id,
+            ],
+            [
+                'source' => $source,
+                'starts_at' => $startsAt,
+                'expires_at' => $expiresAt,
+                'is_active' => true,
+            ]
+        )->load('book');
+    }
+
+    private function isActiveBookAccess(UserBook $userBook): bool
+    {
+        return $userBook->is_active
+            && ($userBook->starts_at === null || $userBook->starts_at->lte(now()))
+            && ($userBook->expires_at === null || $userBook->expires_at->gte(now()));
     }
 
     private function usesKashierPaymentSessions(): bool

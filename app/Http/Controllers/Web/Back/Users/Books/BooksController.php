@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Back\Users\Books;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Web\Back\Users\Payment\PaymentController;
 use App\Models\Book;
 use App\Models\Course;
 use App\Models\UserBook;
@@ -96,29 +97,35 @@ class BooksController extends Controller
             abort(404);
         }
 
-        $startsAt = now();
-        $expiresAt = null;
-
-        if (! empty($book->access_duration_days)) {
-            $expiresAt = now()->addDays((int) $book->access_duration_days);
+        if ($this->hasActiveBookAccess($user, $book)) {
+            return redirect()
+                ->route('books.reader.read', ['book' => $book->slug])
+                ->with('info', 'Book access is already available.');
         }
 
-        UserBook::updateOrCreate(
-            [
-                'user_id' => $user->id,
-                'book_id' => $book->id,
-            ],
-            [
-                'source' => 'manual_purchase_test',
-                'starts_at' => $startsAt,
-                'expires_at' => $expiresAt,
-                'is_active' => true,
-            ]
-        );
+        $request->merge([
+            'book_id' => $book->id,
+            'track' => $track,
+        ]);
 
-        return redirect()
-            ->route('books.reader.read', ['book' => $book->slug])
-            ->with('success', 'Book purchased successfully.');
+        return app(PaymentController::class)->processPayment($request);
+    }
+
+    private function hasActiveBookAccess($user, Book $book): bool
+    {
+        return UserBook::query()
+            ->where('user_id', $user->id)
+            ->where('book_id', $book->id)
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->whereNull('starts_at')
+                    ->orWhere('starts_at', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                    ->orWhere('expires_at', '>=', now());
+            })
+            ->exists();
     }
 
     private function bookBelongsToStudentCourse(Book $book, $user, ?string $track): bool

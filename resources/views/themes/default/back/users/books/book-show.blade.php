@@ -290,18 +290,16 @@
                                     Locked - Purchase required
                                 </div>
 
-                                <form action="{{ route('dashboard.users.books-purchase', ['book' => $book->slug, 'track' => $track]) }}" method="POST">
+                                <form action="{{ route('dashboard.users.process-payment') }}" method="POST">
                                     @csrf
+                                    <input type="hidden" name="book_id" value="{{ $book->id }}">
+                                    <input type="hidden" name="track" value="{{ $track }}">
 
                                     <button type="submit" class="btn btn-primary book-action-btn" onclick="return confirm('Confirm book purchase?')">
                                         <i class="fas fa-shopping-cart"></i>
                                         {{ $isFree ? 'Get Free Book' : 'Purchase Book' }}
                                     </button>
                                 </form>
-
-                                <div class="text-muted mt-3" style="font-size: 12px;">
-                                    Temporary internal purchase button. Payment gateway will be connected later.
-                                </div>
                             @endif
 
                             <a href="{{ route('dashboard.users.books', ['track' => $track]) }}" class="btn btn-light w-100 mt-2">

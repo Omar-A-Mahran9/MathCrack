@@ -22,7 +22,7 @@ class InvoicesController extends Controller
         }
 
         if ($request->ajax()) {
-            $invoices = Invoice::with(['student', 'course', 'lecture', 'test']);
+            $invoices = Invoice::with(['student', 'course', 'lecture', 'test', 'book']);
 
             // تطبيق الفلاتر
             if ($request->filled('student_id')) {
@@ -75,7 +75,12 @@ class InvoicesController extends Controller
                     return $row->course ? $row->course->name : '-';
                 })
                 ->addColumn('category_badge', function($row) {
-                    $badgeClass = $row->category === 'quiz' ? 'bg-warning' : 'bg-info';
+                    $badgeClass = match($row->category) {
+                        'quiz' => 'bg-warning',
+                        'live' => 'bg-danger',
+                        'book' => 'bg-primary',
+                        default => 'bg-info',
+                    };
                     return '<span class="badge ' . $badgeClass . '">' . ucfirst($row->category) . '</span>';
                 })
                 ->addColumn('type_badge', function($row) {
@@ -106,6 +111,8 @@ class InvoicesController extends Controller
                         return $row->lecture->name;
                     } elseif ($row->type === 'single' && $row->category === 'quiz' && $row->test) {
                         return $row->test->name;
+                    } elseif ($row->type === 'single' && $row->category === 'book' && $row->book) {
+                        return $row->book->title;
                     } elseif ($row->type === 'month') {
                         $courseName = $row->course ? $row->course->name : 'عام';
                         return 'اشتراك شهري لكورس ' . $courseName . ' - ' . date('F Y', strtotime($row->type_value . '-01'));
@@ -353,7 +360,7 @@ class InvoicesController extends Controller
         $encryptedId = $request->id;
         $id = decrypt($encryptedId);
 
-        $invoice = Invoice::with(['student', 'course', 'lecture', 'test'])->find($id);
+        $invoice = Invoice::with(['student', 'course', 'lecture', 'test', 'book'])->find($id);
 
         if (!$invoice) {
             return redirect()->back()->with('error', 'Invoice not found.');

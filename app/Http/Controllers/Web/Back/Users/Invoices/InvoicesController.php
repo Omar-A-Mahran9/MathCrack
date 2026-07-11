@@ -10,7 +10,7 @@ class InvoicesController extends Controller
 {
     public function index(Request $request)
     {
-        $invoices = Invoice::with(['student', 'course', 'lecture', 'lectureAssignment'])
+        $invoices = Invoice::with(['student', 'course', 'lecture', 'lectureAssignment', 'book'])
             ->where('user_id', Auth::user()->id)
             ->where('status', 'paid')
             ->orderBy('created_at', 'desc')

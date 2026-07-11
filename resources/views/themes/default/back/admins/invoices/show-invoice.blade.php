@@ -169,6 +169,30 @@
                                     </table>
                                 </div>
                             </div>
+                        @elseif($invoice->type === 'single' && $invoice->category === 'book' && $invoice->book)
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Book Information</h6>
+                                    <table class="table table-borderless">
+                                        <tr>
+                                            <td class="fw-bold">Book Title:</td>
+                                            <td>{{ $invoice->book->title }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">@lang('l.Course'):</td>
+                                            <td>{{ $invoice->book->course->name ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">@lang('l.Price'):</td>
+                                            <td>{{ $invoice->book->price ?? 0 }} @lang('l.currency')</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">Access:</td>
+                                            <td>{{ $invoice->book->access_duration_text }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
                         @elseif($invoice->type === 'month')
                             <div class="card">
                                 <div class="card-body">

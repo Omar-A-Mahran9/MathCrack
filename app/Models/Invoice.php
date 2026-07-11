@@ -52,6 +52,11 @@ class Invoice extends Model
         return $this->belongsTo(Live::class, 'type_value');
     }
 
+    public function book()
+    {
+        return $this->belongsTo(Book::class, 'type_value');
+    }
+
     public function getTypeValueDisplayAttribute()
     {
         $courseName = $this->course ? ' (' . $this->course->name . ')' : '';
@@ -68,6 +73,8 @@ class Invoice extends Model
             return $this->lectureAssignment->title . $courseName;
         } elseif ($this->type === 'single' && $this->category === 'live' && $this->live) {
             return $this->live->name . $courseName;
+        } elseif ($this->type === 'single' && $this->category === 'book' && $this->book) {
+            return $this->book->title . $courseName;
         }
         return $this->type_value . $courseName;
     }
@@ -88,6 +95,7 @@ class Invoice extends Model
         $badgeClass = match($this->category) {
             'quiz' => 'bg-warning',
             'live' => 'bg-danger',
+            'book' => 'bg-primary',
             'lecture' => 'bg-info',
             default => 'bg-light'
         };
