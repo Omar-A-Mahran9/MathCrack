@@ -291,9 +291,11 @@ class BooksController extends Controller
             ]);
 
             if ($exitCode !== 0) {
+                $output = trim(Artisan::output());
+
                 return redirect()
                     ->back()
-                    ->withErrors(['convert' => 'PDF conversion failed. Check the book status or Laravel logs.']);
+                    ->withErrors(['convert' => $output !== '' ? $output : 'PDF conversion failed. Check the book status or Laravel logs.']);
             }
 
             return redirect()
