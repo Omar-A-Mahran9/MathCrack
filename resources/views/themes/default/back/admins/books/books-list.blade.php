@@ -87,16 +87,8 @@
                                     <label class="form-label">Course</label>
                                     <select name="course_id" class="form-control" required>
                                         <option value="">Select Course</option>
-                                        @foreach($courses as $course)
-                                            <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>
-                                                {{ $course->name }}
-                                                @if($course->track_slug)
-                                                    | {{ $course->track_slug }}
-                                                @endif
-                                                @if($course->level)
-                                                    | {{ $course->level->name }}
-                                                @endif
-                                            </option>
+                                        {{ $course->name }}
+                                        </option>
                                         @endforeach
                                     </select>
                                     <div class="form-hint">

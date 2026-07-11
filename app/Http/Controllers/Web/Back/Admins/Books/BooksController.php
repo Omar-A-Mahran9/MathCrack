@@ -43,23 +43,9 @@ class BooksController extends Controller
 
             return DataTables::of($books)
                 ->addIndexColumn()
-                ->addColumn('course', function ($row) {
-                    if (! $row->course) {
-                        return '-';
-                    }
-
-                    $parts = [$row->course->name];
-
-                    if (! empty($row->course->track_slug)) {
-                        $parts[] = $row->course->track_slug;
-                    }
-
-                    if ($row->course->level) {
-                        $parts[] = $row->course->level->name;
-                    }
-
-                    return implode(' | ', array_filter($parts));
-                })
+              ->addColumn('course', function ($row) {
+    return $row->course ? $row->course->name : '-';
+})
                 ->editColumn('price', function ($row) {
                     return number_format((float) $row->price, 2);
                 })
